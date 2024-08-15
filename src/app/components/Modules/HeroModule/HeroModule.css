@@ -1,0 +1,6 @@
+.backgroundImage {
+    background-image: url('../../../../../public/images/buffaloDInner1_edited.jpg');
+    background-size: cover;
+    background-position: bottom;
+    background-repeat: no-repeat
+}

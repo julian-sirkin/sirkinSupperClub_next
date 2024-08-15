@@ -1,4 +1,4 @@
-import { HeroModule } from "./components/HeroModule/HeroModule";
+import { HeroModule } from "./components/Modules/HeroModule/HeroModule";
 import { MainLayout } from "./components/mainLayout/MainLayout";
 
 export default function Home() {
