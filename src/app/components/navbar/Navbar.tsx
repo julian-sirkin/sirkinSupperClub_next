@@ -13,14 +13,14 @@ export const Navbar = () => {
   };
 
   return (
-    <header className="bg-black h-18 py-6">
-      <nav className="flex justify-between items-cetner px-8">
+    <header className="bg-black h-18 py-6 md:py-0">
+      <nav className="flex justify-between items-center px-8">
         <div className="text-gold">
           <Image
-            src="/public/logo/main_logo.png"
+            src="/logo/main_logo.png"
             alt="Sirkin Supper Club Logo"
-            width="16"
-            height="16"
+            width={96}
+            height={96}
           />
         </div>
         <div

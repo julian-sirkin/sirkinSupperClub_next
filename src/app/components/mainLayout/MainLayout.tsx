@@ -10,7 +10,7 @@ export const MainLayout = ({ children }: MainLayoutProps) => {
   return (
     <div className="h-dvh">
       <Navbar />
-        <div>{children}</div>
+      <div>{children}</div>
       <Footer />
     </div>
   );
