@@ -24,6 +24,9 @@ export const contentfulService = () => {
             return await parsePhotoGallery(decodedResponse.data)
             // return photoGalleryParser(response)
         }
+        else {
+            return []
+        }
     }
 
     return {getPhotoGallery}
