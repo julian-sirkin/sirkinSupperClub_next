@@ -1,28 +1,26 @@
 import { contentfulService } from "@/app/contentful/contentfulService";
-import Image from "next/image";
+import { PictureCard } from "../../PictureCard/PictureCard";
 
 const PhotosModule = async () => {
   const { getPhotoGallery } = contentfulService();
   const pictureGallery = await getPhotoGallery();
 
-  console.log(pictureGallery[0].url, "pictureGallery");
+  console.log(pictureGallery.length);
   return (
-    <div className="h-96 bg-black text-white">
-      <h3>Photo Section</h3>
-      {pictureGallery
-        ? pictureGallery.map((picture) => (
-            <div key={picture.title}>
-              <h1>{picture.title}</h1>
-              {/* <img src={picture.url} alt={picture.title} /> */}
-              <Image
-                src={picture.url}
-                alt={picture.title}
-                height={250}
-                width={250}
+    <div className="h-auto px-8 bg-black text-white" id="photos">
+      <h3 className="text-center text-4xl py-8">Photos</h3>
+      <div className="flex flex-wrap justify-center md:justify-between max-w-5xl mx-auto">
+        {pictureGallery
+          ? pictureGallery.map(({ title, description, url }) => (
+              <PictureCard
+                key={title}
+                title={title}
+                description={description}
+                url={url}
               />
-            </div>
-          ))
-        : null}
+            ))
+          : null}
+      </div>
     </div>
   );
 };
