@@ -22,7 +22,6 @@ export const contentfulService = () => {
           const response = await fetch(contentfulEndpoint, fetchOptions)
             const decodedResponse: {data: PhotoGalleryResponse} = await response.json()
             return await parsePhotoGallery(decodedResponse.data)
-            // return photoGalleryParser(response)
         }
         else {
             return []

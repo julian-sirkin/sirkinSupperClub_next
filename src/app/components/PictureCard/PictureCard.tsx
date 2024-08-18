@@ -16,7 +16,7 @@ export const PictureCard = ({ title, description, url }: PictureItem) => {
       {shouldShowDescription ? (
         <div>
           <div className="flex justify-center border-4 border-black">
-            <p className="pictureSizing text-center text-lg pt-10">
+            <p className="pictureSizing text-center text-md pt-10">
               {description}
             </p>
           </div>

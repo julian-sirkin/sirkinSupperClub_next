@@ -7,7 +7,7 @@ const PhotosModule = async () => {
 
   console.log(pictureGallery.length);
   return (
-    <div className="h-auto px-8 bg-black text-white" id="photos">
+    <div className="h-auto px-8 bg-black text-white font-bold" id="photos">
       <h3 className="text-center text-4xl py-8">Photos</h3>
       <div className="flex flex-wrap justify-center md:justify-between max-w-5xl mx-auto">
         {pictureGallery
