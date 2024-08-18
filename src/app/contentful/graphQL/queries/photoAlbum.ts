@@ -5,7 +5,7 @@ photoGallery2(id:"7wZtQjHNkqA6BI4jg0FVZa"){
       items{
         title
 	description
-        url(transform: {height: 250 width: 250})
+        url(transform: {height: 350 width: 350})
       }
     }
   }

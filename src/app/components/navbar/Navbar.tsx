@@ -30,44 +30,44 @@ export const Navbar = () => {
         >
           <ul className="flex md:flex-row flex-col md:items-centered md:gap-[4vw] gap-6 px-4">
             <li>
-              <a
+              <Link
                 className="text-gold px-4 py-2 font-bold hover:text-white hover:bg-gold"
-                href="#"
+                href="/#home"
               >
                 Home
-              </a>
+              </Link>
             </li>
             <li>
-              <a
+              <Link
                 className="text-gold px-4 py-2 font-bold hover:text-white hover:bg-gold"
-                href="#"
+                href="/events"
               >
                 Events
-              </a>
+              </Link>
             </li>
             <li>
-              <a
+              <Link
                 className="text-gold px-4 py-2 font-bold hover:text-white hover:bg-gold"
-                href="#"
+                href="/#about"
               >
                 About
-              </a>
+              </Link>
             </li>
             <li>
-              <a
+              <Link
                 className="text-gold px-4 py-2 font-bold hover:text-white hover:bg-gold"
-                href="#"
+                href="/#photos"
               >
-                Pictures
-              </a>
+                Photos
+              </Link>
             </li>
             <li>
-              <a
+              <Link
                 className="text-gold px-4 py-2 font-bold hover:text-white hover:bg-gold"
-                href="#"
+                href="/#contact"
               >
                 Contact
-              </a>
+              </Link>
             </li>
           </ul>
         </div>

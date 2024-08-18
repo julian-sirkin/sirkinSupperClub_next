@@ -20,6 +20,13 @@ const PhotosModule = dynamic(
     ssr: false,
   }
 );
+const ContactModule = dynamic(
+  () => import("./components/Modules/ContactModule/ContactModule"),
+  {
+    loading: () => <SuspenseFallback />,
+  }
+);
+
 export default function Home() {
   return (
     <main className="">
@@ -28,6 +35,7 @@ export default function Home() {
         <EventsModule />
         <AboutModule />
         <PhotosModule />
+        <ContactModule />
       </MainLayout>
     </main>
   );
