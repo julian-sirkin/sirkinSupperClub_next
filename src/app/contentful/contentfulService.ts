@@ -1,5 +1,7 @@
 import { PhotoGalleryResponse } from "./contentfulServices.types"
+import { eventsQuery } from "./graphQL/queries/events"
 import { photoAlbumQuery } from "./graphQL/queries/photoAlbum"
+import { parseEvents } from "./parsers/parseEvents"
 import { parsePhotoGallery } from "./parsers/parsePhotoGallery"
 
 export const contentfulService = () => {
@@ -28,5 +30,28 @@ export const contentfulService = () => {
         }
     }
 
-    return {getPhotoGallery}
+    const getEvents = async () => {
+        const requestBody = JSON.stringify({query: eventsQuery})
+
+        if (contentfulEndpoint) {
+            const fetchOptions = {
+                method: "POST",
+                headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${process.env.CONTENTFUL_DELIVERY_TOKEN}`
+                },
+                body: requestBody
+            }
+
+            
+          const response = await fetch(contentfulEndpoint, fetchOptions)
+            const decodedResponse: {data: any} = await response.json()
+            
+            return await parseEvents(decodedResponse.data.eventTypeCollection)        }
+        else {
+            return []
+        }
+    }
+
+    return {getPhotoGallery, getEvents}
 }

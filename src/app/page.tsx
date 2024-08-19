@@ -1,30 +1,18 @@
-import { Suspense } from "react";
-// import { AboutModule } from "./components/Modules/AboutModule/AboutModule";
 import { EventsModule } from "./components/Modules/EventsModule/EventsModule";
 import { HeroModule } from "./components/Modules/HeroModule/HeroModule";
-// import { PhotosModule } from "./components/Modules/PhotosModule/PhotosModule";
+import dynamic from "next/dynamic";
 import { MainLayout } from "./components/mainLayout/MainLayout";
 import { SuspenseFallback } from "./components/SuspenseFallback/SuspenseFallback";
-import dynamic from "next/dynamic";
+import { Suspense } from "react";
 
 const AboutModule = dynamic(
-  () => import("./components/Modules/AboutModule/AboutModule"),
-  {
-    loading: () => <SuspenseFallback />,
-  }
+  () => import("./components/Modules/AboutModule/AboutModule")
 );
 const PhotosModule = dynamic(
-  () => import("./components/Modules/PhotosModule/PhotosModule"),
-  {
-    loading: () => <SuspenseFallback />,
-    ssr: false,
-  }
+  () => import("./components/Modules/PhotosModule/PhotosModule")
 );
 const ContactModule = dynamic(
-  () => import("./components/Modules/ContactModule/ContactModule"),
-  {
-    loading: () => <SuspenseFallback />,
-  }
+  () => import("./components/Modules/ContactModule/ContactModule")
 );
 
 export default function Home() {
@@ -33,9 +21,11 @@ export default function Home() {
       <MainLayout>
         <HeroModule />
         <EventsModule />
-        <AboutModule />
-        <PhotosModule />
-        <ContactModule />
+        <Suspense fallback={<SuspenseFallback />}>
+          <AboutModule />
+          <PhotosModule />
+          <ContactModule />
+        </Suspense>
       </MainLayout>
     </main>
   );
