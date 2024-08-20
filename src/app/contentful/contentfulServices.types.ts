@@ -7,7 +7,7 @@ export type PictureItem = {
     url: string;
 }
 
-export type Parsedticket = {
+export type ParsedTicket = {
     time: Date
     ticketsAvailble: string
     title: string 
@@ -30,14 +30,14 @@ export type PhotoGalleryResponse = {
     };
 };
 
-export type ParsedEvents = {
+export type ParsedEvent = {
     title: string
     date: Date
     price: number
     menu: EntryFieldTypes.RichText
     shortDescription: string
     longDescription: EntryFieldTypes.RichText
-    tickets: Parsedticket[]
+    tickets: ParsedTicket[]
 }
 
 export type ContentfulEventResponse= {
