@@ -2,6 +2,7 @@ import { EventModule } from "@/app/components/EventModule/EventModule";
 import { MainLayout } from "@/app/components/mainLayout/MainLayout";
 import { contentfulService } from "@/app/contentful/contentfulService";
 import { headers } from "next/headers";
+import { eventPageLinks } from "./EventPage.constants";
 
 export default async function EventPage() {
   // Get Events
@@ -21,7 +22,7 @@ export default async function EventPage() {
   )[0];
 
   return (
-    <MainLayout>
+    <MainLayout navLinks={eventPageLinks}>
       {eventOnPage ? (
         <EventModule event={eventOnPage} />
       ) : (

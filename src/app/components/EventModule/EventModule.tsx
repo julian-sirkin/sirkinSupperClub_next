@@ -1,7 +1,8 @@
 import { ParsedEvent } from "@/app/contentful/contentfulServices.types";
 import { Ticket } from "../Ticket/Ticket";
 
-export const EventModule = (event: ParsedEvent) => {
+export const EventModule = ({ event }: { event: ParsedEvent }) => {
+  console.log(event.tickets, "tickets ====>>>");
   return (
     <div className="h-auto bg-black">
       <h1 className="text-3xl font-bold text-gold">{event.title}</h1>
