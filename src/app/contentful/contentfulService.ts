@@ -1,4 +1,4 @@
-import { PhotoGalleryResponse } from "./contentfulServices.types"
+import { ParsedEvent, PhotoGalleryResponse } from "./contentfulServices.types"
 import { eventsQuery } from "./graphQL/queries/events"
 import { photoAlbumQuery } from "./graphQL/queries/photoAlbum"
 import { parseEvents } from "./parsers/parseEvents"
@@ -30,7 +30,7 @@ export const contentfulService = () => {
         }
     }
 
-    const getEvents = async () => {
+    const getEvents = async (): Promise<ParsedEvent[]> => {
         const requestBody = JSON.stringify({query: eventsQuery})
 
         if (contentfulEndpoint) {
