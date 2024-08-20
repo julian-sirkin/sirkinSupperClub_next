@@ -4,8 +4,9 @@ import Link from "next/link";
 import React, { useState } from "react";
 import { CiMenuBurger } from "react-icons/ci";
 import { IoClose } from "react-icons/io5";
+import { navLinkTypes } from "../componentsTypes";
 
-export const Navbar = () => {
+export const Navbar = ({ linkData }: { linkData: navLinkTypes[] }) => {
   const [shouldDisplayMenu, setShouldDisplayMenu] = useState<boolean>(false);
 
   const handleToggleMenu = (e: React.MouseEvent) => {
@@ -29,46 +30,16 @@ export const Navbar = () => {
           } w-full flex items-center`}
         >
           <ul className="flex md:flex-row flex-col md:items-centered md:gap-[4vw] gap-6 px-4">
-            <li>
-              <Link
-                className="text-gold px-4 py-2 font-bold hover:text-white hover:bg-gold"
-                href="/#home"
-              >
-                Home
-              </Link>
-            </li>
-            <li>
-              <Link
-                className="text-gold px-4 py-2 font-bold hover:text-white hover:bg-gold"
-                href="/events"
-              >
-                Events
-              </Link>
-            </li>
-            <li>
-              <Link
-                className="text-gold px-4 py-2 font-bold hover:text-white hover:bg-gold"
-                href="/#about"
-              >
-                About
-              </Link>
-            </li>
-            <li>
-              <Link
-                className="text-gold px-4 py-2 font-bold hover:text-white hover:bg-gold"
-                href="/#photos"
-              >
-                Photos
-              </Link>
-            </li>
-            <li>
-              <Link
-                className="text-gold px-4 py-2 font-bold hover:text-white hover:bg-gold"
-                href="/#contact"
-              >
-                Contact
-              </Link>
-            </li>
+            {linkData.map((linkData) => (
+              <li>
+                <Link
+                  className="text-gold px-4 py-2 font-bold hover:text-white hover:bg-gold"
+                  href={linkData.href}
+                >
+                  {linkData.displayName}
+                </Link>
+              </li>
+            ))}
           </ul>
         </div>
         <div className="text-gold absolute top-6 right-4">
