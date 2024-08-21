@@ -2,7 +2,13 @@
 import { ParsedTicket } from "@/app/contentful/contentfulServices.types";
 import { ChangeEvent, useState } from "react";
 
-export const Ticket = ({ ticket }: { ticket: ParsedTicket }) => {
+export const Ticket = ({
+  ticket,
+  price,
+}: {
+  ticket: ParsedTicket;
+  price: number;
+}) => {
   const [numberOfTicketsSelected, setNumberOfTicketsSelected] = useState(0);
   const ticketsArray = new Array(ticket.ticketsAvailable + 1)
     .fill(1)
@@ -13,8 +19,12 @@ export const Ticket = ({ ticket }: { ticket: ParsedTicket }) => {
   };
 
   return (
-    <form>
-      <h3 className="text-gold">{ticket.title}</h3>
+    <form className="border-2 md:border-4 border-white p-2 md:p-4 bg-black opacity-95">
+      <h4 className="text-gold text-xl font-bold md:text-2xl">
+        {ticket.title}
+      </h4>
+      <h5 className="text-white">Dining Time: </h5>
+      <h5 className="text-white">Price: ${price}.00</h5>
       <select
         onChange={handleTicketChange}
         className="bg-gold font-bold font-xl w-12 h-8"

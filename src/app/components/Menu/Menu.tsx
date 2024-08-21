@@ -6,7 +6,7 @@ export const Menu = ({ menu, price }: { menu: Document; price: number }) => {
   return (
     <section
       id="menu"
-      className="text-gold h-auto w-auto md:w-3/4 mx-auto my-16 px-2 md:px-6 py-6  md:border-8 border-4 border-gold opacity-95"
+      className="text-gold h-auto w-auto md:w-3/4 mx-auto my-16 px-2 md:px-6 py-6  md:border-8 border-4 border-white opacity-95"
     >
       <h2 className="text-2xl text-gold text-center mb-4">Menu</h2>
       {documentToReactComponents(menu, MENU_RICH_TEXT_OPTIONS)}
