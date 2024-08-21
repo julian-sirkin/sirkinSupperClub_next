@@ -6,9 +6,9 @@ export const Menu = ({ menu }: { menu: Document }) => {
   return (
     <section
       id="menu"
-      className="text-gold h-auto w-3/4 mx-auto my-8 bg-black opacity:5"
+      className="text-gold h-auto w-3/4 mx-auto my-16 p-4 border-4 border-gold opacity-95"
     >
-      <h2 className="text-4xl text-gold text-center">Menu</h2>
+      <h2 className="text-2xl text-gold text-center">Menu</h2>
       {documentToReactComponents(menu, MENU_RICH_TEXT_OPTIONS)}
     </section>
   );

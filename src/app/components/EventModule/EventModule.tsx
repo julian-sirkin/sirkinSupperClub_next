@@ -5,8 +5,10 @@ import { EventLongDescription } from "../EventLongDescription/EventLongDescripti
 
 export const EventModule = ({ event }: { event: ParsedEvent }) => {
   return (
-    <div className="h-auto bg-black">
-      <h1 className="text-3xl font-bold text-gold">{event.title}</h1>
+    <div className="h-auto px-4 py-16 bg-black">
+      <h1 className="text-3xl md:text-5xl text-center font-bold text-gold">
+        {event.title}
+      </h1>
       <p>When: </p>
       <section aria-label="Ticket Section">
         <Menu menu={event.menu} />
