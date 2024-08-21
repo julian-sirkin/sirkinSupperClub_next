@@ -11,7 +11,7 @@ export const EventLongDescription = ({
   return (
     <section
       id="description"
-      className="text-gold h-auto w-3/4 mx-auto bg:black"
+      className="text-gold h-auto w-auto md:w-11/12 mx-auto bg:black px-4"
     >
       {documentToReactComponents(description, EVENT_RICHTEXT_OPTIONS)}
     </section>
