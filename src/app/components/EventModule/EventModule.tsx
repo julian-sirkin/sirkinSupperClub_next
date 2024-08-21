@@ -10,9 +10,10 @@ export const EventModule = ({ event }: { event: ParsedEvent }) => {
         {event.title}
       </h1>
       <p>When: </p>
-      <section aria-label="Ticket Section">
-        <Menu menu={event.menu} />
-        <EventLongDescription description={event.longDescription} />
+
+      <Menu menu={event.menu} price={event.price} />
+      <EventLongDescription description={event.longDescription} />
+      <section id="tickets" aria-label="Ticket Section">
         {event.tickets.map((ticket) => (
           <Ticket key={ticket.title} ticket={ticket} />
         ))}
