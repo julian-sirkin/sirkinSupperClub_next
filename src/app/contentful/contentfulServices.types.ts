@@ -1,4 +1,4 @@
-import {EntryFieldTypes} from 'contentful'
+import type { Document } from "@contentful/rich-text-types";
 
 
 export type PictureItem = {
@@ -9,14 +9,14 @@ export type PictureItem = {
 
 export type ParsedTicket = {
     time: Date
-    ticketsAvailble: string
+    ticketsAvailable: number
     title: string 
 }
 
 export type UnparsedTickets = {
     items: {
         ticketTime: string
-        ticketsAvailble: string
+        ticketsAvailable: string
         title: string
     }[]
 }
@@ -34,9 +34,9 @@ export type ParsedEvent = {
     title: string
     date: Date
     price: number
-    menu: EntryFieldTypes.RichText
+    menu: Document
     shortDescription: string
-    longDescription: EntryFieldTypes.RichText
+    longDescription: Document
     tickets: ParsedTicket[]
 }
 
@@ -48,10 +48,10 @@ export type ContentfulEventResponse= {
     date: string     
     ticketsCollection: UnparsedTickets
     menu: {
-        json: EntryFieldTypes.RichText
+        json: Document
     }
     longDescription: {
-        json: EntryFieldTypes.RichText
+        json: Document
     }
     }[]
 }
