@@ -568,6 +568,13 @@
     "@vercel/stega" "^0.1.2"
     json-pointer "^0.6.2"
 
+"@contentful/rich-text-react-renderer@^15.22.9":
+  version "15.22.9"
+  resolved "https://registry.npmjs.org/@contentful/rich-text-react-renderer/-/rich-text-react-renderer-15.22.9.tgz"
+  integrity sha512-ubzuQKaIwB7AeUi1zHQ6EMvpLOMJ9p5LGxZznkcHG1Sn91LNZorQXfMt9K4tSoOR9Cn8KxN6ca8gMNNh5zGbig==
+  dependencies:
+    "@contentful/rich-text-types" "^16.8.3"
+
 "@contentful/rich-text-types@^16.0.2", "@contentful/rich-text-types@^16.8.3":
   version "16.8.3"
   resolved "https://registry.npmjs.org/@contentful/rich-text-types/-/rich-text-types-16.8.3.tgz"
@@ -5902,7 +5909,7 @@ queue-microtask@^1.2.2:
   resolved "https://registry.npmjs.org/queue-microtask/-/queue-microtask-1.2.3.tgz"
   integrity sha512-NuaNSa6flKT5JaSYQzJok04JzTL1CA6aGhv5rfLW3PgqA+M2ChpZQnAC8h8i4ZFkBS8X5RqkDBHA7r4hej3K9A==
 
-react-dom@^18, react-dom@^18.0.0, react-dom@^18.2.0:
+"react-dom@^16.8.6 || ^17.0.0 || ^18.0.0", react-dom@^18, react-dom@^18.0.0, react-dom@^18.2.0:
   version "18.3.1"
   resolved "https://registry.npmjs.org/react-dom/-/react-dom-18.3.1.tgz"
   integrity sha512-5m4nQKp+rZRb09LNH59GM4BxTh9251/ylbKIbpe7TpGxfJ+9kv6BLkLBXIjjspbgbnIBNqlI23tRnTWT0snUIw==
@@ -5930,7 +5937,7 @@ react-is@^18.0.0:
   resolved "https://registry.npmjs.org/react-is/-/react-is-18.3.1.tgz"
   integrity sha512-/LLMVyas0ljjAtoYiPqYiL8VWXzUUdThrmU5+n20DZv+a+ClRoevUzw5JxU+Ieh5/c87ytoTBV9G1FiKfNJdmg==
 
-react@*, react@^18, react@^18.0.0, react@^18.2.0, react@^18.3.1, "react@>= 16.8.0 || 17.x.x || ^18.0.0-0":
+react@*, "react@^16.8.6 || ^17.0.0 || ^18.0.0", react@^18, react@^18.0.0, react@^18.2.0, react@^18.3.1, "react@>= 16.8.0 || 17.x.x || ^18.0.0-0":
   version "18.3.1"
   resolved "https://registry.npmjs.org/react/-/react-18.3.1.tgz"
   integrity sha512-wS+hAgJShR0KhEvPJArfuPVN1+Hz1t0Y6n5jLrGQbkb4urgPE/0Rve+1kMB1v/oWgHgm4WIcV+i7F2pTVj+2iQ==
