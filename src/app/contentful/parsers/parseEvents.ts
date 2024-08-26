@@ -17,6 +17,7 @@ export const parseEvents = (eventData: ContentfulEventResponse): ParsedEvent[] =
 const parseTickets = (tickets: UnparsedTickets): ParsedTicket[]  => {
     return tickets.items.map((ticket) => ( {
         ...ticket,
-        time: new Date(ticket.ticketsAvailble),
+        ticketsAvailable: Number(ticket.ticketsAvailable),
+        time: new Date(ticket.ticketTime),
     }))
 }
