@@ -2,6 +2,7 @@
 import { ParsedTicket } from "@/app/contentful/contentfulServices.types";
 import { ChangeEvent, useState } from "react";
 import { TicketSelect } from "./TicketSelect";
+import { useCartStore } from "@/store/cartStore";
 
 export const Ticket = ({
   ticket,
@@ -10,6 +11,7 @@ export const Ticket = ({
   ticket: ParsedTicket;
   price: number;
 }) => {
+  const addToCart = useCartStore((state) => state.addToCart);
   const [numberOfTicketsSelected, setNumberOfTicketsSelected] = useState(0);
   const ticketsArray = new Array(ticket.ticketsAvailable + 1)
     .fill(1)
@@ -18,6 +20,7 @@ export const Ticket = ({
   const handleChangeQuantity = (numberOfTickets: number) => {
     console.log(numberOfTickets);
     console.log("numberOfTickets");
+    addToCart({ id: ticket.title, quantity: numberOfTickets, price });
   };
 
   return (
