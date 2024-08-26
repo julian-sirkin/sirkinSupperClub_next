@@ -1,6 +1,7 @@
 "use client";
 import { ParsedTicket } from "@/app/contentful/contentfulServices.types";
 import { ChangeEvent, useState } from "react";
+import { TicketSelect } from "./TicketSelect";
 
 export const Ticket = ({
   ticket,
@@ -14,30 +15,27 @@ export const Ticket = ({
     .fill(1)
     .map((__, index) => index);
 
-  const handleTicketChange = (e: ChangeEvent<HTMLSelectElement>) => {
-    setNumberOfTicketsSelected(Number(e.target.value));
+  const handleChangeQuantity = (numberOfTickets: string) => {
+    console.log(numberOfTickets);
+    console.log("numberOfTickets");
   };
 
   return (
     <form className="border-2 md:border-4 border-white p-2 md:p-4 bg-black opacity-95">
-      <h4 className="text-gold text-xl font-bold md:text-2xl">
+      <h4 className="text-gold text-xl font-bold md:text-2xl mb-4">
         {ticket.title}
       </h4>
-      <h5 className="text-white">Dining Time: </h5>
-      <h5 className="text-white">Price: ${price}.00</h5>
-      <select
-        onChange={handleTicketChange}
-        className="bg-gold font-bold font-xl w-12 h-8"
-        value={numberOfTicketsSelected}
-      >
-        {ticketsArray.map((ticketValue) => (
-          <option
-            key={ticketValue}
-            value={ticketValue}
-            className="bg-gold font-bold font-xl"
-          />
-        ))}
-      </select>
+      <div className="flex justify-between">
+        <section>
+          <h5 className="text-white">Dining Time: </h5>
+          <h5 className="text-white">Price: ${price}.00</h5>
+        </section>
+        <TicketSelect
+          availableTickets={ticketsArray}
+          handleChangeQuantity={handleChangeQuantity}
+          ticketTitle={ticket.title}
+        />
+      </div>
     </form>
   );
 };

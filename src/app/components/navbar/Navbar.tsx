@@ -31,7 +31,7 @@ export const Navbar = ({ linkData }: { linkData: navLinkTypes[] }) => {
         >
           <ul className="flex md:flex-row flex-col md:items-centered md:gap-[4vw] gap-6 px-4">
             {linkData.map((linkData) => (
-              <li>
+              <li key={linkData.displayName}>
                 <Link
                   className="text-gold px-4 py-2 font-bold hover:text-white hover:bg-gold"
                   href={linkData.href}
