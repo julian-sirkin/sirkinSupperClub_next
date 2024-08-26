@@ -15,13 +15,13 @@ export const Ticket = ({
     .fill(1)
     .map((__, index) => index);
 
-  const handleChangeQuantity = (numberOfTickets: string) => {
+  const handleChangeQuantity = (numberOfTickets: number) => {
     console.log(numberOfTickets);
     console.log("numberOfTickets");
   };
 
   return (
-    <form className="border-2 md:border-4 border-white p-2 md:p-4 bg-black opacity-95">
+    <form className="border-2 md:border-4 md:w-3/4 mx-auto border-white p-2 md:p-4 bg-black opacity-95">
       <h4 className="text-gold text-xl font-bold md:text-2xl mb-4">
         {ticket.title}
       </h4>
