@@ -24,16 +24,10 @@ export const TicketSelect = ({
     <Select
       onValueChange={(newQuantity) => handleChangeQuantity(Number(newQuantity))}
     >
-      <SelectTrigger
-        className="bg-gold w-[180px] h-12 font-bold text-lg text-white text-bold hover:bg-white hover:text-gold"
-        onChange={(e) => console.log(e)}
-      >
+      <SelectTrigger className="bg-gold w-[180px] h-12 font-bold text-lg text-white text-bold hover:bg-white hover:text-gold">
         <SelectValue placeholder="Select Quantity" />
       </SelectTrigger>
-      <SelectContent
-        className="bg-gold"
-        onChange={(e) => console.log(e, "in SelectContent")}
-      >
+      <SelectContent className="bg-gold">
         <SelectGroup className="text-lg">
           <SelectLabel>Number of Tickets</SelectLabel>
           {availableTickets.map((ticketQuantity) => (
