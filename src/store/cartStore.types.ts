@@ -4,10 +4,12 @@ export type CartTicketType = {
     price: number
 }
 
-export type CartState = {
-    cart: {
-        tickets: CartTicketType[]
-        totalPrice: number
-    }
+export type CartInStateType = {
+    tickets: CartTicketType[]
+    totalPrice: number
+}
+
+export type ZustandCartStateType = {
+    cart: CartInStateType
     updateCart: (ticket: CartTicketType) => void
 }

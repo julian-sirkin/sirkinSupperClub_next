@@ -1,8 +1,8 @@
-import type { CartState, CartTicketType } from "../cartStore.types"
+import type { CartInStateType, CartTicketType } from "../cartStore.types"
 
-export const updateCartHelper = (ticket: CartTicketType, state: CartState) => {
+export const updateCartHelper = (ticket: CartTicketType, cartInState: CartInStateType ) => {
 
-    const currentTickets = [...state.cart.tickets]
+    let currentTickets = [...cartInState.tickets]
     const isTicketInCart = currentTickets.find(ticketInCart => ticketInCart.id === ticket.id)
 
     /**
@@ -11,9 +11,9 @@ export const updateCartHelper = (ticket: CartTicketType, state: CartState) => {
     if(isTicketInCart) {
         // If the new quantity is 0, remove from cart, otherwise update the quantity
         if (ticket.quantity === 0) {
-            currentTickets.filter(cartTicket => cartTicket.id !== ticket.id)
+            currentTickets = currentTickets.filter(cartTicket => cartTicket.id !== ticket.id)
         } else {
-            currentTickets.map(cartTicket => {
+            currentTickets.forEach(cartTicket => {
                 if (cartTicket.id === ticket.id) {
                     cartTicket.quantity = ticket.quantity
                 }
@@ -34,8 +34,6 @@ export const updateCartHelper = (ticket: CartTicketType, state: CartState) => {
         })
     }
 
-    console.log(currentTickets, 'currentTickets')
-    console.log(currentPrice, 'currentPrice')
-    return {...state, tickets: currentTickets, totalPrice: currentPrice}
+    return { tickets: currentTickets, totalPrice: currentPrice}
 
 }
