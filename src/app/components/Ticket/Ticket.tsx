@@ -16,8 +16,6 @@ export const Ticket = ({
     .map((__, index) => index);
 
   const handleChangeQuantity = (numberOfTickets: number) => {
-    console.log(numberOfTickets);
-    console.log("numberOfTickets");
     updateCart({ id: ticket.title, quantity: numberOfTickets, price });
   };
 

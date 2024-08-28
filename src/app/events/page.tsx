@@ -1,12 +1,10 @@
 import { EventTeaserCard } from "../components/EventTeaserCard/EventTeaserCard";
 import { MainLayout } from "../components/mainLayout/MainLayout";
-import { RichText } from "../components/RichText/RichText";
 import { contentfulService } from "../contentful/contentfulService";
 
 export default async function Events() {
   const contentful = contentfulService();
   const eventData = await contentful.getEvents();
-  console.log(eventData, "eventData");
   return (
     <MainLayout>
       <div className="p-8">
