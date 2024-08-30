@@ -23,6 +23,7 @@ export const ContactForm = () => {
         setFormSubmissionMessage("");
       }, 3000);
     } else {
+      // Call email endpoint
       const response = await fetch("api/email", {
         headers: {
           Accept: "application/json",
@@ -31,20 +32,24 @@ export const ContactForm = () => {
         method: "POST",
         body: JSON.stringify({ name, phoneNumber, email, comment }),
       });
-    }
-    if (response.status === 200) {
-      setFormSubmissionMessage(successToastMessage);
 
-      setComment("");
-    } else {
-      setFormSubmissionMessage(failToastMessage);
+      // Handle Responses
+      if (response.status === 200) {
+        setFormSubmissionMessage(successToastMessage);
+
+        setComment("");
+      } else {
+        setFormSubmissionMessage(failToastMessage);
+      }
+
+      // Clean up form
+      setName("");
+      setPhoneNumber("");
+      setEmail("");
+      setTimeout(() => {
+        setFormSubmissionMessage("");
+      }, 5000);
     }
-    setName("");
-    setPhoneNumber("");
-    setEmail("");
-    setTimeout(() => {
-      setFormSubmissionMessage("");
-    }, 10000);
   };
 
   return (
