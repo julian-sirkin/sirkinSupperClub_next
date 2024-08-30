@@ -1,7 +1,7 @@
 "use client";
 import { ParsedTicket } from "@/app/contentful/contentfulServices.types";
-import { useCartStore } from "@/store/cartStore";
 import { TicketSelect } from "./TicketSelect";
+import { useCartStore } from "@/store/cartStore";
 
 export const Ticket = ({
   ticket,
