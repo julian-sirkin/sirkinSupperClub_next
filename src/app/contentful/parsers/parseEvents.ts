@@ -1,6 +1,10 @@
 import { ContentfulEventResponse, ParsedEvent, ParsedTicket, UnparsedTickets } from "../contentfulServices.types"
 
-export const parseEvents = (eventData: ContentfulEventResponse): ParsedEvent[] => {
+export const parseEvents = (eventData: ContentfulEventResponse | null): ParsedEvent[] => {
+    if (eventData === null) {
+        return []
+    }
+    
     return eventData.items.map( event => (
         {
             title: event.title,

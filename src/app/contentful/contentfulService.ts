@@ -45,9 +45,14 @@ export const contentfulService = () => {
 
             
           const response = await fetch(contentfulEndpoint, fetchOptions)
-            const decodedResponse: {data: any} = await response.json()
-            
-            return await parseEvents(decodedResponse.data.eventTypeCollection)        }
+            const decodedResponse: {data: any} = await response.json()           
+            if (decodedResponse?.data?.eventTypeCollection) {
+                return await parseEvents(decodedResponse.data.eventTypeCollection)    
+            }
+            else {
+                return parseEvents(null)
+            }
+                    }
         else {
             return []
         }
