@@ -5,6 +5,8 @@ import { useState, FormEvent } from "react";
 const successToastMessage = "Comment Successfully emailed";
 const failToastMessage =
   "Failed to pass along message, please email or dm directly";
+const noContactInforIncludedMessage =
+  "Please Add an email or phone number and try again";
 
 export const ContactForm = () => {
   const [name, setName] = useState("");
@@ -15,15 +17,21 @@ export const ContactForm = () => {
 
   const handleFormSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-
-    const response = await fetch("api/email", {
-      headers: {
-        Accept: "application/json",
-        "Content-Type": "application/json",
-      },
-      method: "POST",
-      body: JSON.stringify({ name, phoneNumber, email, comment }),
-    });
+    if (!(phoneNumber || email)) {
+      setFormSubmissionMessage(noContactInforIncludedMessage);
+      setTimeout(() => {
+        setFormSubmissionMessage("");
+      }, 3000);
+    } else {
+      const response = await fetch("api/email", {
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
+        method: "POST",
+        body: JSON.stringify({ name, phoneNumber, email, comment }),
+      });
+    }
     if (response.status === 200) {
       setFormSubmissionMessage(successToastMessage);
 
@@ -101,7 +109,8 @@ export const ContactForm = () => {
             : ""
         }
         ${
-          formSubmissionMessage === failToastMessage
+          formSubmissionMessage === failToastMessage ||
+          formSubmissionMessage === noContactInforIncludedMessage
             ? "text-red-600 bg-black"
             : ""
         }
