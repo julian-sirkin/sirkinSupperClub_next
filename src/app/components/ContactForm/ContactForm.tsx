@@ -41,11 +41,11 @@ export const ContactForm = () => {
 
   return (
     <form
-      className="flex flex-col gap-4 mx-auto w-11/12 md:w-96 justify-center"
+      className="flex flex-col md:w-[509px] gap-4 p-4"
       onSubmit={handleFormSubmit}
     >
       <span className="flex flex-col">
-        <label>Name</label>
+        <label className="font-bold">Name</label>
         <input
           type="text"
           id="name"
@@ -56,7 +56,7 @@ export const ContactForm = () => {
         />
       </span>
       <span className="flex flex-col">
-        <label>Phone number</label>
+        <label className="font-bold">Phone number</label>
         <input
           type="number"
           id="phoneNumber"
@@ -67,7 +67,7 @@ export const ContactForm = () => {
         />
       </span>
       <span className="flex flex-col">
-        <label>Email</label>
+        <label className="font-bold">Email</label>
         <input
           type="email"
           id="email"
@@ -78,12 +78,12 @@ export const ContactForm = () => {
         />
       </span>
       <span className="flex flex-col">
-        <label>Comment</label>
+        <label className="font-bold">Comment</label>
         <textarea
           className="h-32"
           id="comment"
           name="comment"
-          placeholder="comment"
+          placeholder="What would you like to tell us?"
           value={comment}
           onChange={(e) => setComment(e.currentTarget.value)}
         />
