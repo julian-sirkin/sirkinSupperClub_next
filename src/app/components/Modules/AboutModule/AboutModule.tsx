@@ -23,7 +23,7 @@ const AboutModule = () => {
         {/* Text content on the right */}
         <div className="md:space-y-4 md:col-span-1">
           <p className="text-xl md:text-2xl">
-            At Sirkin Supper Club, dining is more than just a meal—it's an
+            At Sirkin Supper Club, dining is more than just a meal—it&apos;s an
             experience. Imagine stepping into an intimate setting where the
             ambiance is as thoughtfully curated as the food on your plate. Each
             event is a unique gathering, where the evening&apos;s theme dictates
@@ -33,9 +33,10 @@ const AboutModule = () => {
             As a guest, you&apos;ll embark on a culinary journey of 4-8 courses,
             each meticulously crafted to surprise and delight your palate. The
             menu rotates with the seasons and is always driven by creativity,
-            offering a fresh perspective on familiar dishes. It's a BYOB affair,
-            allowing you to pair your favorite drinks with the evening's
-            offerings, adding a personal touch to your dining experience.
+            offering a fresh perspective on familiar dishes. It&apos;s a BYOB
+            affair, allowing you to pair your favorite drinks with the
+            evening&apos;s offerings, adding a personal touch to your dining
+            experience.
           </p>
           <p className="text-xl md:text-2xl">
             But what truly sets Sirkin Supper Club apart is the social aspect.
