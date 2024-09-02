@@ -7,9 +7,9 @@ const PhotosModule = async () => {
 
   console.log(pictureGallery.length);
   return (
-    <div className="h-auto px-8 bg-black text-white font-bold" id="photos">
-      <h3 className="text-center text-4xl py-8">Photos</h3>
-      <div className="flex flex-wrap justify-center md:justify-between max-w-5xl mx-auto">
+    <div className="h-auto p-8 bg-black text-white font-bold" id="photos">
+      <h3 className="text-center text-4xl mb-8">Photos</h3>
+      <div className="flex flex-wrap gap-6 lg:gap-10 mx-auto justify-center lg:max-w-[1370px]">
         {pictureGallery
           ? pictureGallery.map(({ title, description, url }) => (
               <PictureCard
