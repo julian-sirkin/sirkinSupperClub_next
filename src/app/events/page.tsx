@@ -19,7 +19,7 @@ export default async function Events() {
 
   upcomingEvents.sort((a, b) => {
     if (a?.date && b?.date) {
-      return a.date.valueOf() - b.date.valueOf();
+      return a?.date?.valueOf() - b?.date?.valueOf();
     } else {
       return a.price - b.price;
     }
