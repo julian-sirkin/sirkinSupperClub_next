@@ -10,9 +10,9 @@ export default async function Events() {
   const eventData = await contentful.getEvents();
 
   eventData.forEach((event) => {
-    event.date > new Date()
-      ? upcomingEvents.push(event)
-      : pastEvents.push(event);
+    event?.date < new Date()
+      ? pastEvents.push(event)
+      : upcomingEvents.push(event);
   });
 
   upcomingEvents.sort((a, b) => a.date.valueOf() - b.date.valueOf());
