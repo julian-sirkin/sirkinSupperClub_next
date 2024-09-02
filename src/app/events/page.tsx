@@ -10,12 +10,20 @@ export default async function Events() {
   const eventData = await contentful.getEvents();
 
   eventData.forEach((event) => {
-    event?.date ?? new Date() < new Date()
-      ? pastEvents.push(event)
-      : upcomingEvents.push(event);
+    if (event?.date && event?.date < new Date()) {
+      pastEvents.push(event);
+    } else {
+      upcomingEvents.push(event);
+    }
   });
 
-  upcomingEvents.sort((a, b) => a.date.valueOf() - b.date.valueOf());
+  upcomingEvents.sort((a, b) => {
+    if (a?.date && b?.date) {
+      return a.date.valueOf() - b.date.valueOf();
+    } else {
+      return a.price - b.price;
+    }
+  });
   return (
     <MainLayout>
       <section
