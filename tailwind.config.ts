@@ -17,6 +17,9 @@ module.exports = {
       },
     },
     extend: {
+      backgroundImage: {
+        communal_table: "url('/images/communityTable_edited_edited.jpg')"
+      },
       colors: {
         gold: "#7F734E",
         border: "hsl(var(--border))",

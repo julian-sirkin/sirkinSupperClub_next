@@ -21,9 +21,9 @@ export const EventTeaserCard = ({
     <div
       className={`w-11/12 h-auto ${
         isFeaturedEvent
-          ? "md:w-[500px] mx-auto md:px-8 py-12"
-          : "md:w-[360px] py-6"
-      } bg-black opacity-90 px-4 text-white`}
+          ? "md:w-[550px] mx-auto px-8 md:px-12 py-12 border-8"
+          : "md:w-[400px] py-6 border-4 px-4"
+      } bg-black opacity-95 px-4 text-white border-gold`}
     >
       <h2
         className={`${
@@ -43,7 +43,7 @@ export const EventTeaserCard = ({
       </p>
       <div
         className={`${
-          isFeaturedEvent ? "gap-x-6 mb-10 md:mb-16" : "gap-x-2 mb-5 md:mb-8"
+          isFeaturedEvent ? "gap-x-6 mb-14 md:mb-24" : "gap-x-2 mb-8 md:mb-12"
         } grid grid-cols-[auto_1fr] max-w-md`}
       >
         <div className="contents">
@@ -67,7 +67,7 @@ export const EventTeaserCard = ({
               isFeaturedEvent ? "md:text-2xl md:mb-8" : ""
             } text-xl  mb-4  -indent-[1ch] pl-[1ch]`}
           >
-            ${event.price}.00
+            {event.price > 0 ? `$${event.price}.00` : "Free"}
           </p>
         </div>
         <div className="contents">
