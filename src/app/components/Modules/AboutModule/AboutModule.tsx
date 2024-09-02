@@ -26,13 +26,13 @@ const AboutModule = () => {
             At Sirkin Supper Club, dining is more than just a meal—it's an
             experience. Imagine stepping into an intimate setting where the
             ambiance is as thoughtfully curated as the food on your plate. Each
-            event is a unique gathering, where the evening’s theme dictates the
-            flavors and stories told through every course.
+            event is a unique gathering, where the evening&apos;s theme dictates
+            the flavors and stories told through every course.
           </p>
           <p className="text-xl md:text-2xl">
-            As a guest, you’ll embark on a culinary journey of 4-8 courses, each
-            meticulously crafted to surprise and delight your palate. The menu
-            rotates with the seasons and is always driven by creativity,
+            As a guest, you&apos;ll embark on a culinary journey of 4-8 courses,
+            each meticulously crafted to surprise and delight your palate. The
+            menu rotates with the seasons and is always driven by creativity,
             offering a fresh perspective on familiar dishes. It's a BYOB affair,
             allowing you to pair your favorite drinks with the evening's
             offerings, adding a personal touch to your dining experience.
@@ -40,8 +40,8 @@ const AboutModule = () => {
           <p className="text-xl md:text-2xl">
             But what truly sets Sirkin Supper Club apart is the social aspect.
             We believe that great food is best enjoyed with great company.
-            You’ll share your meal with like-minded strangers, transforming a
-            simple dinner into a communal celebration. Even if you come with
+            You&apos;ll share your meal with like-minded strangers, transforming
+            a simple dinner into a communal celebration. Even if you come with
             friends, the communal table encourages new connections, making each
             event as much about the people as it is about the food.
           </p>
@@ -54,14 +54,14 @@ const AboutModule = () => {
             <p className="text-xl md:text-2xl">
               The creative force behind Sirkin Supper Club is Julian Sirkin, a
               chef whose culinary journey has been anything but ordinary.
-              Julian’s passion for food was ignited in a small, innovative
+              Julian&apos;s passion for food was ignited in a small, innovative
               bistro where creativity was encouraged at every turn. It was here
               that Julian had his first taste of culinary experimentation. When
               he confessed to his chef that he had never opened an oyster, the
               chef ordered a batch and challenged him to create something
-              special. Julian’s idea, with a slight adjustment from the chef,
-              became a weekend special, sparking his love for inventing new
-              dishes.
+              special. Julian&apos;s idea, with a slight adjustment from the
+              chef, became a weekend special, sparking his love for inventing
+              new dishes.
             </p>
           </div>
         </div>
@@ -70,11 +70,11 @@ const AboutModule = () => {
       {/* Remaining full-width text */}
       <div className="mt-6 space-y-4 lg:col-span-2 lg:grid lg:grid-cols-1">
         <p className="text-xl md:text-2xl">
-          Julian’s culinary career took him through several esteemed kitchens,
-          including an internship with a Michelin-starred chef in New York City
-          and a tenure as a sous chef at Patina 250. Each of these experiences
-          shaped his approach to cooking, instilling in him a deep appreciation
-          for both technical skill and creative flair.
+          Julian&apos;s culinary career took him through several esteemed
+          kitchens, including an internship with a Michelin-starred chef in New
+          York City and a tenure as a sous chef at Patina 250. Each of these
+          experiences shaped his approach to cooking, instilling in him a deep
+          appreciation for both technical skill and creative flair.
         </p>
         <p className="text-xl md:text-2xl">
           Sirkin Supper Club began almost by accident. While waiting for a
