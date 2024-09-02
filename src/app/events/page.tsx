@@ -1,5 +1,4 @@
 import { EventTeaserCard } from "../components/EventTeaserCard/EventTeaserCard";
-import { MainEventTeaserCard } from "../components/EventTeaserCard/MainEventTeaserCard";
 import { MainLayout } from "../components/mainLayout/MainLayout";
 import { contentfulService } from "../contentful/contentfulService";
 import { ParsedEvent } from "../contentful/contentfulServices.types";
@@ -24,10 +23,7 @@ export default async function Events() {
           Upcoming Events
         </h1>
         <div>
-          <MainEventTeaserCard
-            event={upcomingEvents[0]}
-            isFeaturedEvent={true}
-          />
+          <EventTeaserCard event={upcomingEvents[0]} isFeaturedEvent={true} />
           <h2 className="mt-8 md:mt-12 mb-4 md:mb-6 text-2xl md:text-4xl">
             Other Upcoming Events
           </h2>
@@ -36,7 +32,7 @@ export default async function Events() {
             id="other future events"
           >
             {upcomingEvents.slice(1).map((event) => (
-              <MainEventTeaserCard
+              <EventTeaserCard
                 key={event.title}
                 event={event}
                 isFeaturedEvent={false}
@@ -46,7 +42,11 @@ export default async function Events() {
         </div>
         <h3 className="my-4 md:my-6 text-2xl md:text-4xl">Past Events</h3>
         {pastEvents.map((event) => (
-          <EventTeaserCard event={event} />
+          <EventTeaserCard
+            key="event.title"
+            event={event}
+            isFeaturedEvent={false}
+          />
         ))}
       </div>
     </MainLayout>
