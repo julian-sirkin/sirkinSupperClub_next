@@ -9,21 +9,24 @@ export default async function Events() {
   const contentful = contentfulService();
   const eventData = await contentful.getEvents();
 
-  eventData.forEach((event) => {
-    if (event?.date && event?.date < new Date()) {
-      pastEvents.push(event);
-    } else {
-      upcomingEvents.push(event);
-    }
-  });
+  if (eventData.length) {
+    eventData.forEach((event) => {
+      if (event?.date && event?.date < new Date()) {
+        pastEvents.push(event);
+      } else {
+        upcomingEvents.push(event);
+      }
+    });
 
-  upcomingEvents.sort((a, b) => {
-    if (a?.date && b?.date) {
-      return a?.date?.valueOf() - b?.date?.valueOf();
-    } else {
-      return a.price - b.price;
-    }
-  });
+    upcomingEvents.sort((a, b) => {
+      if (a?.date && b?.date) {
+        return a?.date?.valueOf() - b?.date?.valueOf();
+      } else {
+        return a.price - b.price;
+      }
+    });
+  }
+
   return (
     <MainLayout>
       <section
