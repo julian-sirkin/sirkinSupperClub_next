@@ -1,3 +1,4 @@
+import { eventsFixture } from "../../../__test__/helpers/sortEventsByTime/sortEventsByTime.fixture";
 import { EventTeaserCard } from "../components/EventTeaserCard/EventTeaserCard";
 import { MainLayout } from "../components/mainLayout/MainLayout";
 import { contentfulService } from "../contentful/contentfulService";
@@ -7,7 +8,6 @@ import { sortEventsByTime } from "../helpers/sortEventsByTime";
 export default async function Events() {
   const contentful = contentfulService();
   const eventData = await contentful.getEvents();
-
   const { upcomingEvents, pastEvents } = sortEventsByTime(eventData);
 
   return (

@@ -1,6 +1,7 @@
 export const eventsQuery = `query fetch{
     eventTypeCollection(limit:5){
     items{
+        _id
         title
         date
         shortDescription
@@ -13,6 +14,7 @@ export const eventsQuery = `query fetch{
         }
         ticketsCollection(limit:10){
             items{
+                _id
                 title
                 ticketTime
                 ticketsAvailable

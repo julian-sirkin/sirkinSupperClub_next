@@ -22,8 +22,8 @@ export const ticketsTable = sqliteTable('tickets', {
 export const eventsTable = sqliteTable('events', {
     id: integer('id').primaryKey(),
     title: text('title').notNull(),
-    cotentfulId: text('contentfulId').notNull(),
-    time: integer('time', {mode: 'timestamp'})
+    date: integer('time', {mode: 'timestamp'}),
+    contentfulId: text('contentfulId').notNull(),
 })
 
 export const purchasesTable = sqliteTable('purchases', {
