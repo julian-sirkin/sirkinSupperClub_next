@@ -1,4 +1,13 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+Sirkinsupperclub pop-up restaurant website. This website allows events to be created on contentful, dispalyed, and allows for a user to get tickets, which is managed on a turso database.
+
+Built with:
+- Next
+- Tailwind
+- Contentful (cms)
+- Turso (SQLite)
+- Drizzle ORM
+- Jest
+- nodeMailer
 
 ## Getting Started
 
