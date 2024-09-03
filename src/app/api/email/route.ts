@@ -10,7 +10,7 @@ export async function POST(request: Request) {
     const email: string = data?.email?.toLowerCase() ?? ''
     const phoneNumber: string = data?.phoneNumber ?? ''
     const comment: string = data?.comment ?? ''
-    console.log(email, 'email in request ====>>>>')
+    
     const emailHtml = `
     <main>
         <h1>New Contact Form Sumbmission</h1>
