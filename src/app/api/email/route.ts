@@ -1,14 +1,16 @@
 import { transporter } from "@/app/config/nodemailer";
 import { NextResponse } from "next/server";
+import { getCustomerByEmail } from "../queries/select";
+import { createCustomer } from "../queries/insert";
 
 export async function POST(request: Request) {
     const data = await request.json()
     
-    const name = data?.name ?? 'unknown'
-    const email = data?.email ?? ''
-    const phoneNumber = data?.phoneNumber ?? ''
-    const comment = data?.comment ?? ''
- 
+    const name: string = data?.name ?? 'unknown'
+    const email: string = data?.email?.toLowerCase() ?? ''
+    const phoneNumber: string = data?.phoneNumber ?? ''
+    const comment: string = data?.comment ?? ''
+    
     const emailHtml = `
     <main>
         <h1>New Contact Form Sumbmission</h1>
@@ -31,6 +33,13 @@ export async function POST(request: Request) {
     </main>
     `
 
+    if (email) {
+        const customerInDatabase = await getCustomerByEmail(email)
+        if(customerInDatabase.length === 0) {
+            
+           const createdCustomer = await createCustomer({name, email, phoneNumber, priorCustomer: false})
+        }
+    }
 
     try {
         await transporter.sendMail({
