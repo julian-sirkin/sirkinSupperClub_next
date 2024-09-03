@@ -33,7 +33,9 @@ export default async function Events() {
         id="featured Event"
         className="h-auto p-4 md:p-12 bg-communal_table bg-cover"
       >
-        <EventTeaserCard event={upcomingEvents[0]} isFeaturedEvent={true} />
+        {upcomingEvents.length > 0 ? (
+          <EventTeaserCard event={upcomingEvents[0]} isFeaturedEvent={true} />
+        ) : null}
       </section>
       <section id="other events" className="bg-black p-6 md:p-12">
         <h2 className="mt-8 md:mt-12 mb-4 md:mb-6 text-2xl md:text-4xl text-center md:text-left text-white">
