@@ -1,31 +1,14 @@
+import { eventsFixture } from "../../../__test__/helpers/sortEventsByTime/sortEventsByTime.fixture";
 import { EventTeaserCard } from "../components/EventTeaserCard/EventTeaserCard";
 import { MainLayout } from "../components/mainLayout/MainLayout";
 import { contentfulService } from "../contentful/contentfulService";
 import { ParsedEvent } from "../contentful/contentfulServices.types";
+import { sortEventsByTime } from "../helpers/sortEventsByTime";
 
 export default async function Events() {
-  const upcomingEvents: ParsedEvent[] = [];
-  const pastEvents: ParsedEvent[] = [];
   const contentful = contentfulService();
   const eventData = await contentful.getEvents();
-
-  if (eventData.length) {
-    eventData.forEach((event) => {
-      if (event?.date && event?.date < new Date()) {
-        pastEvents.push(event);
-      } else {
-        upcomingEvents.push(event);
-      }
-    });
-
-    upcomingEvents.sort((a, b) => {
-      if (a?.date && b?.date) {
-        return a?.date?.valueOf() - b?.date?.valueOf();
-      } else {
-        return a.price - b.price;
-      }
-    });
-  }
+  const { upcomingEvents, pastEvents } = sortEventsByTime(eventData);
 
   return (
     <MainLayout>
