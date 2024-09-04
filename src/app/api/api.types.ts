@@ -4,6 +4,18 @@ export type PurchasedTickets = {
     quantity: number
 }
 
-export type GetTicketByIdAndEvent = {
-    ticketContentfulId: string eventContentfulId: string
+export type GetTicketByIdAndEventProps = {
+    ticketContentfulId: string 
+    eventContentfulId: string
+}
+
+export type DatabaseTickets = {
+    ticket: {
+        time: Date | null
+        id: number
+        event: number | null
+        contentfulId: string
+        totalAvailable: number
+        totalSold: number
+    }
 }
