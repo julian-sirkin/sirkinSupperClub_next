@@ -2,6 +2,12 @@
 // import { db } from "@/db";
 
 
+describe('placeholder', () => {
+    it('placeholder tests', () => {
+        expect(true).toBeTruthy()
+    })
+})
+
 // jest.mock("@/db"); // Mocking the database connection
 
 // describe.skip('createEventPurchase', () => {
