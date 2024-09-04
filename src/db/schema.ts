@@ -56,5 +56,5 @@ export type SelectEvent = typeof eventsTable.$inferSelect;
 export type InsertPurchase = typeof purchasesTable.$inferInsert
 export type SelectPurchase = typeof purchasesTable.$inferSelect; 
 
-export type InsertPurchaseItem = typeof eventsTable.$inferInsert
-export type SelectPurchaseItem = typeof eventsTable.$inferSelect; 
+export type InsertPurchaseItem = typeof purchaseItemsTable.$inferInsert
+export type SelectPurchaseItem = typeof purchaseItemsTable.$inferSelect; 

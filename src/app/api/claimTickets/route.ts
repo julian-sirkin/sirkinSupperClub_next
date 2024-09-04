@@ -10,6 +10,13 @@ export async function POST(request: Request) {
     const ticketsInDatabase = await getTicketsByIdAndEvent(ticketsInRequest)
 
     const {areQuantitiesAvailable, ticketsWithNotEnoughAvailable} = validateTicketQuantityForPurchase({ticketsInRequest, ticketsInDatabase})
+
+    if(!areQuantitiesAvailable) {
+        return NextResponse.json({status: 500, error: {
+            message: "Cannot completel order",
+            data: ticketsWithNotEnoughAvailable
+        }})
+    }
     console.log(ticketsInDatabase, 'ticketsInDatabase')
     return NextResponse.json({status: 200})
 }
