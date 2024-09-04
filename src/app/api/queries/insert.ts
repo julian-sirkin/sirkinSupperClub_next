@@ -54,7 +54,7 @@ export async function createEventWithTickets(parsedEvents: ParsedEvent[]) {
 }
 
 
-export async function createEventPurchase(purchasedTickets: PurchasedTickets[], customerId: number, paid: boolean) {
+export async function createTicketPurchase(purchasedTickets: PurchasedTickets[], customerId: number, paid: boolean) {
     try {
     // Start a transaction to ensure atomicity
     await db.transaction(async (trx) => {
