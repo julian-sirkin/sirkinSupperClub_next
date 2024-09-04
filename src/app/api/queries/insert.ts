@@ -5,7 +5,7 @@ import { sql } from 'drizzle-orm';
 import { PurchasedTickets } from "../api.types";
 
 export async function createCustomer(data: InsertCustomer) {
-    return await db.insert(customersTable).values(data)
+    return await db.insert(customersTable).values(data).returning({id: customersTable.id})
 }
 
 export async function createEvent(data: InsertEvent[]) {
@@ -108,18 +108,18 @@ export async function createTicketPurchase(purchasedTickets: PurchasedTickets[],
     });
 
     return {
-        success: true,
+        isSuccessful: true,
         message: 'Purchase created Successfully'
     }
 } catch (error){
     if (error instanceof Error) {
         return {
-            success: false,
+            isSuccessful: false,
             message: `Error creating purchase: ${error.message}`
         }
     } else {
         return {
-            success: false,
+            isSuccessful: false,
             message: 'Failed to complete transaction'
         }
     }
