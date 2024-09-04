@@ -6,23 +6,23 @@ describe('validateTicketQuantityForPurchase', () => {
 
     it('returns true for empty ticketsInRequest array', () => {
         const ticketsInRequest: PurchasedTickets[] = [];
-        const databaseTickets: DatabaseTickets[] = [
+        const ticketsInDatabase: DatabaseTickets[] = [
             { ticket: { time: null, id: 1, event: 1, contentfulId: 'ticket1', totalAvailable: 10, totalSold: 5 } }
         ];
     
-        const result = validateTicketQuantityForPurchase({ ticketsInRequest, databaseTickets });
+        const result = validateTicketQuantityForPurchase({ ticketsInRequest, ticketsInDatabase });
     
         expect(result.areQuantitiesAvailable).toBe(true);
         expect(result.ticketsWithNotEnoughAvailable).toEqual([]);
     });
 
-    it('returns false when databaseTickets array is empty', () => {
+    it('returns false when ticketsInDatabase array is empty', () => {
         const ticketsInRequest: PurchasedTickets[] = [
             { ticketContentfulId: 'ticket1', eventContentfulId: 'event1', quantity: 2 }
         ];
-        const databaseTickets: DatabaseTickets[] = [];
+        const ticketsInDatabase: DatabaseTickets[] = [];
     
-        const result = validateTicketQuantityForPurchase({ ticketsInRequest, databaseTickets });
+        const result = validateTicketQuantityForPurchase({ ticketsInRequest, ticketsInDatabase });
     
         expect(result.areQuantitiesAvailable).toBe(false);
         expect(result.ticketsWithNotEnoughAvailable).toEqual(ticketsInRequest);
@@ -32,11 +32,11 @@ describe('validateTicketQuantityForPurchase', () => {
         const ticketsInRequest: PurchasedTickets[] = [
             { ticketContentfulId: 'ticket1', eventContentfulId: 'event1', quantity: 1 }
         ];
-        const databaseTickets: DatabaseTickets[] = [
+        const ticketsInDatabase: DatabaseTickets[] = [
             { ticket: { time: null, id: 1, event: 1, contentfulId: 'ticket1', totalAvailable: 10, totalSold: 10 } }
         ];
     
-        const result = validateTicketQuantityForPurchase({ ticketsInRequest, databaseTickets });
+        const result = validateTicketQuantityForPurchase({ ticketsInRequest, ticketsInDatabase });
     
         expect(result.areQuantitiesAvailable).toBe(false);
         expect(result.ticketsWithNotEnoughAvailable).toEqual(ticketsInRequest);
@@ -47,11 +47,11 @@ describe('validateTicketQuantityForPurchase', () => {
             { ticketContentfulId: 'ticket1', eventContentfulId: 'event1', quantity: 3 },
             { ticketContentfulId: 'ticket1', eventContentfulId: 'event1', quantity: 2 }
         ];
-        const databaseTickets: DatabaseTickets[] = [
+        const ticketsInDatabase: DatabaseTickets[] = [
             { ticket: { time: null, id: 1, event: 1, contentfulId: 'ticket1', totalAvailable: 10, totalSold: 5 } }
         ];
     
-        const result = validateTicketQuantityForPurchase({ ticketsInRequest, databaseTickets });
+        const result = validateTicketQuantityForPurchase({ ticketsInRequest, ticketsInDatabase });
     
         expect(result.areQuantitiesAvailable).toBe(true);
         expect(result.ticketsWithNotEnoughAvailable).toEqual([]);
@@ -62,11 +62,11 @@ describe('validateTicketQuantityForPurchase', () => {
         const ticketsInRequest: PurchasedTickets[] = [
             { ticketContentfulId: 'ticket1', eventContentfulId: 'event1', quantity: 5 }
         ];
-        const databaseTickets: DatabaseTickets[] = [
+        const ticketsInDatabase: DatabaseTickets[] = [
             { ticket: { time: null, id: 1, event: 1, contentfulId: 'ticket1', totalAvailable: 10, totalSold: 5 } }
         ];
     
-        const result = validateTicketQuantityForPurchase({ ticketsInRequest, databaseTickets });
+        const result = validateTicketQuantityForPurchase({ ticketsInRequest, ticketsInDatabase });
     
         expect(result.areQuantitiesAvailable).toBe(true);
         expect(result.ticketsWithNotEnoughAvailable).toEqual([]);
@@ -80,12 +80,12 @@ describe('validateTicketQuantityForPurchase', () => {
             { ticketContentfulId: 'ticket2', eventContentfulId: 'event2', quantity: 3 }
         ];
 
-        const databaseTickets: DatabaseTickets[] = [
+        const ticketsInDatabase: DatabaseTickets[] = [
             { ticket: { time: null, id: 1, event: 1, contentfulId: 'ticket1', totalAvailable: 5, totalSold: 1 } }
-            // Note: 'ticket2' is missing in the databaseTickets array
+            // Note: 'ticket2' is missing in the ticketsInDatabase array
         ];
 
-        const result = validateTicketQuantityForPurchase({ ticketsInRequest, databaseTickets });
+        const result = validateTicketQuantityForPurchase({ ticketsInRequest, ticketsInDatabase });
 
         expect(result.areQuantitiesAvailable).toBe(false);
         expect(result.ticketsWithNotEnoughAvailable).toEqual([
@@ -98,11 +98,11 @@ describe('validateTicketQuantityForPurchase', () => {
             { ticketContentfulId: 'ticket1', eventContentfulId: 'event1', quantity: 10 }
         ];
 
-        const databaseTickets: DatabaseTickets[] = [
+        const ticketsInDatabase: DatabaseTickets[] = [
             { ticket: { time: null, id: 1, event: 1, contentfulId: 'ticket1', totalAvailable: 10, totalSold: 5 } }
         ];
 
-        const result = validateTicketQuantityForPurchase({ ticketsInRequest, databaseTickets });
+        const result = validateTicketQuantityForPurchase({ ticketsInRequest, ticketsInDatabase });
 
         expect(result.areQuantitiesAvailable).toBe(false);
         expect(result.ticketsWithNotEnoughAvailable).toEqual([
@@ -116,12 +116,12 @@ describe('validateTicketQuantityForPurchase', () => {
             { ticketContentfulId: 'ticket2', eventContentfulId: 'event2', quantity: 3 }
         ];
 
-        const databaseTickets: DatabaseTickets[] = [
+        const ticketsInDatabase: DatabaseTickets[] = [
             { ticket: { time: null, id: 1, event: 1, contentfulId: 'ticket1', totalAvailable: 10, totalSold: 5 } },
             { ticket: { time: null, id: 2, event: 2, contentfulId: 'ticket2', totalAvailable: 10, totalSold: 3 } }
         ];
 
-        const result = validateTicketQuantityForPurchase({ ticketsInRequest, databaseTickets });
+        const result = validateTicketQuantityForPurchase({ ticketsInRequest, ticketsInDatabase });
 
         expect(result.areQuantitiesAvailable).toBe(true);
         expect(result.ticketsWithNotEnoughAvailable).toEqual([]);
