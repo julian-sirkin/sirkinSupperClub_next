@@ -5,7 +5,6 @@ const PhotosModule = async () => {
   const { getPhotoGallery } = contentfulService();
   const pictureGallery = await getPhotoGallery();
 
-  console.log(pictureGallery.length);
   return (
     <div className="h-auto p-8 bg-black text-white font-bold" id="photos">
       <h3 className="text-center text-4xl mb-8">Photos</h3>

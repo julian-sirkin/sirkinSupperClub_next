@@ -15,8 +15,11 @@ export const EventTeaserCard = ({
     : "DM For Date";
 
   const numberOfSeatsAvailable = event.tickets.reduce(
-    (availableSeats, currentTicket) =>
-      availableSeats + currentTicket.ticketsAvailable,
+    (availableSeats, currentTicket) => {
+      return !currentTicket.isAddonTicket
+        ? availableSeats + currentTicket.ticketsAvailable
+        : availableSeats;
+    },
     0
   );
 

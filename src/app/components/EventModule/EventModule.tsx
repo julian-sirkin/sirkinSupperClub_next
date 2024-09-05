@@ -22,7 +22,12 @@ export const EventModule = ({ event }: { event: ParsedEvent }) => {
           Tickets
         </h3>
         {event.tickets.map((ticket) => (
-          <Ticket key={ticket.title} ticket={ticket} price={event.price} />
+          <Ticket
+            key={ticket.title}
+            ticket={ticket}
+            price={event.price}
+            contentfulEventId={event.contentfulId}
+          />
         ))}
       </section>
       <PhotosModule />

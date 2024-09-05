@@ -13,17 +13,19 @@ export const parseEvents = (eventData: ContentfulEventResponse | null): ParsedEv
             price: event.price,
             menu: event.menu.json,
             shortDescription: event.shortDescription,
-            tickets: parseTickets(event.ticketsCollection),
+            tickets: parseTickets(event.ticketsCollection, event.price),
             longDescription: event.longDescription.json
         }
     ))
 }
 
-const parseTickets = (tickets: UnparsedTickets): ParsedTicket[]  => {
+const parseTickets = (tickets: UnparsedTickets, eventPrice: ParsedEvent['price']): ParsedTicket[]  => {
     return tickets.items.map((ticket) => ( {
         ...ticket,
         contentfulId: ticket._id,
         ticketsAvailable: Number(ticket.ticketsAvailable),
         time: new Date(ticket.ticketTime),
+        price: ticket?.price ?? eventPrice,
+        isAddonTicket: ticket.isAddonTicket,
     }))
 }
