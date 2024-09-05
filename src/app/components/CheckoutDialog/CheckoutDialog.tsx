@@ -150,7 +150,7 @@ export const CheckoutDialog = ({ event }: { event: ParsedEvent }) => {
           </span>
           <button
             type="submit"
-            className="mx-auto h-14 w-52 bg-gold text-white"
+            className="mx-auto h-14 w-52 bg-gold text-white font-bold text-2xl hover:cursor-pointer"
           >
             Checkout
           </button>
