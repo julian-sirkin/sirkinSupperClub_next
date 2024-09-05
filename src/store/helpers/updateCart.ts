@@ -3,7 +3,7 @@ import type { CartInStateType, CartTicketType } from "../cartStore.types"
 export const updateCartHelper = (ticket: CartTicketType, cartInState: CartInStateType ) => {
 
     let currentTickets = [...cartInState.tickets]
-    const isTicketInCart = currentTickets.find(ticketInCart => ticketInCart.id === ticket.id)
+    const isTicketInCart = currentTickets.find(ticketInCart => ticketInCart.contentfulId === ticket.contentfulId)
 
     /**
      * Handle Updating Ticket Quantity in Tickets Array
@@ -11,10 +11,10 @@ export const updateCartHelper = (ticket: CartTicketType, cartInState: CartInStat
     if(isTicketInCart) {
         // If the new quantity is 0, remove from cart, otherwise update the quantity
         if (ticket.quantity === 0) {
-            currentTickets = currentTickets.filter(cartTicket => cartTicket.id !== ticket.id)
+            currentTickets = currentTickets.filter(cartTicket => cartTicket.contentfulId !== ticket.contentfulId)
         } else {
             currentTickets.forEach(cartTicket => {
-                if (cartTicket.id === ticket.id) {
+                if (cartTicket.contentfulId === ticket.contentfulId) {
                     cartTicket.quantity = ticket.quantity
                 }
             })

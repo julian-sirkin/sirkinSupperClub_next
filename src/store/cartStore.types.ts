@@ -1,5 +1,6 @@
-export type CartTicketType = {
-    id: string
+import { ParsedTicket } from "@/app/contentful/contentfulServices.types"
+
+export type CartTicketType = ParsedTicket & {
     quantity: number
     price: number
 }

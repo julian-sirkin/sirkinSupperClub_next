@@ -12,6 +12,8 @@ export type ParsedTicket = {
     time: Date
     ticketsAvailable: number
     title: string 
+    price: number
+    isAddonTicket: boolean
 }
 
 export type UnparsedTickets = {
@@ -20,6 +22,8 @@ export type UnparsedTickets = {
         ticketTime: string
         ticketsAvailable: string
         title: string
+        price?: number
+        isAddonTicket: boolean
     }[]
 }
 

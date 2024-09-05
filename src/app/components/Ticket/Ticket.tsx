@@ -3,31 +3,28 @@ import { ParsedTicket } from "@/app/contentful/contentfulServices.types";
 import { TicketSelect } from "./TicketSelect";
 import { useCartStore } from "@/store/cartStore";
 
-export const Ticket = ({
-  ticket,
-  price,
-}: {
-  ticket: ParsedTicket;
-  price: number;
-}) => {
+export const Ticket = ({ ticket }: { ticket: ParsedTicket }) => {
   const updateCart = useCartStore((state) => state.updateCart);
   const ticketsArray = new Array(ticket.ticketsAvailable + 1)
     .fill(1)
     .map((__, index) => index);
 
   const handleChangeQuantity = (numberOfTickets: number) => {
-    updateCart({ id: ticket.title, quantity: numberOfTickets, price });
+    updateCart({
+      ...ticket,
+      quantity: numberOfTickets,
+    });
   };
 
   return (
-    <form className="border-2 md:border-4 md:w-3/4 mx-auto border-white p-2 md:p-4 bg-black opacity-95">
+    <form className="border-2 md:border-4 md:w-3/4 mx-auto border-white p-2 md:p-4 bg-black opacity-95 mb-4 md:mb-6">
       <h4 className="text-gold text-xl font-bold md:text-2xl mb-4">
         {ticket.title}
       </h4>
       <div className="flex justify-between">
         <section>
           <h5 className="text-white">Dining Time: </h5>
-          <h5 className="text-white">Price: ${price}.00</h5>
+          <h5 className="text-white">Price: ${ticket.price}.00</h5>
         </section>
         <TicketSelect
           availableTickets={ticketsArray}

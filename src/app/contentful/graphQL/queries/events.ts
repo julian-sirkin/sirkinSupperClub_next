@@ -18,6 +18,8 @@ export const eventsQuery = `query fetch{
                 title
                 ticketTime
                 ticketsAvailable
+                price
+                isAddonTicket
                 }
             }
         }

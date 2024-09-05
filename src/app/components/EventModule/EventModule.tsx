@@ -3,6 +3,8 @@ import { Ticket } from "../Ticket/Ticket";
 import { Menu } from "../Menu/Menu";
 import { EventLongDescription } from "../EventLongDescription/EventLongDescription";
 import PhotosModule from "../Modules/PhotosModule/PhotosModule";
+import { CheckoutDialog } from "../CheckoutDialog/CheckoutDialog";
+import { CartTotalDisplay } from "./CartTotalDisplay";
 
 export const EventModule = ({ event }: { event: ParsedEvent }) => {
   return (
@@ -21,9 +23,14 @@ export const EventModule = ({ event }: { event: ParsedEvent }) => {
         <h3 className="text-white text-bold font-bold text-2xl md:text-5xl text-center mb-4 md:mb-4">
           Tickets
         </h3>
-        {event.tickets.map((ticket) => (
-          <Ticket key={ticket.title} ticket={ticket} price={event.price} />
-        ))}
+        <div id="Tickets container" className="mb-6">
+          {event.tickets.map((ticket) => (
+            <Ticket key={ticket.title} ticket={ticket} />
+          ))}
+          <CartTotalDisplay />
+        </div>
+
+        <CheckoutDialog event={event} />
       </section>
       <PhotosModule />
     </div>
