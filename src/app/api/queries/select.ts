@@ -1,7 +1,7 @@
 import { db } from "@/db";
 import { customersTable, eventsTable, SelectCustomer, ticketsTable } from "@/db/schema";
 import { eq, and} from "drizzle-orm";
-import { DatabaseTickets, GetTicketByIdAndEventProps, PurchasedTickets } from "../api.types";
+import { DatabaseTickets, GetTicketByIdAndEventProps } from "../api.types";
 
 export async function getCustomerByEmail(email: SelectCustomer['email']){
 return db.select().from(customersTable).where(eq(customersTable.email, email));

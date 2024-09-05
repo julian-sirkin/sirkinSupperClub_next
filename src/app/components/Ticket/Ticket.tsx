@@ -3,15 +3,7 @@ import { ParsedTicket } from "@/app/contentful/contentfulServices.types";
 import { TicketSelect } from "./TicketSelect";
 import { useCartStore } from "@/store/cartStore";
 
-export const Ticket = ({
-  ticket,
-  price,
-  contentfulEventId,
-}: {
-  ticket: ParsedTicket;
-  price: number;
-  contentfulEventId: string;
-}) => {
+export const Ticket = ({ ticket }: { ticket: ParsedTicket }) => {
   const updateCart = useCartStore((state) => state.updateCart);
   const ticketsArray = new Array(ticket.ticketsAvailable + 1)
     .fill(1)
@@ -23,9 +15,9 @@ export const Ticket = ({
       quantity: numberOfTickets,
     });
   };
-  console.log(ticket, "ticket object");
+
   return (
-    <form className="border-2 md:border-4 md:w-3/4 mx-auto border-white p-2 md:p-4 bg-black opacity-95">
+    <form className="border-2 md:border-4 md:w-3/4 mx-auto border-white p-2 md:p-4 bg-black opacity-95 mb-4 md:mb-6">
       <h4 className="text-gold text-xl font-bold md:text-2xl mb-4">
         {ticket.title}
       </h4>
