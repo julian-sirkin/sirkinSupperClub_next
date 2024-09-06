@@ -3,6 +3,15 @@ import { eventsQuery } from "./graphQL/queries/events"
 import { photoAlbumQuery } from "./graphQL/queries/photoAlbum"
 import { parseEvents } from "./parsers/parseEvents"
 import { parsePhotoGallery } from "./parsers/parsePhotoGallery"
+import { getTicketsByIdAndEvent } from "@/app/api/queries/select"
+
+// // Ensure ParsedTicket includes contentfulEventId
+// interface ParsedTicket {
+//     contentfulTicketId: string;
+//     contentfulEventId: string; // Add this line
+//     ticketsAvailable: number;
+//     // other properties...
+// }
 
 export const contentfulService = () => {
     const contentfulEndpoint = process.env.CONTENTFUL_GRAPHQL_ENDPOINT
@@ -20,12 +29,10 @@ export const contentfulService = () => {
                 body: requestBody
             }
 
-            
-          const response = await fetch(contentfulEndpoint, fetchOptions)
+            const response = await fetch(contentfulEndpoint, fetchOptions)
             const decodedResponse: {data: PhotoGalleryResponse} = await response.json()
             return await parsePhotoGallery(decodedResponse.data)
-        }
-        else {
+        } else {
             return []
         }
     }
@@ -43,20 +50,46 @@ export const contentfulService = () => {
                 body: requestBody
             }
 
-            
-          const response = await fetch(contentfulEndpoint, fetchOptions)
-            const decodedResponse: {data: any} = await response.json()           
+            const response = await fetch(contentfulEndpoint, fetchOptions)
+            const decodedResponse: {data: any} = await response.json()
             if (decodedResponse?.data?.eventTypeCollection) {
-                return await parseEvents(decodedResponse.data.eventTypeCollection)    
-            }
-            else {
+                const parsedEvents = parseEvents(decodedResponse.data.eventTypeCollection)
+                return await updateTicketsAvailability(parsedEvents)
+            } else {
                 return parseEvents(null)
             }
-                    }
-        else {
+        } else {
             return []
         }
     }
 
-    return {getPhotoGallery, getEvents}
+    const updateTicketsAvailability = async (parsedEvents: ParsedEvent[]): Promise<ParsedEvent[]> => {
+        const allTickets = parsedEvents.flatMap(event => 
+            event.tickets.map(ticket => ({ 
+                ...ticket, 
+                contentfulEventId: event.contentfulEventId // Ensure this assignment
+            }))
+        )
+
+        const reshapedTickets = allTickets.map(ticket => ({
+            contentfulTicketId: ticket.contentfulTicketId,
+            eventContentfulId: ticket.contentfulEventId
+        }))
+
+        const dbTickets = await getTicketsByIdAndEvent(reshapedTickets as { contentfulTicketId: string; eventContentfulId: string }[])
+        console.log('I am updating the tickets available')
+        return parsedEvents.map(event => ({
+            ...event,
+            tickets: event.tickets.map(ticket => {
+                const dbTicket = dbTickets.find(dbTicket => dbTicket.ticket.contentfulId === ticket.contentfulTicketId)
+                console.log(dbTicket, 'db ticket ===========>>>>>>>')
+                return dbTicket ? {
+                    ...ticket,
+                    ticketsAvailable: dbTicket.ticket.totalAvailable - dbTicket.ticket.totalSold
+                } : ticket
+            })
+        }))
+    }
+
+    return { getPhotoGallery, getEvents }
 }
