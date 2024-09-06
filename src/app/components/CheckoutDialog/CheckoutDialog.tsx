@@ -11,13 +11,9 @@ import {
 } from "@/schad/components/ui/dialog";
 import { useCartStore } from "@/store/cartStore";
 import { useState } from "react";
+import { CheckoutForm } from "../CheckoutForm/CheckoutForm";
 
 export const CheckoutDialog = ({ event }: { event: ParsedEvent }) => {
-  const [name, setName] = useState<string>("");
-  const [email, setEmail] = useState<string>("");
-  const [phoneNumber, setPhoneNumber] = useState<string>("");
-  const [dietaryRestrictions, setDietaryRestrictions] = useState<string>("");
-  const [notes, setNotes] = useState<string>("");
   const [seeCart, setSeeCart] = useState<boolean>(true);
 
   const cart = useCartStore((state) => state.cart);
@@ -78,7 +74,6 @@ export const CheckoutDialog = ({ event }: { event: ParsedEvent }) => {
                   Show Cart
                 </button>
               )}
-
               {/* Total */}
               <li className="flex justify-between text-xl text-white mt-4">
                 <span>Total:</span>
@@ -87,74 +82,7 @@ export const CheckoutDialog = ({ event }: { event: ParsedEvent }) => {
             </ul>
           </DialogDescription>
         </DialogHeader>
-        <form className="flex flex-col items-center">
-          {/* Name Input */}
-          <span className="flex flex-col mb-4">
-            <label className="font-bold text-gold mb-2">Name</label>
-            <input
-              className="h-8 w-52 text-black"
-              type="text"
-              name="name"
-              value={name}
-              onChange={(e) => setName(e.currentTarget.value)}
-            />
-          </span>
-
-          {/* Email Input */}
-          <span className="flex flex-col mb-4 ">
-            <label className="font-bold text-gold mb-2">Email</label>
-            <input
-              className="h-8 w-52 text-black"
-              type="email"
-              name="email"
-              value={email}
-              onChange={(e) => setEmail(e.currentTarget.value)}
-            />
-          </span>
-
-          {/* Phone Number Input */}
-          <span className="flex flex-col mb-4">
-            <label className="font-bold text-gold mb-2">Phone Number</label>
-            <input
-              className="h-8 w-52 text-black"
-              type="tel"
-              name="phoneNumber"
-              value={phoneNumber}
-              onChange={(e) => setPhoneNumber(e.currentTarget.value)}
-            />
-          </span>
-
-          {/* Dietary Restrictions Input */}
-          <span className="flex flex-col mb-4">
-            <label className="font-bold text-gold mb-2">
-              Dietary Restrictions
-            </label>
-            <input
-              className="h-8 w-52 text-black"
-              type="text"
-              name="dietaryRestrictions"
-              value={dietaryRestrictions}
-              onChange={(e) => setDietaryRestrictions(e.currentTarget.value)}
-            />
-          </span>
-
-          {/* Notes Input */}
-          <span className="flex flex-col mb-6">
-            <label className="font-bold text-gold mb-2">Notes</label>
-            <textarea
-              className="h-16 w-52 text-black"
-              name="notes"
-              value={notes}
-              onChange={(e) => setNotes(e.currentTarget.value)}
-            />
-          </span>
-          <button
-            type="submit"
-            className="mx-auto h-14 w-52 bg-gold text-white font-bold text-2xl hover:cursor-pointer"
-          >
-            Checkout
-          </button>
-        </form>
+        <CheckoutForm />
       </DialogContent>
     </Dialog>
   );

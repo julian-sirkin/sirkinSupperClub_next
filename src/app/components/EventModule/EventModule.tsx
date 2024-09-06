@@ -25,7 +25,7 @@ export const EventModule = ({ event }: { event: ParsedEvent }) => {
         </h3>
         <div id="Tickets container" className="mb-6">
           {event.tickets.map((ticket) => (
-            <Ticket key={ticket.title} ticket={ticket} />
+            <Ticket key={ticket.title} ticket={ticket} event={event} />
           ))}
           <CartTotalDisplay />
         </div>
