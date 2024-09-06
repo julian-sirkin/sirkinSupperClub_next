@@ -13,13 +13,14 @@ import { useCartStore } from "@/store/cartStore";
 import { useState } from "react";
 import { CheckoutForm } from "../CheckoutForm/CheckoutForm";
 import { FormData } from "../CheckoutForm/CheckoutForm.fixture";
-import { CheckoutSuccessMessage } from "../CheckoutForm/CheckoutSuccessMessage";
+import { CheckoutResponseMessage } from "../CheckoutForm/CheckoutResponseMessage";
 
 export const CheckoutDialog = ({ event }: { event: ParsedEvent }) => {
   const [seeCart, setSeeCart] = useState<boolean>(true);
   const [shouldShowForm, setShouldShowForm] = useState<boolean>(true);
   const [shouldDisableSubmitButton, setShouldDisableSubmitButton] =
     useState<boolean>(false);
+  const [showErrorMessage, setShowErrorMessage] = useState<boolean>(false);
 
   const cart = useCartStore((state) => state.cart);
 
@@ -37,8 +38,13 @@ export const CheckoutDialog = ({ event }: { event: ParsedEvent }) => {
 
     const decodedResponse = await response.json();
     setShouldDisableSubmitButton(false);
-    if (decodedResponse.status === 200) {
-      setShouldShowForm(false);
+    setShouldShowForm(false);
+    if (decodedResponse.status !== 200) {
+      setShowErrorMessage(true);
+      setTimeout(() => {
+        setShowErrorMessage(false);
+        setShouldShowForm(true);
+      }, 15000);
     }
   };
 
@@ -112,9 +118,7 @@ export const CheckoutDialog = ({ event }: { event: ParsedEvent }) => {
             shouldDisableButton={shouldDisableSubmitButton}
           />
         ) : (
-          <div>
-            <CheckoutSuccessMessage />
-          </div>
+          <CheckoutResponseMessage showErrorMessage={showErrorMessage} />
         )}
       </DialogContent>
     </Dialog>
