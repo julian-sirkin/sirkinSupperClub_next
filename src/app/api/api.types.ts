@@ -19,3 +19,16 @@ export type DatabaseTickets = {
         totalSold: number
     }
 }
+
+export type UpdatedTicketFields = {
+    totalAvailable?: number;
+    id?: number 
+    time?: Date 
+    event?: number 
+    price?: number 
+}
+
+export type UpdatedEventFields = {
+title?: string
+date?: Date 
+}
