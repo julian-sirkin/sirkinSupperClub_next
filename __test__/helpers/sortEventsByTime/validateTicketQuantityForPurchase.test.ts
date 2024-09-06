@@ -102,9 +102,7 @@ describe('validateTicketQuantityForPurchase', () => {
         const result = validateTicketQuantityForPurchase({ ticketsInRequest, ticketsInDatabase });
 
         expect(result.areQuantitiesAvailable).toBe(false);
-        expect(result.ticketsWithNotEnoughAvailable).toEqual([
-            { contentfulTicketId: 'ticket1', eventContentfulId: 'event1', quantity: 10, price: 100, time: new Date(), title: 'Test', isAddonTicket: false, ticketsAvailable: 10 }
-        ]);
+        expect(result.ticketsWithNotEnoughAvailable).toEqual(ticketsInRequest);
     });
 
     it('has enough tickets in the database for all those in the request', () => {
