@@ -32,11 +32,21 @@ export const CheckoutForm = () => {
     resolver: zodResolver(schema),
   });
   const cart = useCartStore((state) => state.cart);
+  console.log(cart, "cart");
+  const onSubmit = async (data: FormData) => {
+    console.log(cart.tickets, "cart tickets");
+    const body = JSON.stringify({ ...data, purchasedTickets: cart.tickets });
 
-  const onSubmit = (data: FormData) => {
-    console.log(data);
-    console.log(data, "data");
-    const claimTicketBody = { ...data, purchasedTickets: cart.tickets };
+    const response = await fetch("/api/claimTickets", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body,
+    });
+
+    const decodedResponse = await response.json();
+    console.log(decodedResponse);
   };
 
   return (

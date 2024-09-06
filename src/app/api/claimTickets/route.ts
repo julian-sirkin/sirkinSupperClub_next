@@ -11,11 +11,14 @@ export async function POST(request: Request) {
      */
     const data = await request.json()
     const ticketsInRequest: CartTicketType[] = data?.purchasedTickets ?? []
-    const email = data?.email ?? ''
-    const customerName = data?.name ?? ''
-    const phoneNumber = data?.phoneNumber ?? ''
-    const notes = data?.notes ?? ''
+    const email: string = data?.email ?? ''
+    const customerName: string = data?.name ?? ''
+    const phoneNumber: string = data?.phoneNumber ?? ''
+    const notes: string = data?.notes ?? ''
+    const dietaryRestrictions: string = data?.dietaryRestrictions
 
+
+    console.log(ticketsInRequest, 'tickets in request')
     /**
      * Verify Requested tickets are available in database
      */
