@@ -14,6 +14,7 @@ export const ticketsTable = sqliteTable('tickets', {
     id: integer('id').primaryKey(),
     contentfulId: text('contentfulId').notNull(),
     event: integer('event_id').references(() => eventsTable.id),
+    price: integer('price'),
     totalAvailable: integer('totalAvailable').notNull(),
     totalSold: integer('totalSold').notNull(),
     time: integer('time', {mode: 'timestamp'})
