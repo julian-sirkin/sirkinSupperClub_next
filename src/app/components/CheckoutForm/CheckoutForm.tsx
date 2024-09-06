@@ -1,11 +1,10 @@
 "use client";
 
-import { useState } from "react";
-import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
 
-import { z } from "zod";
 import { useCartStore } from "@/store/cartStore";
+import { z } from "zod";
 
 const schema = z.object({
   name: z.string().trim().min(1, {
@@ -37,8 +36,7 @@ export const CheckoutForm = () => {
   const onSubmit = (data: FormData) => {
     console.log(data);
     console.log(data, "data");
-
-    const claimTicketBody = { ...data };
+    const claimTicketBody = { ...data, purchasedTickets: cart.tickets };
   };
 
   return (

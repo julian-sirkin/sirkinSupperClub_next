@@ -1,16 +1,17 @@
+import { CartTicketType } from "@/store/cartStore.types"
 import { DatabaseTickets, PurchasedTickets } from "../api/api.types"
 
 export type ValidateTicketQuantityForPurchaseProps = {
-    ticketsInRequest: PurchasedTickets[]
+    ticketsInRequest: CartTicketType[]
     ticketsInDatabase: DatabaseTickets[]
 }
 
 export const validateTicketQuantityForPurchase = ({ticketsInRequest, ticketsInDatabase}: ValidateTicketQuantityForPurchaseProps ) => {
     let areQuantitiesAvailable = true
-    const ticketsWithNotEnoughAvailable: PurchasedTickets[] = []
+    const ticketsWithNotEnoughAvailable: CartTicketType[] = []
 
     ticketsInRequest.forEach(requestedTicket => {
-        const databaseTicket = ticketsInDatabase.find(dbTicket => dbTicket.ticket.contentfulId === requestedTicket.ticketContentfulId)
+        const databaseTicket = ticketsInDatabase.find(dbTicket => dbTicket.ticket.contentfulId === requestedTicket.contentfulTicketId)
 
         if(databaseTicket) {
             const remainingTickets = databaseTicket.ticket.totalAvailable - databaseTicket.ticket.totalSold

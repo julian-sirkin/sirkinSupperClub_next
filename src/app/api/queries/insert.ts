@@ -3,6 +3,7 @@ import { db } from "@/db";
 import { customersTable, eventsTable, InsertCustomer, InsertEvent, InsertPurchase, InsertPurchaseItem, InsertTicket, purchaseItemsTable, purchasesTable, ticketsTable } from "@/db/schema";
 import { sql } from 'drizzle-orm';
 import { PurchasedTickets } from "../api.types";
+import { CartTicketType } from "@/store/cartStore.types";
 
 export async function createCustomer(data: InsertCustomer) {
     return await db.insert(customersTable).values(data).returning({id: customersTable.id})
@@ -24,7 +25,7 @@ export async function createEventWithTickets(parsedEvents: ParsedEvent[]) {
     const eventsToInsert: InsertEvent[] = parsedEvents.map(currentEvent => {
         return {
             title: currentEvent.title,
-            contentfulId: currentEvent.contentfulId,
+            contentfulId: currentEvent.contentfulEventId,
             date: currentEvent.date
         }
     })
@@ -38,7 +39,7 @@ export async function createEventWithTickets(parsedEvents: ParsedEvent[]) {
         parsedEvent.tickets.forEach((ticket) => {
             
             ticketsToInsert.push({
-                contentfulId: ticket.contentfulId,
+                contentfulId: ticket.contentfulTicketId,
                 event: insertedEvent.id,  // Associate this ticket with the correct event
                 totalAvailable: ticket.ticketsAvailable,
                 totalSold: 0,  // Assuming tickets start with 0 sold
@@ -54,7 +55,7 @@ export async function createEventWithTickets(parsedEvents: ParsedEvent[]) {
 }
 
 
-export async function createTicketPurchase(purchasedTickets: PurchasedTickets[], customerId: number, paid: boolean) {
+export async function createTicketPurchase(purchasedTickets: CartTicketType[], customerId: number, paid: boolean) {
     try {
     // Start a transaction to ensure atomicity
     await db.transaction(async (trx) => {
@@ -75,16 +76,16 @@ export async function createTicketPurchase(purchasedTickets: PurchasedTickets[],
         for (const purchasedTicket of purchasedTickets) {
             // Fetch the ticket to verify inventory
             const tickets = await trx.select().from(ticketsTable)
-                .where(sql`${ticketsTable.contentfulId} = ${purchasedTicket.ticketContentfulId}`)
+                .where(sql`${ticketsTable.contentfulId} = ${purchasedTicket.contentfulTicketId}`)
 
             const ticket = tickets.length > 0 ? tickets[0] : null
 
             if (!ticket) {
-                throw new Error(`Ticket with Contentful ID ${purchasedTicket.ticketContentfulId} not found`);
+                throw new Error(`Ticket with Contentful ID ${purchasedTicket.contentfulTicketId} not found`);
             }
 
             if (ticket.totalAvailable - ticket.totalSold < purchasedTicket.quantity) {
-                throw new Error(`Not enough tickets available for Contentful ID ${purchasedTicket.ticketContentfulId}`);
+                throw new Error(`Not enough tickets available for Contentful ID ${purchasedTicket.contentfulTicketId}`);
             }
 
             // Update the ticket inventory

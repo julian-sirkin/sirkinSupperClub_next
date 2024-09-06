@@ -3,13 +3,14 @@ import { PurchasedTickets } from "../api.types"
 import { getCustomerByEmail, getTicketsByIdAndEvent } from "../queries/select"
 import { validateTicketQuantityForPurchase } from "@/app/helpers/validateTicketQuantityForPurchase"
 import { createCustomer, createTicketPurchase } from "../queries/insert"
+import { CartTicketType } from "@/store/cartStore.types"
 
 export async function POST(request: Request) {
     /**
      * Pull off Data from request
      */
     const data = await request.json()
-    const ticketsInRequest: PurchasedTickets[] = data?.purchasedTickets ?? []
+    const ticketsInRequest: CartTicketType[] = data?.purchasedTickets ?? []
     const email = data?.email ?? ''
     const customerName = data?.name ?? ''
     const phoneNumber = data?.phoneNumber ?? ''

@@ -22,7 +22,7 @@ export const Ticket = ({
     updateCart({
       ...ticket,
       quantity: numberOfTickets,
-      eventContentfulId: event.contentfulId,
+      eventContentfulId: event.contentfulEventId,
     });
   };
 
