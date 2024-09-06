@@ -1,9 +1,18 @@
 "use client";
-import { ParsedTicket } from "@/app/contentful/contentfulServices.types";
+import {
+  ParsedEvent,
+  ParsedTicket,
+} from "@/app/contentful/contentfulServices.types";
 import { TicketSelect } from "./TicketSelect";
 import { useCartStore } from "@/store/cartStore";
 
-export const Ticket = ({ ticket }: { ticket: ParsedTicket }) => {
+export const Ticket = ({
+  ticket,
+  event,
+}: {
+  ticket: ParsedTicket;
+  event: ParsedEvent;
+}) => {
   const updateCart = useCartStore((state) => state.updateCart);
   const ticketsArray = new Array(ticket.ticketsAvailable + 1)
     .fill(1)
@@ -13,6 +22,7 @@ export const Ticket = ({ ticket }: { ticket: ParsedTicket }) => {
     updateCart({
       ...ticket,
       quantity: numberOfTickets,
+      eventContentfulId: event.contentfulEventId,
     });
   };
 

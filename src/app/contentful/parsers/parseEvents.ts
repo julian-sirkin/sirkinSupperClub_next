@@ -7,7 +7,7 @@ export const parseEvents = (eventData: ContentfulEventResponse | null): ParsedEv
     
     return eventData.items.map( event => (
         {
-            contentfulId: event._id,
+            contentfulEventId: event._id,
             title: event.title,
             date: new Date(event.date),
             price: event.price,
@@ -22,7 +22,7 @@ export const parseEvents = (eventData: ContentfulEventResponse | null): ParsedEv
 const parseTickets = (tickets: UnparsedTickets, eventPrice: ParsedEvent['price']): ParsedTicket[]  => {
     return tickets.items.map((ticket) => ( {
         ...ticket,
-        contentfulId: ticket._id,
+        contentfulTicketId: ticket._id,
         ticketsAvailable: Number(ticket.ticketsAvailable),
         time: new Date(ticket.ticketTime),
         price: ticket?.price ?? eventPrice,

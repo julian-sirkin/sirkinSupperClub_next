@@ -1,7 +1,8 @@
 import { db } from "@/db";
 import { customersTable, eventsTable, SelectCustomer, ticketsTable } from "@/db/schema";
-import { eq, and} from "drizzle-orm";
-import { DatabaseTickets, GetTicketByIdAndEventProps } from "../api.types";
+import { CartTicketType } from "@/store/cartStore.types";
+import { and, eq } from "drizzle-orm";
+import { DatabaseTickets } from "../api.types";
 
 export async function getCustomerByEmail(email: SelectCustomer['email']){
 return db.select().from(customersTable).where(eq(customersTable.email, email));
@@ -10,10 +11,10 @@ return db.select().from(customersTable).where(eq(customersTable.email, email));
 
 
 export async function getTicketsByIdAndEvent(
-    ticketEventProps: GetTicketByIdAndEventProps[]
+    ticketEventProps: CartTicketType[]
 ): Promise <DatabaseTickets[]> {
     const tickets = await Promise.all(
-        ticketEventProps.map(({ ticketContentfulId, eventContentfulId }) =>
+        ticketEventProps.map(({ contentfulTicketId, eventContentfulId }) =>
             db
                 .select({
                     ticket: ticketsTable,
@@ -22,7 +23,7 @@ export async function getTicketsByIdAndEvent(
                 .leftJoin(eventsTable, eq(ticketsTable.event, eventsTable.id))
                 .where(
                     and(
-                        eq(ticketsTable.contentfulId, ticketContentfulId),
+                        eq(ticketsTable.contentfulId, contentfulTicketId),
                         eq(eventsTable.contentfulId, eventContentfulId)
                     )
                 )

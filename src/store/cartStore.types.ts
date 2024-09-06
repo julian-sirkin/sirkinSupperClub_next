@@ -3,6 +3,7 @@ import { ParsedTicket } from "@/app/contentful/contentfulServices.types"
 export type CartTicketType = ParsedTicket & {
     quantity: number
     price: number
+    eventContentfulId: string
 }
 
 export type CartInStateType = {

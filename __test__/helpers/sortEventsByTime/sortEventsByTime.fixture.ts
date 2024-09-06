@@ -4,7 +4,7 @@ import { BLOCKS } from "@contentful/rich-text-types";
 export const eventsFixture: ParsedEvent[] = [
     {
       title: 'In the past event',
-      contentfulId: 'abcdef',
+      contentfulEventId: 'abcdef',
       date: new Date(Date.now() - (1000 * 3600 * 24 * 5)), // 5 Days in the past
       price: 58,
       menu: { data: {}, content: [], nodeType: BLOCKS.DOCUMENT },
@@ -14,7 +14,7 @@ export const eventsFixture: ParsedEvent[] = [
     },
     {
       title: 'Way in the future event',
-      contentfulId: 'hijklmnop',
+      contentfulEventId: 'hijklmnop',
       date: new Date(Date.now() + (1000 * 3600 * 24 * 35)), // 35 Days in the future
       price: 58,
       menu: { data: {}, content: [], nodeType: BLOCKS.DOCUMENT },
@@ -24,7 +24,7 @@ export const eventsFixture: ParsedEvent[] = [
     },
     {
       title: 'Next Event',
-      contentfulId: 'qrstuvwxyz',
+      contentfulEventId: 'qrstuvwxyz',
       date: new Date(Date.now() + (1000 * 3600 * 24 * 5)), // 5 days in the future
       price: 58,
       menu: { data: {}, content: [], nodeType: BLOCKS.DOCUMENT },

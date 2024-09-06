@@ -8,7 +8,7 @@ export type PictureItem = {
 }
 
 export type ParsedTicket = {
-    contentfulId: string
+    contentfulTicketId: string
     time: Date
     ticketsAvailable: number
     title: string 
@@ -37,7 +37,7 @@ export type PhotoGalleryResponse = {
 };
 
 export type ParsedEvent = {
-    contentfulId: string
+    contentfulEventId: string
     title: string
     date: Date
     price: number

@@ -3,18 +3,22 @@ import { PurchasedTickets } from "../api.types"
 import { getCustomerByEmail, getTicketsByIdAndEvent } from "../queries/select"
 import { validateTicketQuantityForPurchase } from "@/app/helpers/validateTicketQuantityForPurchase"
 import { createCustomer, createTicketPurchase } from "../queries/insert"
+import { CartTicketType } from "@/store/cartStore.types"
 
 export async function POST(request: Request) {
     /**
      * Pull off Data from request
      */
     const data = await request.json()
-    const ticketsInRequest: PurchasedTickets[] = data?.purchasedTickets ?? []
-    const email = data?.email ?? ''
-    const customerName = data?.name ?? ''
-    const phoneNumber = data?.phoneNumber ?? ''
-    const notes = data?.notes ?? ''
+    const ticketsInRequest: CartTicketType[] = data?.purchasedTickets ?? []
+    const email: string = data?.email ?? ''
+    const customerName: string = data?.name ?? ''
+    const phoneNumber: string = data?.phoneNumber ?? ''
+    const notes: string = data?.notes ?? ''
+    const dietaryRestrictions: string = data?.dietaryRestrictions
 
+
+    console.log(ticketsInRequest, 'tickets in request')
     /**
      * Verify Requested tickets are available in database
      */

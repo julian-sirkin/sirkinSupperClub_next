@@ -13,7 +13,7 @@ export async function POST(request: Request) {
     const eventsInDatabase = await db.query.eventsTable.findMany()
 
     const eventsNotInDatabase = upcomingEvents.filter(event => {
-        return !eventsInDatabase.find(savedEvent => savedEvent.contentfulId === event.contentfulId)
+        return !eventsInDatabase.find(savedEvent => savedEvent.contentfulId === event.contentfulEventId)
     })
 
     if (eventsNotInDatabase.length > 0) {
