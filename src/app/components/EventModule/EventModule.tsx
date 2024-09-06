@@ -1,4 +1,4 @@
-import { ParsedEvent } from "@/app/contentful/contentfulServices.types";
+import { ParsedEvent } from "@/app/networkCalls/contentful/contentfulServices.types";
 import { Ticket } from "../Ticket/Ticket";
 import { Menu } from "../Menu/Menu";
 import { EventLongDescription } from "../EventLongDescription/EventLongDescription";

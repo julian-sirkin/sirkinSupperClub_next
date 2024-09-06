@@ -1,6 +1,6 @@
 import { EventModule } from "@/app/components/EventModule/EventModule";
 import { MainLayout } from "@/app/components/mainLayout/MainLayout";
-import { contentfulService } from "@/app/contentful/contentfulService";
+import { contentfulService } from "@/app/networkCalls/contentful/contentfulService";
 import { headers } from "next/headers";
 import { eventPageLinks } from "./EventPage.constants";
 

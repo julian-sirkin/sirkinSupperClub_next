@@ -1,4 +1,4 @@
-import { ParsedEvent } from "../contentful/contentfulServices.types";
+import { ParsedEvent } from "../networkCalls/contentful/contentfulServices.types";
 
 
 

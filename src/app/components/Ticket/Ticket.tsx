@@ -2,7 +2,7 @@
 import {
   ParsedEvent,
   ParsedTicket,
-} from "@/app/contentful/contentfulServices.types";
+} from "@/app/networkCalls/contentful/contentfulServices.types";
 import { TicketSelect } from "./TicketSelect";
 import { useCartStore } from "@/store/cartStore";
 

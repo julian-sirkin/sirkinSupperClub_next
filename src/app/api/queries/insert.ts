@@ -1,4 +1,4 @@
-import { ParsedEvent } from "@/app/contentful/contentfulServices.types";
+import { ParsedEvent } from "@/app/networkCalls/contentful/contentfulServices.types";
 import { db } from "@/db";
 import { customersTable, eventsTable, InsertCustomer, InsertEvent, InsertPurchase, InsertPurchaseItem, InsertTicket, purchaseItemsTable, purchasesTable, ticketsTable } from "@/db/schema";
 import { sql } from 'drizzle-orm';

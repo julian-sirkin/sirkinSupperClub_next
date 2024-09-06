@@ -1,4 +1,4 @@
-import { contentfulService } from "@/app/contentful/contentfulService";
+import { contentfulService } from "@/app/networkCalls/contentful/contentfulService";
 import { sortEventsByTime } from "@/app/helpers/sortEventsByTime";
 import { db } from "@/db";
 import { NextResponse } from "next/server";

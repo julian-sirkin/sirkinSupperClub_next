@@ -1,4 +1,4 @@
-import { ParsedEvent } from "@/app/contentful/contentfulServices.types";
+import { ParsedEvent } from "@/app/networkCalls/contentful/contentfulServices.types";
 import Link from "next/link";
 
 export const EventTeaserCard = ({

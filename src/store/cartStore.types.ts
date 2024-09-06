@@ -1,4 +1,4 @@
-import { ParsedTicket } from "@/app/contentful/contentfulServices.types"
+import { ParsedTicket } from "@/app/networkCalls/contentful/contentfulServices.types"
 
 export type CartTicketType = ParsedTicket & {
     quantity: number
