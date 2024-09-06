@@ -4,26 +4,15 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 
 import { useCartStore } from "@/store/cartStore";
-import { z } from "zod";
+import { FormData, schema } from "./CheckoutForm.fixture";
 
-const schema = z.object({
-  name: z.string().trim().min(1, {
-    message: "Name is required",
-  }),
-  email: z.string().trim().email({ message: "Invalid email address" }),
-  phoneNumber: z
-    .string()
-    .regex(
-      /^([+]?[\s0-9]+)?(\d{3}|[(]?[0-9]+[)])?([-]?[\s]?[0-9])+$/,
-      "Invalid phone number"
-    ),
-  notes: z.string().trim().optional(),
-  dietaryRestrictions: z.string().trim().optional(),
-});
-
-type FormData = z.infer<typeof schema>;
-
-export const CheckoutForm = () => {
+export const CheckoutForm = ({
+  onSubmit,
+  shouldDisableButton,
+}: {
+  onSubmit: (data: FormData) => Promise<void>;
+  shouldDisableButton: boolean;
+}) => {
   const {
     register,
     handleSubmit,
@@ -33,21 +22,6 @@ export const CheckoutForm = () => {
   });
   const cart = useCartStore((state) => state.cart);
   console.log(cart, "cart");
-  const onSubmit = async (data: FormData) => {
-    console.log(cart.tickets, "cart tickets");
-    const body = JSON.stringify({ ...data, purchasedTickets: cart.tickets });
-
-    const response = await fetch("/api/claimTickets", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body,
-    });
-
-    const decodedResponse = await response.json();
-    console.log(decodedResponse);
-  };
 
   return (
     <form
@@ -118,6 +92,7 @@ export const CheckoutForm = () => {
       </span>
       <button
         type="submit"
+        disabled={shouldDisableButton}
         className="mx-auto h-14 w-52 bg-gold text-white font-bold text-2xl hover:cursor-pointer"
       >
         Checkout
