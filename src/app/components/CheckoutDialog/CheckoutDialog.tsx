@@ -53,7 +53,7 @@ export const CheckoutDialog = ({ event }: { event: ParsedEvent }) => {
   return (
     <Dialog>
       <div className="flex justify-center">
-        <DialogTrigger className="h-20 w-40 bg-black text-3xl text-white text-center font-bold">
+        <DialogTrigger className="h-20 w-48 bg-black text-3xl text-white text-center font-bold hover:underline hover:text-gold">
           Checkout
         </DialogTrigger>
       </div>

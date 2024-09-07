@@ -20,7 +20,9 @@ export const CheckoutForm = ({
   } = useForm<FormData>({
     resolver: zodResolver(schema),
   });
+
   const cart = useCartStore((state) => state.cart);
+  const disableButton = shouldDisableButton || cart.tickets.length === 0;
 
   return (
     <form
@@ -46,7 +48,7 @@ export const CheckoutForm = ({
         <input
           {...register("email")}
           className="h-8 w-52 text-black"
-          type="email"
+          type="text"
         />
         {errors.email && (
           <p className="text-red-500">{String(errors.email.message)}</p>
@@ -91,8 +93,8 @@ export const CheckoutForm = ({
       </span>
       <button
         type="submit"
-        disabled={shouldDisableButton}
-        className="mx-auto h-14 w-52 bg-gold text-white font-bold text-2xl hover:cursor-pointer"
+        disabled={disableButton}
+        className="mx-auto h-14 w-52 bg-gold text-white font-bold text-2xl hover:cursor-pointer hover:underline hover:text-black"
       >
         Checkout
       </button>

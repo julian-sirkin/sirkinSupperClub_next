@@ -33,14 +33,26 @@ export const Ticket = ({
       </h4>
       <div className="flex justify-between">
         <section>
-          <h5 className="text-white">Dining Time: </h5>
+          <h5 className="text-white">
+            Dining Time:{" "}
+            {ticket.time.toLocaleString("en-us", {
+              hour: "numeric",
+              minute: "numeric",
+            })}
+          </h5>
           <h5 className="text-white">Price: ${ticket.price}.00</h5>
         </section>
-        <TicketSelect
-          availableTickets={ticketsArray}
-          handleChangeQuantity={handleChangeQuantity}
-          ticketTitle={ticket.title}
-        />
+        {ticketsArray.length > 1 ? (
+          <TicketSelect
+            availableTickets={ticketsArray}
+            handleChangeQuantity={handleChangeQuantity}
+            ticketTitle={ticket.title}
+          />
+        ) : (
+          <p className="text-red-600 text-center text-large font-bold w-[180px] pt-4">
+            Sold Out
+          </p>
+        )}
       </div>
     </form>
   );
