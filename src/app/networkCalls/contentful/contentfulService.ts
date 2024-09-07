@@ -5,14 +5,6 @@ import { parseEvents } from "./parsers/parseEvents"
 import { parsePhotoGallery } from "./parsers/parsePhotoGallery"
 import { getTicketsByIdAndEvent } from "@/app/api/queries/select"
 
-// // Ensure ParsedTicket includes contentfulEventId
-// interface ParsedTicket {
-//     contentfulTicketId: string;
-//     contentfulEventId: string; // Add this line
-//     ticketsAvailable: number;
-//     // other properties...
-// }
-
 export const contentfulService = () => {
     const contentfulEndpoint = process.env.CONTENTFUL_GRAPHQL_ENDPOINT
 
@@ -47,7 +39,8 @@ export const contentfulService = () => {
                 "Content-Type": "application/json",
                 Authorization: `Bearer ${process.env.CONTENTFUL_DELIVERY_TOKEN}`
                 },
-                body: requestBody
+                body: requestBody,
+                next: {revalidate: 300}
             }
 
             const response = await fetch(contentfulEndpoint, fetchOptions)
@@ -77,12 +70,10 @@ export const contentfulService = () => {
         }))
 
         const dbTickets = await getTicketsByIdAndEvent(reshapedTickets as { contentfulTicketId: string; eventContentfulId: string }[])
-        console.log('I am updating the tickets available')
         return parsedEvents.map(event => ({
             ...event,
             tickets: event.tickets.map(ticket => {
                 const dbTicket = dbTickets.find(dbTicket => dbTicket.ticket.contentfulId === ticket.contentfulTicketId)
-                console.log(dbTicket, 'db ticket ===========>>>>>>>')
                 return dbTicket ? {
                     ...ticket,
                     ticketsAvailable: dbTicket.ticket.totalAvailable - dbTicket.ticket.totalSold

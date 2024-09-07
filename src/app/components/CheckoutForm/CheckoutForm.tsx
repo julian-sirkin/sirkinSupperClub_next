@@ -21,7 +21,6 @@ export const CheckoutForm = ({
     resolver: zodResolver(schema),
   });
   const cart = useCartStore((state) => state.cart);
-  console.log(cart, "cart");
 
   return (
     <form

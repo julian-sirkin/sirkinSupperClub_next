@@ -37,6 +37,7 @@ export const CheckoutDialog = ({ event }: { event: ParsedEvent }) => {
     });
 
     const decodedResponse = await response.json();
+
     setShouldDisableSubmitButton(false);
     setShouldShowForm(false);
     if (decodedResponse.status !== 200) {
@@ -44,6 +45,7 @@ export const CheckoutDialog = ({ event }: { event: ParsedEvent }) => {
       setTimeout(() => {
         setShowErrorMessage(false);
         setShouldShowForm(true);
+        setShouldDisableSubmitButton(false);
       }, 15000);
     }
   };
