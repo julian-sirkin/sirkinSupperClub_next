@@ -4,7 +4,10 @@ import Link from "next/link";
 
 export const HeroModule = () => {
   return (
-    <div className="h-lvh w-auto backgroundImage flex justify-center" id="home">
+    <div
+      className="h-auto w-auto py-10 md:py-12 backgroundImage flex justify-center"
+      id="home"
+    >
       <div className=" h-[750px] lg:h-[650px] w-[400px] md:w-[500px] lg:w-[650px] mt-20 md:mt-32 md:mb-32 bg-black bg-opacity-90 flex flex-col items-center space-y-12 p-6">
         <Image
           src="/logo/main_logo.png"
