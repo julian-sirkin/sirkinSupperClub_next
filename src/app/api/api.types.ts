@@ -1,3 +1,5 @@
+import { CartTicketType } from "@/store/cartStore.types"
+
 export type PurchasedTickets = {
     eventContentfulId: string
     ticketContentfulId: string
@@ -31,4 +33,15 @@ export type UpdatedTicketFields = {
 export type UpdatedEventFields = {
 title?: string
 date?: Date 
+}
+
+export type SuccessEmailProps = {
+    customer: {
+        email: string
+        name: string
+        notes: string
+        dietaryRestrictions: string
+        phoneNumber: string
+    }
+    tickets: CartTicketType[]
 }

@@ -1,9 +1,9 @@
-import { NextResponse } from "next/server"
-import { PurchasedTickets } from "../api.types"
-import { getCustomerByEmail, getTicketsByIdAndEvent } from "../queries/select"
 import { validateTicketQuantityForPurchase } from "@/app/helpers/validateTicketQuantityForPurchase"
-import { createCustomer, createTicketPurchase } from "../queries/insert"
 import { CartTicketType } from "@/store/cartStore.types"
+import { NextResponse } from "next/server"
+import { createCustomer, createTicketPurchase } from "../queries/insert"
+import { getCustomerByEmail, getTicketsByIdAndEvent } from "../queries/select"
+import { successEmail } from "./successEmail"
 
 export async function POST(request: Request) {
     /**
@@ -45,7 +45,10 @@ export async function POST(request: Request) {
     const {isSuccessful, message} = await createTicketPurchase(ticketsInRequest, customerId, false) 
 
     if(isSuccessful) {
-        return NextResponse.json({status: 200, message})
+        const {emailSuccessfully} = await successEmail({customer: {name: customerName, email, phoneNumber, notes, dietaryRestrictions}, tickets: ticketsInRequest})
+        
+        return emailSuccessfully ? NextResponse.json({status: 200, message}) : NextResponse.json({status: 500, message: "Email issue"})
+
     } else {
         return NextResponse.json({status: 500, message})
     }
