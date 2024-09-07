@@ -125,7 +125,7 @@ export const CheckoutDialog = ({ event }: { event: ParsedEvent }) => {
             shouldDisableButton={shouldDisableSubmitButton}
           />
         ) : (
-          <CheckoutResponseMessage showErrorMessage={errorMessage} />
+          <CheckoutResponseMessage errorMessage={errorMessage} />
         )}
       </DialogContent>
     </Dialog>
