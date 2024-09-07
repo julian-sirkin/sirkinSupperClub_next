@@ -1,0 +1,2 @@
+export const emailFailMessage = "Order successfully registered, but email service failed, please reach out to confirm"
+export const successfulRegisteredMessage = "Succesfully registered for the upcoming event"
