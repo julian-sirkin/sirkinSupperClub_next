@@ -1,8 +1,8 @@
 import { eventsFixture } from "../../../__test__/helpers/sortEventsByTime/sortEventsByTime.fixture";
 import { EventTeaserCard } from "../components/EventTeaserCard/EventTeaserCard";
 import { MainLayout } from "../components/mainLayout/MainLayout";
-import { contentfulService } from "../contentful/contentfulService";
-import { ParsedEvent } from "../contentful/contentfulServices.types";
+import { contentfulService } from "../networkCalls/contentful/contentfulService";
+import { ParsedEvent } from "../networkCalls/contentful/contentfulServices.types";
 import { sortEventsByTime } from "../helpers/sortEventsByTime";
 
 export default async function Events() {

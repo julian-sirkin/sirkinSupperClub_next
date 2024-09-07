@@ -1,6 +1,6 @@
 "use client";
 
-import { ParsedEvent } from "@/app/contentful/contentfulServices.types";
+import { ParsedEvent } from "@/app/networkCalls/contentful/contentfulServices.types";
 import {
   Dialog,
   DialogContent,
@@ -37,6 +37,7 @@ export const CheckoutDialog = ({ event }: { event: ParsedEvent }) => {
     });
 
     const decodedResponse = await response.json();
+
     setShouldDisableSubmitButton(false);
     setShouldShowForm(false);
     if (decodedResponse.status !== 200) {
@@ -44,6 +45,7 @@ export const CheckoutDialog = ({ event }: { event: ParsedEvent }) => {
       setTimeout(() => {
         setShowErrorMessage(false);
         setShouldShowForm(true);
+        setShouldDisableSubmitButton(false);
       }, 15000);
     }
   };
@@ -51,11 +53,11 @@ export const CheckoutDialog = ({ event }: { event: ParsedEvent }) => {
   return (
     <Dialog>
       <div className="flex justify-center">
-        <DialogTrigger className="h-20 w-40 bg-black text-3xl text-white text-center font-bold">
+        <DialogTrigger className="h-20 w-48 bg-black text-3xl text-white text-center font-bold hover:underline hover:text-gold">
           Checkout
         </DialogTrigger>
       </div>
-      <DialogContent className="bg-black text-white w-auto md:w-11/12 p-12 ">
+      <DialogContent className="bg-black text-white w-11/12 p-12 ">
         <DialogHeader>
           <DialogTitle className="text-2xl md:text-3xl">
             Reserve Your Spot

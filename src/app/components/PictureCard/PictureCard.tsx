@@ -1,5 +1,5 @@
 "use client";
-import { PictureItem } from "@/app/contentful/contentfulServices.types";
+import { PictureItem } from "@/app/networkCalls/contentful/contentfulServices.types";
 import Image from "next/image";
 import React, { useState } from "react";
 import "./PictureCard.css";

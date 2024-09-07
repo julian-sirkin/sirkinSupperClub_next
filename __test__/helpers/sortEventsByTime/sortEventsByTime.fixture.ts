@@ -1,4 +1,4 @@
-import { ParsedEvent } from "@/app/contentful/contentfulServices.types";
+import { ParsedEvent } from "@/app/networkCalls/contentful/contentfulServices.types";
 import { BLOCKS } from "@contentful/rich-text-types";
 
 export const eventsFixture: ParsedEvent[] = [
@@ -33,3 +33,5 @@ export const eventsFixture: ParsedEvent[] = [
       longDescription: { data: {}, content: [], nodeType: BLOCKS.DOCUMENT }
     }
   ]
+
+  

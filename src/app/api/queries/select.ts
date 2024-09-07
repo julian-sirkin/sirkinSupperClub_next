@@ -11,7 +11,7 @@ return db.select().from(customersTable).where(eq(customersTable.email, email));
 
 
 export async function getTicketsByIdAndEvent(
-    ticketEventProps: CartTicketType[]
+    ticketEventProps: Array<Pick<CartTicketType, 'contentfulTicketId' | 'eventContentfulId'>>
 ): Promise <DatabaseTickets[]> {
     const tickets = await Promise.all(
         ticketEventProps.map(({ contentfulTicketId, eventContentfulId }) =>

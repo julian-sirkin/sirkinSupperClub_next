@@ -1,4 +1,4 @@
-import { contentfulService } from "@/app/contentful/contentfulService";
+import { contentfulService } from "@/app/networkCalls/contentful/contentfulService";
 import { PictureCard } from "../../PictureCard/PictureCard";
 
 const PhotosModule = async () => {

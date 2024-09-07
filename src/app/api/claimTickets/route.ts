@@ -18,7 +18,6 @@ export async function POST(request: Request) {
     const dietaryRestrictions: string = data?.dietaryRestrictions
 
 
-    console.log(ticketsInRequest, 'tickets in request')
     /**
      * Verify Requested tickets are available in database
      */
