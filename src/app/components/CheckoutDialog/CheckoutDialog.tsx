@@ -20,9 +20,12 @@ export const CheckoutDialog = ({ event }: { event: ParsedEvent }) => {
   const [shouldShowForm, setShouldShowForm] = useState<boolean>(true);
   const [shouldDisableSubmitButton, setShouldDisableSubmitButton] =
     useState<boolean>(false);
-  const [showErrorMessage, setShowErrorMessage] = useState<boolean>(false);
+  const [errorMessage, setErrorMessage] = useState<string>("");
 
-  const cart = useCartStore((state) => state.cart);
+  const { cart, emptyCart } = useCartStore((state) => ({
+    cart: state.cart,
+    emptyCart: state.emptyCart,
+  }));
 
   const onSubmit = async (data: FormData) => {
     setShouldDisableSubmitButton(true);
@@ -37,16 +40,18 @@ export const CheckoutDialog = ({ event }: { event: ParsedEvent }) => {
     });
 
     const decodedResponse = await response.json();
-
+    console.log(decodedResponse, "decoded response");
     setShouldDisableSubmitButton(false);
     setShouldShowForm(false);
     if (decodedResponse.status !== 200) {
-      setShowErrorMessage(true);
+      setErrorMessage(decodedResponse.message);
       setTimeout(() => {
-        setShowErrorMessage(false);
+        setErrorMessage("");
         setShouldShowForm(true);
         setShouldDisableSubmitButton(false);
       }, 15000);
+    } else {
+      emptyCart();
     }
   };
 
@@ -120,7 +125,7 @@ export const CheckoutDialog = ({ event }: { event: ParsedEvent }) => {
             shouldDisableButton={shouldDisableSubmitButton}
           />
         ) : (
-          <CheckoutResponseMessage showErrorMessage={showErrorMessage} />
+          <CheckoutResponseMessage showErrorMessage={errorMessage} />
         )}
       </DialogContent>
     </Dialog>

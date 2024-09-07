@@ -4,6 +4,7 @@ import { NextResponse } from "next/server"
 import { createCustomer, createTicketPurchase } from "../queries/insert"
 import { getCustomerByEmail, getTicketsByIdAndEvent } from "../queries/select"
 import { successEmail } from "./successEmail"
+import { emailFailMessage, successfulRegisteredMessage } from "@/app/constants"
 
 export async function POST(request: Request) {
     /**
@@ -47,7 +48,7 @@ export async function POST(request: Request) {
     if(isSuccessful) {
         const {emailSuccessfully} = await successEmail({customer: {name: customerName, email, phoneNumber, notes, dietaryRestrictions}, tickets: ticketsInRequest})
         
-        return emailSuccessfully ? NextResponse.json({status: 200, message}) : NextResponse.json({status: 500, message: "Email issue"})
+        return emailSuccessfully ? NextResponse.json({status: 200, message: successfulRegisteredMessage}) : NextResponse.json({status: 500, message: emailFailMessage})
 
     } else {
         return NextResponse.json({status: 500, message})

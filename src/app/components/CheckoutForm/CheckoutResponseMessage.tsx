@@ -1,15 +1,16 @@
+import { emailFailMessage } from "@/app/constants";
 import { useCartStore } from "@/store/cartStore";
 
 export const CheckoutResponseMessage = ({
-  showErrorMessage,
+  errorMessage,
 }: {
-  showErrorMessage: boolean;
+  errorMessage: string;
 }) => {
   const cart = useCartStore((state) => state.cart);
 
   return (
     <>
-      {showErrorMessage ? (
+      {errorMessage ? (
         <div className="text-center">
           <h2 className="text-2xl font-bold text-red-500 mb-4">
             Unable to Process Order
@@ -18,6 +19,9 @@ export const CheckoutResponseMessage = ({
             We apologize, but we were unable to process your order. This is
             likely due to insufficient seat availability.
           </p>
+          {errorMessage === emailFailMessage ? (
+            <p className="mb-4">{emailFailMessage}</p>
+          ) : null}
           <p className="mb-4">You can try the following:</p>
           <ul className="list-disc list-inside mb-4">
             <li>Reduce the number of seats in your order</li>

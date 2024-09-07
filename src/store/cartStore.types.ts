@@ -14,4 +14,5 @@ export type CartInStateType = {
 export type ZustandCartStateType = {
     cart: CartInStateType
     updateCart: (ticket: CartTicketType) => void
+    emptyCart: () => void
 }
