@@ -23,6 +23,7 @@ export const contentfulService = () => {
 
             const response = await fetch(contentfulEndpoint, fetchOptions)
             const decodedResponse: {data: PhotoGalleryResponse} = await response.json()
+            
             return await parsePhotoGallery(decodedResponse.data)
         } else {
             return []
@@ -45,6 +46,7 @@ export const contentfulService = () => {
 
             const response = await fetch(contentfulEndpoint, fetchOptions)
             const decodedResponse: {data: any} = await response.json()
+            console.log(decodedResponse, 'decoded response')
             if (decodedResponse?.data?.eventTypeCollection) {
                 const parsedEvents = parseEvents(decodedResponse.data.eventTypeCollection)
                 return await updateTicketsAvailability(parsedEvents)
