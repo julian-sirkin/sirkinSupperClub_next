@@ -1,5 +1,6 @@
 "use client";
 
+import { redirectToEvents } from "@/app/actions";
 import { useState } from "react";
 
 export const PasswordForm = () => {
@@ -7,12 +8,11 @@ export const PasswordForm = () => {
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    alert("I have submitted");
   };
 
   return (
     <form
-      onSubmit={handleSubmit}
+      action={redirectToEvents}
       className="w-auto flex items-center md:items-end justify-center flex-col gap-4 md:gap-8"
     >
       <input

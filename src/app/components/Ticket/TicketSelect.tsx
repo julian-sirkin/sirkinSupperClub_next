@@ -34,10 +34,10 @@ export const TicketSelect = ({
     <Select
       onValueChange={(newQuantity) => handleChangeQuantity(Number(newQuantity))}
     >
-      <SelectTrigger className="bg-gold w-[180px] h-12 font-bold text-lg text-white text-bold hover:bg-white hover:text-gold">
+      <SelectTrigger className="bg-gold w-[140px] md:w-[180px] h-12 font-bold text-md md:text-lg text-white text-bold hover:bg-white hover:text-gold">
         <SelectValue placeholder={placeholderValue} />
       </SelectTrigger>
-      <SelectContent className="bg-gold">
+      <SelectContent className="bg-gold w-[140px] md:w-[180px]">
         <SelectGroup className="text-lg">
           <SelectLabel>Number of Tickets</SelectLabel>
           {availableTickets.map((ticketQuantity) => (
