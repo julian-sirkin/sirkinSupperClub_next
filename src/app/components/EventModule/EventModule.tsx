@@ -21,12 +21,12 @@ export const EventModule = ({ event }: { event: ParsedEvent }) => {
       <section
         id="tickets"
         aria-label="Ticket Section"
-        className=" w-auto md:w-1/2 border-2 md:border-4 border-gold mx-auto px-2 md:px-6 py-6 md:py-10 bg-gold mt-8 md:mt-12 mb-12"
+        className=" w-auto md:w-1/2 border-2 md:border-4 border-gold mx-auto md:px-6 py-6 md:py-10 bg-gold mt-8 md:mt-12 mb-12"
       >
         <h3 className="text-white text-bold font-bold text-2xl md:text-5xl text-center mb-4 md:mb-4">
           Tickets
         </h3>
-        <div id="Tickets container" className="mb-6">
+        <div id="Tickets container" className="mb-6 flex flex-col items-center">
           {event.tickets.map((ticket) => (
             <Ticket key={ticket.title} ticket={ticket} event={event} />
           ))}

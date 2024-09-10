@@ -8,12 +8,11 @@ export const EventTeaserCard = ({
   event: ParsedEvent;
   isFeaturedEvent: boolean;
 }) => {
-  const eventDate = event?.date
-    ? `${event.date.toLocaleDateString("default", {
-        month: "long",
-      })} ${event?.date?.getMonth()}, ${event?.date?.getFullYear()}`
-    : "DM For Date";
-
+  const eventDate = event.date.toLocaleString("en-us", {
+    month: "short",
+    day: "numeric",
+  });
+  console.log(eventDate, "eventDate");
   const numberOfSeatsAvailable = event.tickets.reduce(
     (availableSeats, currentTicket) => {
       return !currentTicket.isAddonTicket

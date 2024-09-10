@@ -30,11 +30,11 @@ export const CheckoutForm = ({
       className="flex flex-col items-center"
     >
       {/* Name Input */}
-      <span className="flex flex-col mb-4">
-        <label className="font-bold text-gold mb-2">Name</label>
+      <span className="flex flex-col mb-2 md:mb-4">
+        <label className="font-bold text-gold mb-1 md:mb-2">Name</label>
         <input
           {...register("name")}
-          className="h-8 w-52 text-black"
+          className="h-6 md:h-10 w-52 text-black"
           type="text"
         />
         {errors.name && (
@@ -43,11 +43,11 @@ export const CheckoutForm = ({
       </span>
 
       {/* Email Input */}
-      <span className="flex flex-col mb-4 ">
-        <label className="font-bold text-gold mb-2">Email</label>
+      <span className="flex flex-col mb-2 md:mb-4">
+        <label className="font-bold text-gold mb-1 md:mb-2">Email</label>
         <input
           {...register("email")}
-          className="h-8 w-52 text-black"
+          className="h-6 md:h-10 w-52 text-black"
           type="text"
         />
         {errors.email && (
@@ -56,11 +56,11 @@ export const CheckoutForm = ({
       </span>
 
       {/* Phone Number Input */}
-      <span className="flex flex-col mb-4">
-        <label className="font-bold text-gold mb-2">Phone Number</label>
+      <span className="flex flex-col mb-2 md:mb-4">
+        <label className="font-bold text-gold mb-1 md:mb-2">Phone Number</label>
         <input
           {...register("phoneNumber")}
-          className="h-8 w-52 text-black"
+          className="h-6 md:h-10 w-52 text-black"
           type="tel"
         />
         {errors.phoneNumber && (
@@ -69,11 +69,13 @@ export const CheckoutForm = ({
       </span>
 
       {/* Dietary Restrictions Input */}
-      <span className="flex flex-col mb-4">
-        <label className="font-bold text-gold mb-2">Dietary Restrictions</label>
+      <span className="flex flex-col mb-2 md:mb-4">
+        <label className="font-bold text-gold mb-1 md:mb-2">
+          Dietary Restrictions
+        </label>
         <input
           {...register("dietaryRestrictions")}
-          className="h-8 w-52 text-black"
+          className="h-6 md:h-10 w-52 text-black"
           type="text"
         />
         {errors.dietaryRestrictions && (
@@ -84,8 +86,8 @@ export const CheckoutForm = ({
       </span>
 
       {/* Notes Input */}
-      <span className="flex flex-col mb-6">
-        <label className="font-bold text-gold mb-2">Notes</label>
+      <span className="flex flex-col mb-2 md:mb-4">
+        <label className="font-bold text-gold mb-1 md:mb-2">Notes</label>
         <textarea {...register("notes")} className="h-16 w-52 text-black" />
         {errors.notes && (
           <p className="text-red-500">{String(errors.notes.message)}</p>
@@ -94,7 +96,7 @@ export const CheckoutForm = ({
       <button
         type="submit"
         disabled={disableButton}
-        className="mx-auto h-14 w-52 bg-gold text-white font-bold text-2xl hover:cursor-pointer hover:underline hover:text-black"
+        className="mx-auto h-14 w-52 mt-2 md:mt-6 bg-gold text-white font-bold text-2xl hover:cursor-pointer hover:underline hover:text-black"
       >
         Checkout
       </button>

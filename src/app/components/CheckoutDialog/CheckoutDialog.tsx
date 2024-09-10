@@ -62,7 +62,7 @@ export const CheckoutDialog = ({ event }: { event: ParsedEvent }) => {
           Checkout
         </DialogTrigger>
       </div>
-      <DialogContent className="bg-black text-white w-11/12 p-12 ">
+      <DialogContent className="bg-black text-white w-11/12 p-6 md:p-12 ">
         <DialogHeader>
           <DialogTitle className="text-2xl md:text-3xl">
             Reserve Your Spot

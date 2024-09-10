@@ -22,10 +22,10 @@ export const parseEvents = (eventData: ContentfulEventResponse | null): ParsedEv
 const parseTickets = (tickets: UnparsedTickets, eventPrice: ParsedEvent['price']): ParsedTicket[]  => {
     return tickets.items.map((ticket) => ( {
         ...ticket,
-        contentfulTicketId: ticket._id,
-        ticketsAvailable: Number(ticket.ticketsAvailable),
-        time: new Date(ticket.ticketTime),
+        contentfulTicketId: ticket?._id ?? null,
+        ticketsAvailable: Number(ticket?.ticketsAvailable ?? 0),
+        time: new Date(ticket?.ticketTime),
         price: ticket?.price ?? eventPrice,
-        isAddonTicket: ticket.isAddonTicket,
+        isAddonTicket: ticket?.isAddonTicket ?? false,
     }))
 }

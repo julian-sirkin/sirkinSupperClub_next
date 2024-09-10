@@ -27,11 +27,11 @@ export const Ticket = ({
   };
 
   return (
-    <form className="border-2 md:border-4 md:w-3/4 mx-auto border-white p-2 md:p-4 bg-black opacity-95 mb-4 md:mb-6">
+    <form className="border-2 md:border-4 w-auto md:w-3/4 border-white p-2 md:p-4 bg-black opacity-95 mb-4 md:mb-6">
       <h4 className="text-gold text-xl font-bold md:text-2xl mb-4">
         {ticket.title}
       </h4>
-      <div className="flex justify-between">
+      <div className="flex justify-between gap-6 md:gap-8">
         <section>
           <h5 className="text-white">
             Dining Time:{" "}
