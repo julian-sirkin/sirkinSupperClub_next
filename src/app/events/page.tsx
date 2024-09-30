@@ -1,3 +1,4 @@
+"use client";
 import { eventsFixture } from "../../../__test__/helpers/sortEventsByTime/sortEventsByTime.fixture";
 import { EventTeaserCard } from "../components/EventTeaserCard/EventTeaserCard";
 import { MainLayout } from "../components/mainLayout/MainLayout";
