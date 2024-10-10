@@ -18,10 +18,8 @@ export default function Login() {
       body: JSON.stringify({ password }),
     });
 
-    console.log(res, 'res =====>>>>>>>>')
-
     if (res.ok) {
-      Cookies.set('adminVerified', 'true'); // Set a cookie if successful
+       // Set a cookie if successful
       router.push('/admin'); // Redirect to admin page
     } else {
       setError('Invalid password');

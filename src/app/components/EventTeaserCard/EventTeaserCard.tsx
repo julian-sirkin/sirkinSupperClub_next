@@ -12,7 +12,6 @@ export const EventTeaserCard = ({
     month: "short",
     day: "numeric",
   });
-  console.log(eventDate, "eventDate");
   const numberOfSeatsAvailable = event.tickets.reduce(
     (availableSeats, currentTicket) => {
       return !currentTicket.isAddonTicket

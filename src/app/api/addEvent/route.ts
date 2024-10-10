@@ -9,7 +9,6 @@ export async function POST(request: Request) {
     const contentful = contentfulService();
     const eventData = await contentful.getEvents();
     const { upcomingEvents } = sortEventsByTime(eventData);
-    
     const eventsInDatabase = await db.query.eventsTable.findMany();
 
     const eventsNotInDatabase = upcomingEvents.filter(event => {
