@@ -40,7 +40,6 @@ export const CheckoutDialog = ({ event }: { event: ParsedEvent }) => {
     });
 
     const decodedResponse = await response.json();
-    console.log(decodedResponse, "decoded response");
     setShouldDisableSubmitButton(false);
     setShouldShowForm(false);
     if (decodedResponse.status !== 200) {
