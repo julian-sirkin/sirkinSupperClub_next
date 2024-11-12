@@ -4,10 +4,10 @@ import CustomerSection from '../adminPannelSections/CustomerSection';
 import EventData from '../adminPannelSections/EventData';
 
 const AdminPanel = () => {
-  const [activeSection, setActiveSection] = useState<'customers' | 'events'>('customers');
+  const [activeSection, setActiveSection] = useState<'customers' | 'events'>('events');
+  const [eventSelected, setEventSelected] = useState<number | null>(null)
 
   const handleMergeEventsToDatabase = async () => {
-    console.log('Merge Events to Database')
     const response = await fetch('api/addEvent', {
         method: 'POST',
         headers: {
@@ -17,23 +17,28 @@ const AdminPanel = () => {
     })
 
     const data = await response.json()
-    console.log(data, 'data')
+  }
+
+  const handleClickEvent = (event: string) => {
+
   }
 
   return (
     <div className="admin-panel">
       <header>
-        <h1>Admin Panel</h1>
+        <h1 className="text-center text-3xl">Admin Panel</h1>
       </header>
-      <nav>
-        <button onClick={handleMergeEventsToDatabase}>Merge Events to Database</button>
-        <button onClick={() => setActiveSection('customers')}>Customers</button>
-        <button onClick={() => setActiveSection('events')}>Events</button>
+      <div className='flex gap-4'>
+      <nav className='flex flex-col justify-start gap-4'>
+        <button  className="bg-black text-gold w-32 p-2 hover:bg-gold hover:text-black" onClick={handleMergeEventsToDatabase}>Merge Events to Database</button>
+        <button className="bg-black text-gold w-32 p-2 hover:bg-gold hover:text-black" onClick={() => setActiveSection('customers')}>Customers</button>
+        <button className="bg-black text-gold w-32 p-2 hover:bg-gold hover:text-black" onClick={() => setActiveSection('events')}>Events</button>
       </nav>
       <main className=''>
         {activeSection === 'customers' && <CustomerSection />}
-        {activeSection === 'events' && <EventData />}
+        {activeSection === 'events' && <EventData  handleEventClick={setEventSelected} eventSelected={eventSelected}/>}
       </main>
+      </div>
     </div>
   );
 };
