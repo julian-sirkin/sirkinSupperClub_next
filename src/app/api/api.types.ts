@@ -45,3 +45,11 @@ export type SuccessEmailProps = {
     }
     tickets: CartTicketType[]
 }
+
+export type adminEvent = {
+    id: number;
+    name: string;
+    date: Date;
+    ticketsAvailable: number;
+    ticketsSold: number;
+};
