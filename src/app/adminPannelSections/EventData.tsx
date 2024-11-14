@@ -5,7 +5,6 @@ import { getAllAdminEvents } from '../api/queries/select';
 import { adminEvent } from '../api/api.types';
 
 const EventData = ({handleEventClick, eventSelected, events}: {handleEventClick: (event: number | null) => void, eventSelected: number | null, events: adminEvent[] | undefined}) => {
-
   return (
     <div>
       <h2>Event Data</h2>

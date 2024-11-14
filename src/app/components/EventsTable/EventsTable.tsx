@@ -9,7 +9,7 @@ type event = {
 }
 
 type EventsTableType  = {
-    events: event[]
+    events: event[] | undefined
     handleEventClick: (event: number) => void
 }
 export const EventsTable = ({events, handleEventClick}: EventsTableType) => {

@@ -3,7 +3,6 @@ import { AdminLayout } from '../components/AdminLayout/AdminLayout';
 
 const AdminPanel = async () => {
   const adminEvents = await getAllAdminEvents()
-
   return (
     <AdminLayout adminEvents={adminEvents}/>
   );
