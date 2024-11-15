@@ -4,9 +4,20 @@ import { useState } from "react";
 export const AdminRefundForm = ({order}: {order: AdminPurchase}) => {
   const [refundQuantity, setRefundQuantity] = useState<number>();
 
-  const handleRefundSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleRefundSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    console.log(e);
+    const body = JSON.stringify({orderId: order.purchaseId, quantity: refundQuantity})
+
+    const refundResult = await fetch('api/refundTickets', {
+        method: 'POST',
+        headers: {
+            Accept: "application/json",
+            'Content-Type': 'application/json',
+        }, 
+        body
+    })
+    const result = await refundResult.json()
+    console.log(result);
   };
   return (
     <form className="flex gap-4" onSubmit={handleRefundSubmit}>
