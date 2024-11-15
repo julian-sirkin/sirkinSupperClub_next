@@ -2,7 +2,7 @@ import { db } from "@/db";
 import { customersTable, eventsTable, SelectCustomer, ticketsTable, purchaseItemsTable, purchasesTable } from "@/db/schema";
 import { CartTicketType } from "@/store/cartStore.types";
 import { and, eq, isNull, SQL, sql } from "drizzle-orm";
-import { adminEvent, adminEventDetails, DatabaseTickets } from "../api.types";
+import { adminEvent, DatabaseTickets, TicketWithPurchases } from "../api.types";
 
 export async function getCustomerByEmail(email: SelectCustomer['email']){
 return db.select().from(customersTable).where(eq(customersTable.email, email));
@@ -58,10 +58,11 @@ export async function getAllAdminEvents(): Promise<adminEvent[]> {
     }));
 }
 
-export async function getEventTicketsWithPurchases(eventId: number): Promise<adminEventDetails[]> {
+export async function getEventTicketsWithPurchases(eventId: number): Promise<TicketWithPurchases[]> {
     const ticketsWithPurchases = await db
     .select({
         ticketId: ticketsTable.id,
+        ticketTime: ticketsTable.time,
         contentfulId: ticketsTable.contentfulId,
         totalAvailable: ticketsTable.totalAvailable,
         totalSold: ticketsTable.totalSold,
@@ -80,12 +81,13 @@ export async function getEventTicketsWithPurchases(eventId: number): Promise<adm
 
     // Transform the result into the desired shape
     const result = ticketsWithPurchases.reduce((acc, ticket) => {
-        const { ticketId, contentfulId, totalAvailable, totalSold, purchaseId, customerId, customerName, quantity, purchaseItemsId, purchaseDate } = ticket;
+        const { ticketId, ticketTime, contentfulId, totalAvailable, totalSold, purchaseId, customerId, customerName, quantity, purchaseItemsId, purchaseDate } = ticket;
 
         // Find or create the ticket entry in the accumulator
         let ticketEntry = acc.find(t => t.ticketId === ticketId);
         if (!ticketEntry) {
             ticketEntry = {
+                ticketTime: ticketTime ? new Date(ticketTime) : new Date(), // Default to current date if ticketTime is null
                 ticketId,
                 contentfulId,
                 totalAvailable,
