@@ -1,6 +1,6 @@
 import { ParsedEvent } from "@/app/networkCalls/contentful/contentfulServices.types";
 import { db } from "@/db";
-import { eventsTable, ticketsTable } from "@/db/schema";
+import { eventsTable, ticketsTable, purchasesTable, purchaseItemsTable } from "@/db/schema";
 import { sql } from 'drizzle-orm';
 import { UpdatedEventFields, UpdatedTicketFields } from "../api.types";
 
@@ -66,3 +66,54 @@ export async function updateExistingEvents(events: ParsedEvent[]) {
     }
 }
 
+export const refundOrder = async (orderId: number, quantity: number) => {
+    // Fetch the purchase
+    const purchase = await db.query.purchasesTable.findFirst({
+        where: sql`${purchasesTable.id} = ${orderId}`
+    });
+
+    if (!purchase) {
+        throw new Error('Purchase not found');
+    }
+
+    // Fetch related purchase items
+    const purchaseItems = await db.query.purchaseItemsTable.findMany({
+        where: sql`${purchaseItemsTable.purchaseId} = ${orderId}`
+    });
+
+    let totalRefunded = 0;
+
+    for (const item of purchaseItems) {
+        if (totalRefunded >= quantity) break;
+
+        // Calculate refund amount for this item
+        const refundableQty = Math.min(item.quantity, quantity - totalRefunded);
+
+        // Adjust the quantity for partially refunded items
+        await db.update(purchaseItemsTable)
+            .set({
+                updatedAt: new Date(),
+                quantity: item.quantity - refundableQty // Decrease by refunded quantity
+            })
+            .where(sql`${purchaseItemsTable.id} = ${item.id}`);
+
+        totalRefunded += refundableQty;
+
+        // Update ticket sales count for each ticket item refunded
+        await db.update(ticketsTable)
+            .set({
+                totalSold: sql`${ticketsTable.totalSold} - ${refundableQty}`
+            })
+            .where(sql`${ticketsTable.id} = ${item.ticketId}`);
+    }
+
+    // Finalize refund on the purchase record
+    await db.update(purchasesTable)
+        .set({
+            updatedDate: new Date(),
+            refundDate: new Date()
+        })
+        .where(sql`${purchasesTable.id} = ${orderId}`);
+
+    return `Successfully refunded ${totalRefunded} items for order ID ${orderId}`;
+};

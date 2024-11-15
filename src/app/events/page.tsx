@@ -4,6 +4,7 @@ import { MainLayout } from "../components/mainLayout/MainLayout";
 import { contentfulService } from "../networkCalls/contentful/contentfulService";
 import { ParsedEvent } from "../networkCalls/contentful/contentfulServices.types";
 import { sortEventsByTime } from "../helpers/sortEventsByTime";
+import { getAllAdminEvents } from "../api/queries/select";
 
 export default async function Events() {
   const contentful = contentfulService();
