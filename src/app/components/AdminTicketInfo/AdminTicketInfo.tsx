@@ -1,8 +1,7 @@
 import { TicketWithPurchases } from "@/app/api/api.types"
 import { AdminRefundForm } from "../AdminRefundForm/AdminRefundForm"
 
-export const AdminTicketInfo = ({ticket}: {ticket: TicketWithPurchases}) => {
-
+export const AdminTicketInfo = ({ticket, setRefundToast}: {ticket: TicketWithPurchases, setRefundToast: (toastText: string) => void}) => {
 
     return (
         <div className="bg-black mb-2 text-white">
@@ -19,7 +18,7 @@ export const AdminTicketInfo = ({ticket}: {ticket: TicketWithPurchases}) => {
                           <div>{order.customerName}</div>
                           <div>Quantity: {order.quantity}</div>
                         </div>
-                        <AdminRefundForm order={order} />
+                        <AdminRefundForm order={order} setRefundToast={setRefundToast}/>
                       </div>
                 ))}
                 
