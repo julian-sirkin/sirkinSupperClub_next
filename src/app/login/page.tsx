@@ -1,11 +1,10 @@
 "use client"
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import Cookies from 'js-cookie';
 
 export default function Login() {
   const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
+  const [passwordError, setPasswordError] = useState('');
   const router = useRouter();
 
   const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -17,28 +16,29 @@ export default function Login() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ password }),
     });
-
-    if (res.ok) {
-       // Set a cookie if successful
+  
+    if (res.status === 200) {
       router.push('/admin'); // Redirect to admin page
     } else {
-      setError('Invalid password');
+      setPasswordError('Invalid password');
     }
   };
 
   return (
-    <div>
+    <div className='bg-black p-2 text-white h-screen'>
       <h1>Admin Login</h1>
-      <form onSubmit={handleLogin}>
+      <form onSubmit={handleLogin} className='w-1/2 m-auto p-4 border-2 border-gold flex gap-6'>
         <input
+          className='text-black'
           type="password"
           placeholder="Enter password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
         />
-        <button type="submit">Login</button>
+        <button className='p-2 bg-gold hover:bg-white hover:text-gold' type="submit">Login</button>
+        {passwordError && <p className='text-red-600 p-2'>{passwordError}</p>}
       </form>
-      {error && <p>{error}</p>}
+     
     </div>
   );
 }
