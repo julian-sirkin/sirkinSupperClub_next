@@ -27,8 +27,8 @@ export const Ticket = ({
   };
 
   return (
-    <form className="border-2 md:border-4 w-auto md:w-3/4 border-white p-2 md:p-4 bg-black opacity-95 mb-4 md:mb-6">
-      <h4 className="text-gold text-xl font-bold md:text-2xl mb-4">
+    <form className="border-2 md:border-4 w-auto md:w-3/4 border-white p-2 md:p-4 bg-black opacity-95 mb-4 md:mb-6 max-w-[346px] md:max-w-[450px]">
+      <h4 className="text-gold text-xl font-bold md:text-2xl mb-4 overflow-hidden h-16 line-clamp-2">
         {ticket.title}
       </h4>
       <div className="flex justify-between gap-6 md:gap-8">
