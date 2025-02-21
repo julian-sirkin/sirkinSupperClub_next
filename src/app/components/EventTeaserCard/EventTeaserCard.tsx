@@ -30,30 +30,32 @@ export const EventTeaserCard = ({
       } bg-black opacity-95 px-4 text-white border-gold`}
     >
       <div className={`${
-        isFeaturedEvent ? "h-32" : "h-24"
-      }`}>
+        isFeaturedEvent ? "h-24" : "h-20"
+      } mb-6`}>
         <h2
           className={`${
             isFeaturedEvent ? "text-4xl" : "text-3xl"
-          } font-bold text-center text-gold line-clamp-2 overflow-hidden max-h-12`}
+          } font-bold text-center text-gold line-clamp-2`}
         >
           {event.title}
         </h2>
       </div>
-      <p
-        className={`${
-          isFeaturedEvent
-            ? "text-2xl md:text-3xl mb-10 md:mb-16"
-            : "text-xl md:text-2xl mb-5 md:mb-8"
-        } text-center pt-4`}
-      >
-        {event.shortDescription}
-      </p>
+      <div className="relative">
+        <p
+          className={`${
+            isFeaturedEvent
+              ? "text-2xl md:text-3xl mb-12 md:mb-16"
+              : "text-xl md:text-2xl mb-12 md:mb-10"
+          } text-center`}
+        >
+          {event.shortDescription}
+        </p>
+      </div>
       <div
         className={`${
           isFeaturedEvent ? "gap-x-6" : "gap-x-2"
         } grid grid-cols-[auto_1fr] max-w-md ${
-          isFeaturedEvent ? "relative" : "absolute bottom-28 left-0 right-0 px-8"
+          isFeaturedEvent ? "relative" : "absolute bottom-28 left-0 right-0 px-8 mt-4"
         }`}
       >
         <div className="contents">
