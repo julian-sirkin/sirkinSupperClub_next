@@ -23,19 +23,23 @@ export const EventTeaserCard = ({
 
   return (
     <div
-      className={`w-11/12 h-auto ${
+      className={`w-11/12 h-auto relative ${
         isFeaturedEvent
           ? "md:w-[550px] mx-auto px-8 md:px-12 py-12 border-8"
-          : "md:w-[400px] py-6 border-4 px-4"
-      } bg-black opacity-95 px-4 text-white border-gold`}
+          : "md:w-[420px] py-6 border-4 px-4"
+      } bg-black opacity-95 px-4 text-white border-gold min-h-[620px]`}
     >
-      <h2
-        className={`${
-          isFeaturedEvent ? "text-4xl mb-8 md:mb-12" : "text-3xl mb-4 md:mb-6"
-        } font-bold text-center text-gold`}
-      >
-        {event.title}
-      </h2>
+      <div className={`${
+        isFeaturedEvent ? "h-32" : "h-24"
+      }`}>
+        <h2
+          className={`${
+            isFeaturedEvent ? "text-4xl" : "text-3xl"
+          } font-bold text-center text-gold line-clamp-2`}
+        >
+          {event.title}
+        </h2>
+      </div>
       <p
         className={`${
           isFeaturedEvent
@@ -47,8 +51,8 @@ export const EventTeaserCard = ({
       </p>
       <div
         className={`${
-          isFeaturedEvent ? "gap-x-6 mb-14 md:mb-24" : "gap-x-2 mb-8 md:mb-12"
-        } grid grid-cols-[auto_1fr] max-w-md`}
+          isFeaturedEvent ? "gap-x-6" : "gap-x-2"
+        } grid grid-cols-[auto_1fr] max-w-md absolute bottom-28 left-0 right-0 px-8`}
       >
         <div className="contents">
           <span className="text-gold text-lg md:text-xl font-bold whitespace-nowrap">
@@ -87,7 +91,7 @@ export const EventTeaserCard = ({
           </p>
         </div>
       </div>
-      <div className="flex justify-center">
+      <div className="absolute bottom-6 left-0 right-0 flex justify-center">
         <Link href={`/events/${event.title}`}>
           <button className="p-6 bg-gold text-black text-xl font-bold">
             See Full Details

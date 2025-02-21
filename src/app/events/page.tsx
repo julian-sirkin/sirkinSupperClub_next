@@ -40,7 +40,7 @@ export default async function Events() {
         <h3 className="mt-8 md:mt-12 mb-4 md:mb-6 text-2xl md:text-4xl text-center md:text-left text-white">
           Past Events
         </h3>
-        <div className="flex justify-center md:justify-start flex-wrap">
+        <div className="flex justify-center md:justify-center flex-wrap space-between gap-5">
           {pastEvents.map((event) => (
             <EventTeaserCard
               key="event.title"
