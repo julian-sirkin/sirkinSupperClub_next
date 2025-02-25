@@ -48,8 +48,8 @@ export type SuccessEmailProps = {
 
 export type adminEvent = {
     id: number
-    name: string
-    date: Date
+    title: string
+    date: number
     ticketsAvailable: number
     ticketsSold: number
 };
@@ -73,18 +73,28 @@ export type AdminPurchase = {
     purchaseId: number;
     customerId: number;
     customerName: string;
+    customerEmail: string;
     quantity: number;
-    purchaseItemsId: number;
-    purchaseDate: Date | null; // Assuming purchaseDate can be null
-}
+    paid: boolean;
+    purchaseDate: number;
+    purchaseItemsId?: number;
+    refundDate?: number | null;
+    ticketId: number;
+};
 
 export type TicketWithPurchases = {
-    ticketTime: Date
     ticketId: number;
-    contentfulId: string;
+    ticketTime: number;
     totalAvailable: number;
     totalSold: number;
     purchases: AdminPurchase[];
 };
 
 export type GetEventTicketsWithPurchasesReturnType = TicketWithPurchases[];
+
+export type EventWithTickets = {
+    id: number;
+    title: string;
+    date: number;
+    tickets: TicketWithPurchases[];
+};
