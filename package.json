@@ -9,7 +9,7 @@
     "lint": "next lint",
     "test": "jest",
     "test:watch": "jest --watchAll",
-    "validate-routes": "ts-node scripts/validate-routes.ts"
+    "validate-routes": "node scripts/validate-routes.js"
   },
   "dependencies": {
     "@contentful/rich-text-react-renderer": "^15.22.9",
