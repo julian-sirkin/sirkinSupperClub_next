@@ -8,7 +8,9 @@
     "start": "next start",
     "lint": "next lint",
     "test": "jest",
-    "test:watch": "jest --watchAll"
+    "test:watch": "jest --watchAll",
+    "validate-routes": "ts-node scripts/validate-routes.ts",
+    "prebuild": "npm run validate-routes"
   },
   "dependencies": {
     "@contentful/rich-text-react-renderer": "^15.22.9",
