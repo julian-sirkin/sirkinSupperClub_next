@@ -12,7 +12,10 @@ export async function POST(request: Request) {
 
         if (!orderId || !ticketId || !quantity || quantity <= 0) {
             console.error("❌ Invalid refund request:", { orderId, ticketId, quantity });
-            return NextResponse.json({ message: "Invalid orderId, ticketId, or quantity" }, { status: 400 });
+            return NextResponse.json({ 
+                success: false, 
+                message: "Invalid orderId, ticketId, or quantity" 
+            }, { status: 400 });
         }
 
         // Fetch the specific purchase item
@@ -30,7 +33,10 @@ export async function POST(request: Request) {
         console.log("✅ Fetched Purchase Item:", purchaseItem);
 
         if (!purchaseItem) {
-            return NextResponse.json({ message: "Purchase item not found for this ticket" }, { status: 404 });
+            return NextResponse.json({ 
+                success: false, 
+                message: "Purchase item not found for this ticket" 
+            }, { status: 404 });
         }
 
         const { id, purchaseQuantity } = purchaseItem;
@@ -38,7 +44,10 @@ export async function POST(request: Request) {
         // Ensure refund quantity is valid
         if (quantity > purchaseQuantity) {
             console.error("❌ Refund quantity exceeds available tickets");
-            return NextResponse.json({ message: "Refund quantity exceeds available tickets" }, { status: 400 });
+            return NextResponse.json({ 
+                success: false, 
+                message: "Refund quantity exceeds available tickets" 
+            }, { status: 400 });
         }
 
         await db.transaction(async (tx) => {
@@ -87,10 +96,17 @@ export async function POST(request: Request) {
         });
 
         console.log("🎉 Refund processed successfully!");
-        return NextResponse.json({ message: "Refund processed successfully" }, { status: 200 });
+        return NextResponse.json({ 
+            success: true, 
+            message: "Refund processed successfully" 
+        }, { status: 200 });
 
     } catch (error) {
         console.error("🚨 Error processing refund:", error);
-        return NextResponse.json({ message: "Server error while processing refund", error: String(error) }, { status: 500 });
+        return NextResponse.json({ 
+            success: false, 
+            message: "Server error while processing refund", 
+            error: String(error) 
+        }, { status: 500 });
     }
 }

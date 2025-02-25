@@ -1,16 +1,16 @@
 'use client'
 import { useState, useEffect } from 'react'
 import { formatDate } from '@/app/utils/formatDate'
-import { toast } from 'react-toastify'
+import Link from 'next/link'
 
 type CustomerPurchase = {
+    purchaseId: number
     eventId: number
     eventTitle: string
     eventDate: number
-    ticketId: number
     ticketTime: number
     quantity: number
-    purchaseId: number
+    paid: boolean
     purchaseDate: number
 }
 
@@ -18,9 +18,9 @@ type CustomerDetails = {
     id: number
     name: string
     email: string
-    phoneNumber: string | null
-    notes: string | null
-    priorCustomer: boolean
+    phoneNumber: string
+    notes: string
+    dietaryRestrictions: string
     purchases: CustomerPurchase[]
 }
 
@@ -30,7 +30,7 @@ export const CustomerDetail = ({ customerId, onBack }: { customerId: number, onB
     const [error, setError] = useState<string | null>(null)
 
     useEffect(() => {
-        const fetchCustomerData = async () => {
+        const fetchCustomerDetails = async () => {
             setIsLoading(true)
             setError(null)
             
@@ -45,23 +45,21 @@ export const CustomerDetail = ({ customerId, onBack }: { customerId: number, onB
                 
                 const data = await response.json()
                 
-                if (data.status === 200 && data.data) {
-                    setCustomer(data.data)
+                if (data.status === 200) {
+                    setCustomer(data.customer || null)
                 } else {
-                    const errorMsg = data.message || 'Failed to load customer data'
+                    const errorMsg = data.message || 'Failed to load customer details'
                     setError(errorMsg)
-                    toast.error(errorMsg)
                 }
-            } catch (error) {
-                console.error('Error fetching customer data:', error)
+            } catch (err) {
+                console.error('Error fetching customer details:', err)
                 setError('Error connecting to server')
-                toast.error('Error connecting to server')
             } finally {
                 setIsLoading(false)
             }
         }
         
-        fetchCustomerData()
+        fetchCustomerDetails()
     }, [customerId])
     
     if (isLoading) {
@@ -97,20 +95,13 @@ export const CustomerDetail = ({ customerId, onBack }: { customerId: number, onB
         )
     }
     
-    // Group purchases by event
-    const purchasesByEvent: Record<number, CustomerPurchase[]> = {}
-    customer.purchases.forEach(purchase => {
-        if (!purchasesByEvent[purchase.eventId]) {
-            purchasesByEvent[purchase.eventId] = []
-        }
-        purchasesByEvent[purchase.eventId].push(purchase)
-    })
-    
+    const totalTickets = customer.purchases.reduce((sum, purchase) => sum + purchase.quantity, 0)
+    const totalEvents = new Set(customer.purchases.map(p => p.eventId)).size
 
     return (
         <div className="bg-black/30 rounded-lg p-4">
             <div className="flex justify-between items-center mb-6">
-                <h2 className="text-2xl font-bold text-gold">Customer Details</h2>
+                <h2 className="text-2xl font-bold text-gold">{customer.name}</h2>
                 <button 
                     onClick={onBack} 
                     className="bg-black text-gold px-4 py-2 rounded hover:bg-gold hover:text-black transition-colors"
@@ -119,75 +110,92 @@ export const CustomerDetail = ({ customerId, onBack }: { customerId: number, onB
                 </button>
             </div>
             
-            <div className="bg-black rounded-lg overflow-hidden shadow-lg mb-8">
-                <header className="bg-gold text-black font-bold text-xl p-3">
-                    {customer.name}
-                </header>
-                <div className="p-4 text-white space-y-3">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                            <p className="text-gray-400">Email:</p>
-                            <p>{customer.email}</p>
-                        </div>
-                        <div>
-                            <p className="text-gray-400">Phone:</p>
-                            <p>{customer.phoneNumber || 'Not provided'}</p>
-                        </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                <div className="bg-black/50 p-4 rounded-lg">
+                    <h3 className="text-xl font-bold text-gold mb-4">Contact Information</h3>
+                    <div className="space-y-2 text-white">
+                        <p><span className="text-gray-400">Email:</span> {customer.email}</p>
+                        <p><span className="text-gray-400">Phone:</span> {customer.phoneNumber || 'Not provided'}</p>
+                        <p><span className="text-gray-400">Total Events:</span> {totalEvents}</p>
+                        <p><span className="text-gray-400">Total Tickets:</span> {totalTickets}</p>
                     </div>
-                    
-                    {customer.notes && (
+                </div>
+                
+                <div className="bg-black/50 p-4 rounded-lg">
+                    <h3 className="text-xl font-bold text-gold mb-4">Preferences</h3>
+                    <div className="space-y-4 text-white">
                         <div>
-                            <p className="text-gray-400">Notes:</p>
-                            <p className="bg-black/30 p-2 rounded">{customer.notes}</p>
+                            <h4 className="text-gray-400">Dietary Restrictions:</h4>
+                            <p className="p-2 bg-black/30 rounded mt-1">
+                                {customer.dietaryRestrictions || 'None specified'}
+                            </p>
                         </div>
-                    )}
-                    
-                    <div>
-                        <p className="text-gray-400">Status:</p>
-                        <p>{customer.priorCustomer ? 'Returning Customer' : 'New Customer'}</p>
+                        <div>
+                            <h4 className="text-gray-400">Notes:</h4>
+                            <p className="p-2 bg-black/30 rounded mt-1">
+                                {customer.notes || 'No notes'}
+                            </p>
+                        </div>
                     </div>
                 </div>
             </div>
             
-            <h3 className="text-xl font-bold text-gold mb-4">Purchase History</h3>
-            
-            {Object.keys(purchasesByEvent).length > 0 ? (
-                <div className="space-y-6">
-                    {Object.entries(purchasesByEvent).map(([eventId, purchases]) => {
-                        const event = purchases[0] // Use first purchase to get event details
-                        return (
-                            <div key={eventId} className="bg-black rounded-lg overflow-hidden shadow-lg">
-                                <header className="bg-gold text-black font-bold text-xl p-3">
-                                    {event.eventTitle} - {formatDate(new Date(event.eventDate))}
-                                </header>
-                                <div className="divide-y divide-gray-800">
-                                    {purchases.map(purchase => (
-                                        <div key={purchase.purchaseId} className="p-4 text-white">
-                                            <div className="flex justify-between items-center">
-                                                <div>
-                                                    <p className="font-medium">
-                                                        {formatDate(new Date(purchase.ticketTime))} at {new Date(purchase.ticketTime).toLocaleString("en-us", {hour: 'numeric', minute: 'numeric'})}
-                                                    </p>
-                                                    <p className="text-gray-400 text-sm">
-                                                        Purchased on {formatDate(new Date(purchase.purchaseDate))}
-                                                    </p>
-                                                </div>
-                                                <div className="bg-gold/20 px-3 py-1 rounded text-gold font-bold">
-                                                    {purchase.quantity} {purchase.quantity === 1 ? 'ticket' : 'tickets'}
-                                                </div>
-                                            </div>
-                                        </div>
-                                    ))}
-                                </div>
-                            </div>
-                        )
-                    })}
-                </div>
-            ) : (
-                <div className="text-center p-8 text-white bg-black/50 rounded-lg">
-                    No purchase history found for this customer.
-                </div>
-            )}
+            <div className="bg-black/50 p-4 rounded-lg">
+                <h3 className="text-xl font-bold text-gold mb-4">Purchase History</h3>
+                
+                {customer.purchases.length > 0 ? (
+                    <div className="overflow-x-auto">
+                        <table className="min-w-full bg-black/70 rounded-lg overflow-hidden">
+                            <thead className="bg-gold/80 text-black">
+                                <tr>
+                                    <th className="py-2 px-4 text-left">Event</th>
+                                    <th className="py-2 px-4 text-left">Date</th>
+                                    <th className="py-2 px-4 text-left">Time</th>
+                                    <th className="py-2 px-4 text-left">Quantity</th>
+                                    <th className="py-2 px-4 text-left">Status</th>
+                                    <th className="py-2 px-4 text-left">Purchase Date</th>
+                                </tr>
+                            </thead>
+                            <tbody className="divide-y divide-gray-800">
+                                {customer.purchases.map((purchase) => (
+                                    <tr key={purchase.purchaseId} className="text-white">
+                                        <td className="py-2 px-4">
+                                            <Link 
+                                                href={`/admin?view=event&id=${purchase.eventId}`}
+                                                className="hover:text-gold transition-colors"
+                                            >
+                                                {purchase.eventTitle}
+                                            </Link>
+                                        </td>
+                                        <td className="py-2 px-4">{formatDate(new Date(purchase.eventDate))}</td>
+                                        <td className="py-2 px-4">
+                                            {new Date(purchase.ticketTime).toLocaleTimeString([], {
+                                                hour: '2-digit',
+                                                minute: '2-digit'
+                                            })}
+                                        </td>
+                                        <td className="py-2 px-4">{purchase.quantity}</td>
+                                        <td className="py-2 px-4">
+                                            <span className={`inline-block px-2 py-1 rounded ${
+                                                purchase.paid 
+                                                    ? 'bg-green-800/30 text-green-400' 
+                                                    : 'bg-red-800/30 text-red-400'
+                                            }`}>
+                                                {purchase.paid ? 'Paid' : 'Unpaid'}
+                                            </span>
+                                        </td>
+                                        <td className="py-2 px-4">{formatDate(new Date(purchase.purchaseDate))}</td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+                ) : (
+                    <div className="text-center p-4 text-gray-400">
+                        No purchase history found.
+                    </div>
+                )}
+            </div>
         </div>
     )
 } 

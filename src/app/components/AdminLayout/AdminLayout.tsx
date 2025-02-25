@@ -10,15 +10,42 @@ export const AdminLayout = ({adminEvents}: {adminEvents?: adminEvent[]}) => {
     const [activeSection, setActiveSection] = useState<'customers' | 'events'>('events');
     const [eventSelected, setEventSelected] = useState<number | null>(null);
 
-    // Check URL for view parameter on initial load
+    // Check URL for view parameter on initial load and when URL changes
     useEffect(() => {
         if (typeof window !== 'undefined') {
             const params = new URLSearchParams(window.location.search);
             const view = params.get('view');
+            
             if (view === 'customer') {
                 setActiveSection('customers');
+            } else if (view === 'event') {
+                setActiveSection('events');
+                const eventId = params.get('id');
+                if (eventId) {
+                    setEventSelected(Number(eventId));
+                }
             }
         }
+        
+        // Add event listener for URL changes (back/forward navigation)
+        const handleUrlChange = () => {
+            const params = new URLSearchParams(window.location.search);
+            const view = params.get('view');
+            
+            if (view === 'customer') {
+                setActiveSection('customers');
+            } else if (view === 'event' || !view) {
+                setActiveSection('events');
+                const eventId = params.get('id');
+                setEventSelected(eventId ? Number(eventId) : null);
+            }
+        };
+        
+        window.addEventListener('popstate', handleUrlChange);
+        
+        return () => {
+            window.removeEventListener('popstate', handleUrlChange);
+        };
     }, []);
 
     const handleSyncEvents = async () => {
@@ -47,14 +74,22 @@ export const AdminLayout = ({adminEvents}: {adminEvents?: adminEvent[]}) => {
 
     const handleSectionChange = (section: 'customers' | 'events') => {
         setActiveSection(section);
-        // Update URL without reloading the page
+        
+        // Update URL when changing sections
         if (typeof window !== 'undefined') {
             const url = new URL(window.location.href);
+            
             if (section === 'customers') {
                 url.searchParams.set('view', 'customer');
+                // Keep the customer ID if it exists
+                if (!url.searchParams.has('id')) {
+                    url.searchParams.delete('id');
+                }
             } else {
                 url.searchParams.delete('view');
+                url.searchParams.delete('id');
             }
+            
             window.history.pushState({}, '', url);
         }
     };

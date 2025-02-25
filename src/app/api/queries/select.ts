@@ -37,25 +37,45 @@ export async function getTicketsByIdAndEvent(
 
 
 export async function getAllAdminEvents(): Promise<adminEvent[]> {
+    // Use a different approach that doesn't rely on leftJoin
     const events = await db
         .select({
             id: eventsTable.id,
             title: eventsTable.title,
             date: eventsTable.date,
-            ticketsAvailable: sql<number>`SUM(${ticketsTable.totalAvailable})`.as('ticketsAvailable'),
-            ticketsSold: sql<number>`SUM(${ticketsTable.totalSold})`.as('ticketsSold')
         })
-        .from(eventsTable)
-        .leftJoin(ticketsTable, eq(ticketsTable.event, eventsTable.id))
-        .groupBy(eventsTable.id, eventsTable.title, eventsTable.date);
-
-    return events.map(event => ({
-        id: event.id,
-        title: event.title,
-        date: Number(event?.date ?? 0),
-        ticketsAvailable: event.ticketsAvailable || 0,
-        ticketsSold: event.ticketsSold || 0
-    }));
+        .from(eventsTable);
+    
+    // Get ticket counts in a separate query
+    const ticketCounts = await Promise.all(
+        events.map(async (event) => {
+            const tickets = await db
+                .select({
+                    totalAvailable: sql<number>`SUM(${ticketsTable.totalAvailable})`.as('ticketsAvailable'),
+                    totalSold: sql<number>`SUM(${ticketsTable.totalSold})`.as('ticketsSold')
+                })
+                .from(ticketsTable)
+                .where(eq(ticketsTable.event, event.id));
+            
+            return {
+                id: event.id,
+                ticketsAvailable: tickets[0]?.totalAvailable || 0,
+                ticketsSold: tickets[0]?.totalSold || 0
+            };
+        })
+    );
+    
+    // Merge the results
+    return events.map(event => {
+        const ticketCount = ticketCounts.find(tc => tc.id === event.id) || { ticketsAvailable: 0, ticketsSold: 0 };
+        return {
+            id: event.id,
+            title: event.title,
+            date: Number(event?.date ?? 0),
+            ticketsAvailable: ticketCount.ticketsAvailable,
+            ticketsSold: ticketCount.ticketsSold
+        };
+    });
 }
 
 export async function getEventTicketsWithPurchases(eventId: number) {
@@ -93,17 +113,17 @@ export async function getEventTicketsWithPurchases(eventId: number) {
     // Get all ticket purchases at once with proper joins
     const ticketPurchases = await db
       .select({
+        purchaseId: purchasesTable.id,
         ticketId: ticketsTable.id,
         ticketTime: ticketsTable.time,
-        totalAvailable: ticketsTable.totalAvailable,
-        totalSold: ticketsTable.totalSold,
-        purchaseId: purchasesTable.id,
         customerId: customersTable.id,
         customerName: customersTable.name,
         customerEmail: customersTable.email,
         quantity: purchaseItemsTable.quantity,
         paid: purchasesTable.paid,
-        purchaseDate: purchasesTable.purchaseDate
+        purchaseDate: purchasesTable.purchaseDate,
+        dietaryRestrictions: customersTable.dietaryRestrictions,
+        notes: customersTable.notes
       })
       .from(ticketsTable)
       .innerJoin(purchaseItemsTable, eq(purchaseItemsTable.ticketId, ticketsTable.id))
@@ -123,7 +143,9 @@ export async function getEventTicketsWithPurchases(eventId: number) {
           quantity: p.quantity,
           paid: p.paid,
           purchaseDate: p.purchaseDate,
-          ticketId: p.ticketId
+          ticketId: p.ticketId,
+          dietaryRestrictions: p.dietaryRestrictions,
+          notes: p.notes
         }));
 
       return {

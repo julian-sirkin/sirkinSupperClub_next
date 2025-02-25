@@ -80,6 +80,8 @@ export type AdminPurchase = {
     purchaseItemsId?: number;
     refundDate?: number | null;
     ticketId: number;
+    dietaryRestrictions?: string;
+    notes?: string;
 };
 
 export type TicketWithPurchases = {

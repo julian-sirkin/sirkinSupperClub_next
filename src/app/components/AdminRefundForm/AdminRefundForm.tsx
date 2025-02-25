@@ -2,7 +2,13 @@ import { AdminPurchase } from "@/app/api/api.types";
 import { useState } from "react";
 import { toast } from 'react-toastify';
 
-export const AdminRefundForm = ({order, setRefundToast}: {order: AdminPurchase, setRefundToast: (toastText: string) => void}) => {
+export const AdminRefundForm = ({
+  order, 
+  setRefundToast
+}: {
+  order: AdminPurchase, 
+  setRefundToast: (toastText: string, refundedQuantity?: number) => void
+}) => {
   const [refundQuantity, setRefundQuantity] = useState<number>(1);
   const [isProcessing, setIsProcessing] = useState<boolean>(false);
 
@@ -33,7 +39,7 @@ export const AdminRefundForm = ({order, setRefundToast}: {order: AdminPurchase, 
       
       const result = await refundResult.json();
       
-      if (result.status === 200) {
+      if (refundResult.ok && result.success) {
           toast.success('Successfully Refunded', {
               position: "top-right",
               autoClose: 5000,
@@ -41,35 +47,27 @@ export const AdminRefundForm = ({order, setRefundToast}: {order: AdminPurchase, 
               closeOnClick: true,
               pauseOnHover: true,
               draggable: true,
-              progress: undefined,
-              theme: "light",
           });
-          // Reset the form
+          
+          setRefundToast('', refundQuantity);
+          
           setRefundQuantity(1);
       } else {
           toast.error(`Refund Failed: ${result.message || 'Unknown error'}`, {
               position: "top-right",
               autoClose: 5000,
-              hideProgressBar: false,
-              closeOnClick: true,
-              pauseOnHover: true,
-              draggable: true,
-              progress: undefined,
-              theme: "light",
           });
+          
+          setRefundToast('', 0);
       }
     } catch (error) {
       console.error('Error processing refund:', error);
       toast.error('Server error while processing refund', {
           position: "top-right",
           autoClose: 5000,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-          progress: undefined,
-          theme: "light",
       });
+      
+      setRefundToast('', 0);
     } finally {
       setIsProcessing(false);
     }
