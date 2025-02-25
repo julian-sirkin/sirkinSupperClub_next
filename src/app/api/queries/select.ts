@@ -78,94 +78,161 @@ export async function getAllAdminEvents(): Promise<adminEvent[]> {
     });
 }
 
+// export async function getEventTicketsWithPurchases(eventId: number) {
+//   try {
+//     // First, get the event details
+//     const eventDetails = await db
+//       .select({
+//         id: eventsTable.id,
+//         title: eventsTable.title,
+//         date: eventsTable.date
+//       })
+//       .from(eventsTable)
+//       .where(eq(eventsTable.id, eventId));
+
+//     if (eventDetails.length === 0) {
+//       throw new Error("Event not found");
+//     }
+
+//     // Get all tickets for this event
+//     const tickets = await db
+//       .select()
+//       .from(ticketsTable)
+//       .where(eq(ticketsTable.event, eventId));
+
+//     if (!tickets || tickets.length === 0) {
+//       // Return event with empty tickets array
+//       return {
+//         id: eventDetails[0].id,
+//         title: eventDetails[0].title,
+//         date: eventDetails[0].date,
+//         tickets: []
+//       };
+//     }
+
+//     // Get all ticket purchases at once with proper joins
+//     const ticketPurchases = await db
+//       .select({
+//         purchaseId: purchasesTable.id,
+//         ticketId: ticketsTable.id,
+//         ticketTime: ticketsTable.time,
+//         customerId: customersTable.id,
+//         customerName: customersTable.name,
+//         customerEmail: customersTable.email,
+//         quantity: purchaseItemsTable.quantity,
+//         paid: purchasesTable.paid,
+//         purchaseDate: purchasesTable.purchaseDate,
+//         dietaryRestrictions: customersTable.dietaryRestrictions,
+//         notes: customersTable.notes
+//       })
+//       .from(ticketsTable)
+//       .innerJoin(purchaseItemsTable, eq(purchaseItemsTable.ticketId, ticketsTable.id))
+//       .innerJoin(purchasesTable, eq(purchaseItemsTable.purchaseId, purchasesTable.id))
+//       .innerJoin(customersTable, eq(purchasesTable.customerId, customersTable.id))
+//       .where(eq(ticketsTable.event, eventId));
+
+//     // Group purchases by ticketId
+//     const ticketData = tickets.map((ticket) => {
+//       const purchases = ticketPurchases
+//         .filter((p) => p.ticketId === ticket.id)
+//         .map((p) => ({
+//           purchaseId: p.purchaseId,
+//           customerId: p.customerId,
+//           customerName: p.customerName,
+//           customerEmail: p.customerEmail,
+//           quantity: p.quantity,
+//           paid: p.paid,
+//           purchaseDate: p.purchaseDate,
+//           ticketId: p.ticketId,
+//           dietaryRestrictions: p.dietaryRestrictions,
+//           notes: p.notes
+//         }));
+
+//       return {
+//         ticketId: ticket.id,
+//         ticketTime: ticket.time,
+//         totalAvailable: ticket.totalAvailable,
+//         totalSold: ticket.totalSold,
+//         purchases
+//       };
+//     });
+
+//     // Return the event with its tickets and purchases
+//     return {
+//       id: eventDetails[0].id,
+//       title: eventDetails[0].title,
+//       date: eventDetails[0].date,
+//       tickets: ticketData
+//     };
+//   } catch (error) {
+//     console.error("Error fetching event with tickets and purchases:", error);
+//     throw error;
+//   }
+// }
+
 export async function getEventTicketsWithPurchases(eventId: number) {
   try {
-    // First, get the event details
-    const eventDetails = await db
-      .select({
-        id: eventsTable.id,
-        title: eventsTable.title,
-        date: eventsTable.date
-      })
-      .from(eventsTable)
-      .where(eq(eventsTable.id, eventId));
+      console.log(`🔍 Fetching event details for ID: ${eventId}`);
 
-    if (eventDetails.length === 0) {
-      throw new Error("Event not found");
-    }
+      // Fetch event details
+      const event = await db
+          .select({
+              id: eventsTable.id,
+              title: eventsTable.title,
+              date: eventsTable.date,
+          })
+          .from(eventsTable)
+          .where(eq(eventsTable.id, eventId))
+          .then((res) => res[0] || null);
 
-    // Get all tickets for this event
-    const tickets = await db
-      .select()
-      .from(ticketsTable)
-      .where(eq(ticketsTable.event, eventId));
+      console.log("📋 Event fetched:", event);
 
-    if (!tickets || tickets.length === 0) {
-      // Return event with empty tickets array
-      return {
-        id: eventDetails[0].id,
-        title: eventDetails[0].title,
-        date: eventDetails[0].date,
-        tickets: []
-      };
-    }
+      if (!event) {
+          console.error(`❌ Event not found for event ID: ${eventId}`);
+          return null;
+      }
 
-    // Get all ticket purchases at once with proper joins
-    const ticketPurchases = await db
-      .select({
-        purchaseId: purchasesTable.id,
-        ticketId: ticketsTable.id,
-        ticketTime: ticketsTable.time,
-        customerId: customersTable.id,
-        customerName: customersTable.name,
-        customerEmail: customersTable.email,
-        quantity: purchaseItemsTable.quantity,
-        paid: purchasesTable.paid,
-        purchaseDate: purchasesTable.purchaseDate,
-        dietaryRestrictions: customersTable.dietaryRestrictions,
-        notes: customersTable.notes
-      })
-      .from(ticketsTable)
-      .innerJoin(purchaseItemsTable, eq(purchaseItemsTable.ticketId, ticketsTable.id))
-      .innerJoin(purchasesTable, eq(purchaseItemsTable.purchaseId, purchasesTable.id))
-      .innerJoin(customersTable, eq(purchasesTable.customerId, customersTable.id))
-      .where(eq(ticketsTable.event, eventId));
+      // Fetch tickets for this event
+      const tickets = await db
+          .select({
+              ticketId: ticketsTable.id,
+              time: ticketsTable.time,
+              totalSold: ticketsTable.totalSold,
+          })
+          .from(ticketsTable)
+          .where(eq(ticketsTable.event, eventId));
 
-    // Group purchases by ticketId
-    const ticketData = tickets.map((ticket) => {
-      const purchases = ticketPurchases
-        .filter((p) => p.ticketId === ticket.id)
-        .map((p) => ({
-          purchaseId: p.purchaseId,
-          customerId: p.customerId,
-          customerName: p.customerName,
-          customerEmail: p.customerEmail,
-          quantity: p.quantity,
-          paid: p.paid,
-          purchaseDate: p.purchaseDate,
-          ticketId: p.ticketId,
-          dietaryRestrictions: p.dietaryRestrictions,
-          notes: p.notes
-        }));
+      console.log(`🎟 Found ${tickets.length} tickets for event ${eventId}`);
 
-      return {
-        ticketId: ticket.id,
-        ticketTime: ticket.time,
-        totalAvailable: ticket.totalAvailable,
-        totalSold: ticket.totalSold,
-        purchases
-      };
-    });
+      if (tickets.length === 0) {
+          console.warn(`⚠️ No tickets found for event ID: ${eventId}`);
+      }
 
-    // Return the event with its tickets and purchases
-    return {
-      id: eventDetails[0].id,
-      title: eventDetails[0].title,
-      date: eventDetails[0].date,
-      tickets: ticketData
-    };
+      // Fetch purchases for each ticket
+      const ticketsWithPurchases = await Promise.all(
+          tickets.map(async (ticket) => {
+              const purchases = await db
+                  .select({
+                      purchaseId: purchasesTable.id,
+                      customerId: purchasesTable.customerId,
+                      paid: purchasesTable.paid,
+                      quantity: purchaseItemsTable.quantity,
+                  })
+                  .from(purchaseItemsTable)
+                  .innerJoin(purchasesTable, eq(purchasesTable.id, purchaseItemsTable.purchaseId))
+                  .where(eq(purchaseItemsTable.ticketId, ticket.ticketId));
+
+              console.log(`📦 Ticket ${ticket.ticketId} has ${purchases.length} purchases`);
+
+              return { ...ticket, purchases };
+          })
+      );
+
+      console.log(`✅ Returning event details for event ID: ${eventId}`);
+
+      return { ...event, tickets: ticketsWithPurchases };
   } catch (error) {
-    console.error("Error fetching event with tickets and purchases:", error);
-    throw error;
+      console.error("🚨 Error in getEventTicketsWithPurchases:", error);
+      return null;
   }
 }
