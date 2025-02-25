@@ -40,7 +40,7 @@ export const contentfulService = () => {
                 Authorization: `Bearer ${process.env.CONTENTFUL_DELIVERY_TOKEN}`
                 },
                 body: requestBody,
-                next: {revalidate: 300}
+                cache: 'no-store'
             }
 
             const response = await fetch(contentfulEndpoint, fetchOptions)
@@ -56,31 +56,71 @@ export const contentfulService = () => {
         }
     }
 
-    const updateTicketsAvailability = async (parsedEvents: ParsedEvent[]): Promise<ParsedEvent[]> => {
-        const allTickets = parsedEvents.flatMap(event => 
-            event.tickets.map(ticket => ({ 
-                ...ticket, 
-                contentfulEventId: event.contentfulEventId // Ensure this assignment
-            }))
-        )
+    const getEventsWithoutDB = async (): Promise<ParsedEvent[]> => {
+        const requestBody = JSON.stringify({query: eventsQuery})
 
-        const reshapedTickets = allTickets.map(ticket => ({
-            contentfulTicketId: ticket.contentfulTicketId,
-            eventContentfulId: ticket.contentfulEventId
-        }))
+        if (contentfulEndpoint) {
+            const fetchOptions = {
+                method: "POST",
+                headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${process.env.CONTENTFUL_DELIVERY_TOKEN}`
+                },
+                body: requestBody,
+                cache: 'no-store'
+            }
 
-        const dbTickets = await getTicketsByIdAndEvent(reshapedTickets as { contentfulTicketId: string; eventContentfulId: string }[])
-        return parsedEvents.map(event => ({
-            ...event,
-            tickets: event.tickets.map(ticket => {
-                const dbTicket = dbTickets.find(dbTicket => dbTicket.ticket.contentfulId === ticket.contentfulTicketId)
-                return dbTicket ? {
-                    ...ticket,
-                    ticketsAvailable: dbTicket.ticket.totalAvailable - dbTicket.ticket.totalSold
-                } : ticket
-            })
-        }))
+            const response = await fetch(contentfulEndpoint, fetchOptions)
+            const decodedResponse: {data: any} = await response.json()
+            if (decodedResponse?.data?.eventTypeCollection) {
+                return parseEvents(decodedResponse.data.eventTypeCollection)
+            } else {
+                return parseEvents(null)
+            }
+        } else {
+            return []
+        }
     }
 
-    return { getPhotoGallery, getEvents }
+    const updateTicketsAvailability = async (parsedEvents: ParsedEvent[]): Promise<ParsedEvent[]> => {
+        try {
+            // If there's no database connection, just return the events
+            if (!process.env.TURSO_CONNECTION_URL || !process.env.TURSO_AUTH_TOKEN) {
+                console.warn('Database connection credentials missing, skipping ticket availability update');
+                return parsedEvents;
+            }
+
+            const allTickets = parsedEvents.flatMap(event => 
+                event.tickets.map(ticket => ({ 
+                    ...ticket, 
+                    contentfulEventId: event.contentfulEventId
+                }))
+            )
+
+            const reshapedTickets = allTickets.map(ticket => ({
+                contentfulTicketId: ticket.contentfulTicketId,
+                eventContentfulId: ticket.contentfulEventId
+            }))
+            
+            console.log('Fetching tickets from database...')
+            const dbTickets = await getTicketsByIdAndEvent(reshapedTickets as { contentfulTicketId: string; eventContentfulId: string }[])
+            
+            return parsedEvents.map(event => ({
+                ...event,
+                tickets: event.tickets.map(ticket => {
+                    const dbTicket = dbTickets.find(dbTicket => dbTicket.ticket.contentfulId === ticket.contentfulTicketId)
+                    return dbTicket ? {
+                        ...ticket,
+                        ticketsAvailable: dbTicket.ticket.totalAvailable - dbTicket.ticket.totalSold
+                    } : ticket
+                })
+            }))
+        } catch (error) {
+            console.error('Error updating ticket availability:', error)
+            // Return the original events without DB integration as a fallback
+            return parsedEvents
+        }
+    }
+
+    return { getPhotoGallery, getEvents, getEventsWithoutDB }
 }

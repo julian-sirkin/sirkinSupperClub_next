@@ -8,6 +8,7 @@ export const PasswordForm = () => {
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    
   };
 
   return (
@@ -24,7 +25,7 @@ export const PasswordForm = () => {
       />
       <button
         type="submit"
-        className="bg-black text-2xl text-gold h-14 w-80 hover:cursor-pointer"
+       className="bg-black text-2xl text-gold h-14 w-80 border-2 border-black hover:cursor-pointer hover:bg-white hover:text-black transition-all duration-300 shadow-lg hover:shadow-xl rounded-lg"
       >
         See Upcoming Events
       </button>
