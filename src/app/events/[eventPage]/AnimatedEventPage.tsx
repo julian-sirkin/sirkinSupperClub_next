@@ -1,3 +1,4 @@
+/* eslint-disable react/no-unescaped-entities */
 "use client";
 
 import { EventModule } from "@/app/components/EventModule/EventModule";
@@ -41,7 +42,7 @@ export default function AnimatedEventPage({
       </FadeIn>
       <FadeIn delay={0.4}>
         <p className="text-xl mb-8">
-          We couldn't find the event you're looking for.
+          We couldn't find the event you&apos;re looking for.
         </p>
       </FadeIn>
       <FadeIn delay={0.6}>
