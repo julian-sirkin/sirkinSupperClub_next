@@ -1,5 +1,8 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  images: {
+    domains: ['images.ctfassets.net'],
+  },
   // Ignore TypeScript errors during build
   typescript: {
     // !! WARN !!

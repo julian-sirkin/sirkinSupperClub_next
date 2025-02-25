@@ -30,7 +30,7 @@ export const EventTeaserCard = ({
     <div
       className={`w-11/12 h-auto relative ${
         isFeaturedEvent
-          ? "md:w-[550px] mx-auto px-8 md:px-12 py-12 border-8"
+          ? "md:w-[550px] mx-auto px-8 md:px-12 py-12 border-8 mt-12 md:mt-0"
           : "md:w-[400px] py-8 border-4 px-4 min-h-[700px]"
       } bg-black opacity-95 px-4 text-white border-gold`}
     >
@@ -108,7 +108,7 @@ export const EventTeaserCard = ({
         } flex justify-center`}
       >
         <Link href={`/events/${event.title}`}>
-          <button className="p-6 bg-gold text-black text-xl font-bold transition-colors duration-300 hover:bg-white hover:text-gold">
+          <button className="p-6 bg-gold text-black text-xl font-bold">
             See Full Details
           </button>
         </Link>

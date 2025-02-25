@@ -39,10 +39,12 @@ export default function AnimatedEventsPage({
           <SlideUp delay={0.2}>
             <motion.div 
               whileHover={{ 
-                boxShadow: "0 25px 50px -12px rgba(212, 175, 55, 0.25)",
+                boxShadow: "0 20px 25px -5px rgba(212, 175, 55, 0.25)",
                 scale: 1.01
               }}
+              initial={{ boxShadow: "none" }}
               transition={{ duration: 0.3 }}
+              className="flex justify-center"
             >
               <EventTeaserCard event={upcomingEvents[0]} isFeaturedEvent={true} />
             </motion.div>
@@ -65,20 +67,22 @@ export default function AnimatedEventsPage({
       {hasMultipleUpcomingEvents && (
         <StaggerContainer className="bg-black p-6 md:p-12">
           <StaggerItem>
-            <h2 className="mt-8 md:mt-12 mb-4 md:mb-6 text-2xl md:text-4xl text-center md:text-left text-white">
+            <h2 className="mt-8 md:mt-12 mb-12 text-2xl md:text-4xl text-center md:text-left text-white">
               <span className="border-b-2 border-gold pb-2">Other Upcoming Events</span>
             </h2>
           </StaggerItem>
 
-          <div className="flex justify-center flex-wrap gap-6 md:gap-8">
+          <div className="flex flex-col items-center md:flex-row md:justify-center md:flex-wrap gap-6 md:gap-8">
             {upcomingEvents.slice(1).map((event, index) => (
               <StaggerItem key={event.title} delay={0.1 * index}>
                 <motion.div
                   whileHover={{ 
-                    boxShadow: "0 20px 25px -5px rgba(212, 175, 55, 0.2)",
+                    boxShadow: "0 10px 15px -3px rgba(212, 175, 55, 0.2)",
                     translateY: -5
                   }}
+                  initial={{ boxShadow: "none" }}
                   transition={{ duration: 0.2 }}
+                  className="w-full flex justify-center"
                 >
                   <EventTeaserCard
                     event={event}
@@ -94,20 +98,21 @@ export default function AnimatedEventsPage({
       {hasPastEvents && (
         <StaggerContainer id="past-events" className="bg-black p-6 md:p-12 border-t border-gray-800">
           <StaggerItem>
-            <h3 className="mt-8 md:mt-12 mb-4 md:mb-6 text-2xl md:text-4xl text-center md:text-left text-white">
+            <h3 className="mt-8 md:mt-12 mb-12 text-2xl md:text-4xl text-center md:text-left text-white">
               <span className="border-b-2 border-gold pb-2">Past Events</span>
             </h3>
           </StaggerItem>
-          <div className="flex justify-center flex-wrap gap-6 md:gap-8">
+          <div className="flex flex-col items-center md:flex-row md:justify-center md:flex-wrap gap-6 md:gap-8">
             {pastEvents.map((event, index) => (
               <StaggerItem key={event.title} delay={0.1 * index}>
                 <motion.div
                   whileHover={{ 
-                    boxShadow: "0 20px 25px -5px rgba(212, 175, 55, 0.2)",
+                    boxShadow: "0 10px 15px -3px rgba(212, 175, 55, 0.2)",
                     translateY: -5
                   }}
+                  initial={{ boxShadow: "none" }}
                   transition={{ duration: 0.2 }}
-                  className="opacity-90 hover:opacity-100"
+                  className="w-full flex justify-center opacity-90 hover:opacity-100"
                 >
                   <EventTeaserCard
                     event={event}
