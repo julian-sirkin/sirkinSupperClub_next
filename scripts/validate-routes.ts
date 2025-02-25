@@ -1,8 +1,8 @@
-import fs from 'fs';
-import path from 'path';
+const fs = require('fs');
+const path = require('path');
 
 // Function to check if a file is a valid module
-function isValidModule(filePath: string): boolean {
+function isValidModule(filePath) {
   try {
     const content = fs.readFileSync(filePath, 'utf8');
     
@@ -25,8 +25,8 @@ function isValidModule(filePath: string): boolean {
 }
 
 // Function to recursively scan directories
-function scanDirectory(dir: string): string[] {
-  const invalidFiles: string[] = [];
+function scanDirectory(dir) {
+  const invalidFiles = [];
   
   const files = fs.readdirSync(dir);
   
