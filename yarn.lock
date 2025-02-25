@@ -1526,25 +1526,15 @@
     "@types/ws" "^8.5.4"
     ws "^8.13.0"
 
-"@libsql/linux-x64-gnu@0.3.19":
-  version "0.3.19"
-  resolved "https://registry.npmjs.org/@libsql/linux-x64-gnu/-/linux-x64-gnu-0.3.19.tgz"
-  integrity sha512-2t/J7LD5w2f63wGihEO+0GxfTyYIyLGEvTFEsMO16XI5o7IS9vcSHrxsvAJs4w2Pf907uDjmc7fUfMg6L82BrQ==
+"@libsql/linux-x64-gnu@0.4.7":
+  version "0.4.7"
+  resolved "https://registry.npmjs.org/@libsql/linux-x64-gnu/-/linux-x64-gnu-0.4.7.tgz"
+  integrity sha512-CMnNRCmlWQqqzlTw6NeaZXzLWI8bydaXDke63JTUCvu8R+fj/ENsLrVBtPDlxQ0wGsYdXGlrUCH8Qi9gJep0yQ==
 
-"@libsql/linux-x64-gnu@0.4.1":
-  version "0.4.1"
-  resolved "https://registry.npmjs.org/@libsql/linux-x64-gnu/-/linux-x64-gnu-0.4.1.tgz"
-  integrity sha512-psvuQ3UFBEmDFV8ZHG+WkUHIJiWv+elZ+zIPvOVedlIKdxG1O+8WthWUAhFHOGnbiyzc4sAZ4c3de1oCvyHxyQ==
-
-"@libsql/linux-x64-musl@0.3.19":
-  version "0.3.19"
-  resolved "https://registry.npmjs.org/@libsql/linux-x64-musl/-/linux-x64-musl-0.3.19.tgz"
-  integrity sha512-BLsXyJaL8gZD8+3W2LU08lDEd9MIgGds0yPy5iNPp8tfhXx3pV/Fge2GErN0FC+nzt4DYQtjL+A9GUMglQefXQ==
-
-"@libsql/linux-x64-musl@0.4.1":
-  version "0.4.1"
-  resolved "https://registry.npmjs.org/@libsql/linux-x64-musl/-/linux-x64-musl-0.4.1.tgz"
-  integrity sha512-PDidJ3AhGDqosGg3OAZzGxMFIbnuOALya4BoezJKl667AFv3x7BBQ30H81Mngsq3Fh8RkJkXSdWfL91+Txb1iA==
+"@libsql/linux-x64-musl@0.4.7":
+  version "0.4.7"
+  resolved "https://registry.npmjs.org/@libsql/linux-x64-musl/-/linux-x64-musl-0.4.7.tgz"
+  integrity sha512-nI6tpS1t6WzGAt1Kx1n1HsvtBbZ+jHn0m7ogNNT6pQHZQj7AFFTIMeDQw/i/Nt5H38np1GVRNsFe99eSIMs9XA==
 
 "@neon-rs/load@^0.0.4":
   version "0.0.4"
@@ -2839,9 +2829,9 @@ camelcase@^6.2.0:
   integrity sha512-Gmy6FhYlCY7uOElZUSbxo2UCDH8owEk996gkbrpsgGtrJLM3J7jGxl9Ic7Qwwj4ivOE5AWZWRMecDdF7hqGjFA==
 
 caniuse-lite@^1.0.30001579, caniuse-lite@^1.0.30001646:
-  version "1.0.30001651"
-  resolved "https://registry.npmjs.org/caniuse-lite/-/caniuse-lite-1.0.30001651.tgz"
-  integrity sha512-9Cf+Xv1jJNe1xPZLGuUXLNkE1BoDkqRqYyFJ9TDYSqhduqA4hu4oR9HluGoWYQC/aj8WHjsGVV+bwkh0+tegRg==
+  version "1.0.30001700"
+  resolved "https://registry.npmjs.org/caniuse-lite/-/caniuse-lite-1.0.30001700.tgz"
+  integrity sha512-2S6XIXwaE7K7erT8dY+kLQcpa5ms63XlRkMkReXjle+kf6c5g38vyMl+Z5y8dSxOFDhcFe+nxnn261PLxBSQsQ==
 
 capital-case@^1.0.4:
   version "1.0.4"
@@ -4262,6 +4252,15 @@ formdata-polyfill@^4.0.10:
   dependencies:
     fetch-blob "^3.1.2"
 
+framer-motion@^12.4.7:
+  version "12.4.7"
+  resolved "https://registry.npmjs.org/framer-motion/-/framer-motion-12.4.7.tgz"
+  integrity sha512-VhrcbtcAMXfxlrjeHPpWVu2+mkcoR31e02aNSR7OUS/hZAciKa8q6o3YN2mA1h+jjscRsSyKvX6E1CiY/7OLMw==
+  dependencies:
+    motion-dom "^12.4.5"
+    motion-utils "^12.0.0"
+    tslib "^2.4.0"
+
 fs.realpath@^1.0.0:
   version "1.0.0"
   resolved "https://registry.npmjs.org/fs.realpath/-/fs.realpath-1.0.0.tgz"
@@ -5629,39 +5628,21 @@ levn@^0.4.1:
     prelude-ls "^1.2.1"
     type-check "~0.4.0"
 
-libsql@^0.3.15, libsql@^0.3.19:
-  version "0.3.19"
-  resolved "https://registry.npmjs.org/libsql/-/libsql-0.3.19.tgz"
-  integrity sha512-Aj5cQ5uk/6fHdmeW0TiXK42FqUlwx7ytmMLPSaUQPin5HKKKuUPD62MAbN4OEweGBBI7q1BekoEN4gPUEL6MZA==
-  dependencies:
-    "@neon-rs/load" "^0.0.4"
-    detect-libc "2.0.2"
-    libsql "^0.3.15"
-  optionalDependencies:
-    "@libsql/darwin-arm64" "0.3.19"
-    "@libsql/darwin-x64" "0.3.19"
-    "@libsql/linux-arm64-gnu" "0.3.19"
-    "@libsql/linux-arm64-musl" "0.3.19"
-    "@libsql/linux-x64-gnu" "0.3.19"
-    "@libsql/linux-x64-musl" "0.3.19"
-    "@libsql/win32-x64-msvc" "0.3.19"
-
 libsql@^0.4.1:
-  version "0.4.1"
-  resolved "https://registry.npmjs.org/libsql/-/libsql-0.4.1.tgz"
-  integrity sha512-qZlR9Yu1zMBeLChzkE/cKfoKV3Esp9cn9Vx5Zirn4AVhDWPcjYhKwbtJcMuHehgk3mH+fJr9qW+3vesBWbQpBg==
+  version "0.4.7"
+  resolved "https://registry.npmjs.org/libsql/-/libsql-0.4.7.tgz"
+  integrity sha512-T9eIRCs6b0J1SHKYIvD8+KCJMcWZ900iZyxdnSCdqxN12Z1ijzT+jY5nrk72Jw4B0HGzms2NgpryArlJqvc3Lw==
   dependencies:
     "@neon-rs/load" "^0.0.4"
     detect-libc "2.0.2"
-    libsql "^0.3.19"
   optionalDependencies:
-    "@libsql/darwin-arm64" "0.4.1"
-    "@libsql/darwin-x64" "0.4.1"
-    "@libsql/linux-arm64-gnu" "0.4.1"
-    "@libsql/linux-arm64-musl" "0.4.1"
-    "@libsql/linux-x64-gnu" "0.4.1"
-    "@libsql/linux-x64-musl" "0.4.1"
-    "@libsql/win32-x64-msvc" "0.4.1"
+    "@libsql/darwin-arm64" "0.4.7"
+    "@libsql/darwin-x64" "0.4.7"
+    "@libsql/linux-arm64-gnu" "0.4.7"
+    "@libsql/linux-arm64-musl" "0.4.7"
+    "@libsql/linux-x64-gnu" "0.4.7"
+    "@libsql/linux-x64-musl" "0.4.7"
+    "@libsql/win32-x64-msvc" "0.4.7"
 
 lilconfig@^2.1.0:
   version "2.1.0"
@@ -5917,6 +5898,18 @@ minimist@^1.2.0, minimist@^1.2.6:
   version "7.1.2"
   resolved "https://registry.npmjs.org/minipass/-/minipass-7.1.2.tgz"
   integrity sha512-qOOzS1cBTWYF4BH8fVePDBOO9iptMnGUEZwNc/cMWnTV2nVLZ7VoNWEPHkYczZA0pdoA7dl6e7FL659nX9S2aw==
+
+motion-dom@^12.4.5:
+  version "12.4.5"
+  resolved "https://registry.npmjs.org/motion-dom/-/motion-dom-12.4.5.tgz"
+  integrity sha512-Q2xmhuyYug1CGTo0jdsL05EQ4RhIYXlggFS/yPhQQRNzbrhjKQ1tbjThx5Plv68aX31LsUQRq4uIkuDxdO5vRQ==
+  dependencies:
+    motion-utils "^12.0.0"
+
+motion-utils@^12.0.0:
+  version "12.0.0"
+  resolved "https://registry.npmjs.org/motion-utils/-/motion-utils-12.0.0.tgz"
+  integrity sha512-MNFiBKbbqnmvOjkPyOKgHUp3Q6oiokLkI1bEwm5QA28cxMZrv0CbbBGDNmhF6DIXsi1pCQBSs0dX8xjeER1tmA==
 
 ms@^2.1.1, ms@2.1.2:
   version "2.1.2"
@@ -6577,7 +6570,7 @@ queue-microtask@^1.2.2:
   resolved "https://registry.npmjs.org/queue-microtask/-/queue-microtask-1.2.3.tgz"
   integrity sha512-NuaNSa6flKT5JaSYQzJok04JzTL1CA6aGhv5rfLW3PgqA+M2ChpZQnAC8h8i4ZFkBS8X5RqkDBHA7r4hej3K9A==
 
-"react-dom@^16.8 || ^17.0 || ^18.0 || ^19.0 || ^19.0.0-rc", "react-dom@^16.8.6 || ^17.0.0 || ^18.0.0", "react-dom@^17.0.2 || ^18", react-dom@^18, react-dom@^18.0.0, react-dom@^18.2.0, react-dom@>=16.8.0:
+"react-dom@^16.8 || ^17.0 || ^18.0 || ^19.0 || ^19.0.0-rc", "react-dom@^16.8.6 || ^17.0.0 || ^18.0.0", "react-dom@^17.0.2 || ^18", react-dom@^18, react-dom@^18.0.0, "react-dom@^18.0.0 || ^19.0.0", react-dom@^18.2.0, react-dom@>=16.8.0:
   version "18.3.1"
   resolved "https://registry.npmjs.org/react-dom/-/react-dom-18.3.1.tgz"
   integrity sha512-5m4nQKp+rZRb09LNH59GM4BxTh9251/ylbKIbpe7TpGxfJ+9kv6BLkLBXIjjspbgbnIBNqlI23tRnTWT0snUIw==
@@ -6638,7 +6631,7 @@ react-style-singleton@^2.2.1:
     invariant "^2.2.4"
     tslib "^2.0.0"
 
-react@*, "react@^16.5.1 || ^17.0.0 || ^18.0.0 || ^19.0.0-rc", "react@^16.8 || ^17.0 || ^18.0 || ^19.0 || ^19.0.0-rc", "react@^16.8.0 || ^17 || ^18 || ^19", "react@^16.8.0 || ^17.0.0 || ^18.0.0", "react@^16.8.6 || ^17.0.0 || ^18.0.0", "react@^17.0.2 || ^18", react@^18, react@^18.0.0, react@^18.2.0, react@^18.3.1, "react@>= 16.8.0 || 17.x.x || ^18.0.0-0", react@>=16.8, react@>=16.8.0, react@>=18:
+react@*, "react@^16.5.1 || ^17.0.0 || ^18.0.0 || ^19.0.0-rc", "react@^16.8 || ^17.0 || ^18.0 || ^19.0 || ^19.0.0-rc", "react@^16.8.0 || ^17 || ^18 || ^19", "react@^16.8.0 || ^17.0.0 || ^18.0.0", "react@^16.8.6 || ^17.0.0 || ^18.0.0", "react@^17.0.2 || ^18", react@^18, react@^18.0.0, "react@^18.0.0 || ^19.0.0", react@^18.2.0, react@^18.3.1, "react@>= 16.8.0 || 17.x.x || ^18.0.0-0", react@>=16.8, react@>=16.8.0, react@>=18:
   version "18.3.1"
   resolved "https://registry.npmjs.org/react/-/react-18.3.1.tgz"
   integrity sha512-wS+hAgJShR0KhEvPJArfuPVN1+Hz1t0Y6n5jLrGQbkb4urgPE/0Rve+1kMB1v/oWgHgm4WIcV+i7F2pTVj+2iQ==

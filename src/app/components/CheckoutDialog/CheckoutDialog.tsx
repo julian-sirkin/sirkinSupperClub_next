@@ -1,25 +1,17 @@
 "use client";
 
 import { ParsedEvent } from "@/app/networkCalls/contentful/contentfulServices.types";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/schad/components/ui/dialog";
 import { useCartStore } from "@/store/cartStore";
 import { useState } from "react";
 import { CheckoutForm } from "../CheckoutForm/CheckoutForm";
 import { FormData } from "../CheckoutForm/CheckoutForm.fixture";
 import { CheckoutResponseMessage } from "../CheckoutForm/CheckoutResponseMessage";
+import { motion, AnimatePresence } from "framer-motion";
 
 export const CheckoutDialog = ({ event }: { event: ParsedEvent }) => {
   const [seeCart, setSeeCart] = useState<boolean>(true);
   const [shouldShowForm, setShouldShowForm] = useState<boolean>(true);
-  const [shouldDisableSubmitButton, setShouldDisableSubmitButton] =
-    useState<boolean>(false);
+  const [shouldDisableSubmitButton, setShouldDisableSubmitButton] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState<string>("");
 
   const { cart, emptyCart } = useCartStore((state) => ({
@@ -54,70 +46,80 @@ export const CheckoutDialog = ({ event }: { event: ParsedEvent }) => {
     }
   };
 
-  return (
-    <Dialog>
-      <div className="flex justify-center">
-        <DialogTrigger className="h-20 w-48 bg-black text-3xl text-white text-center font-bold hover:underline hover:text-gold">
-          Checkout
-        </DialogTrigger>
-      </div>
-      <DialogContent className="bg-black text-white w-11/12 p-6 md:p-12 ">
-        <DialogHeader>
-          <DialogTitle className="text-2xl md:text-3xl">
-            Reserve Your Spot
-          </DialogTitle>
-          <DialogDescription>
-            <ul className="text-left md:mb-6">
-              {seeCart ? (
-                <>
-                  {cart.tickets.map((ticketInCart) => (
-                    <li key={ticketInCart.title} className="text-gold mb-6">
-                      <h3 className="text-gold text-lg font-semibold">
-                        {ticketInCart.title}
-                      </h3>
+  const closeDialog = () => {
+    const dialog = document.getElementById('checkout-dialog');
+    if (dialog instanceof HTMLDialogElement) {
+      dialog.close();
+    }
+  };
 
-                      {/* Flexbox layout for Quantity and Price with values aligned to the right */}
-                      <div className="flex justify-between mb-2">
-                        <h4 className="text-md text-white">Quantity:</h4>
-                        <p className="text-md text-white text-right">
-                          {ticketInCart.quantity}
-                        </p>
+  return (
+    <dialog 
+      id="checkout-dialog" 
+      className="bg-transparent p-0 backdrop:bg-black/70 backdrop:backdrop-blur-sm"
+    >
+      <div className="bg-black border-2 border-gold text-white w-[90vw] max-w-md p-4 md:p-6 rounded-lg shadow-2xl">
+        <div className="flex justify-between items-center mb-4 border-b border-gold pb-2">
+          <h2 className="text-2xl md:text-3xl font-bold text-gold">
+            Reserve Your Spot
+          </h2>
+          <button 
+            onClick={closeDialog}
+            className="text-white hover:text-gold"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+        
+        <div className="mb-4">
+          <div className="flex justify-between items-center mb-2">
+            <h3 className="text-xl">Your Order</h3>
+            <button
+              className="text-gold text-sm hover:underline"
+              type="button"
+              onClick={() => setSeeCart(!seeCart)}
+            >
+              {seeCart ? 'Hide Details' : 'Show Details'}
+            </button>
+          </div>
+          
+          <AnimatePresence>
+            {seeCart && (
+              <motion.div
+                initial={{ height: 0, opacity: 0 }}
+                animate={{ height: 'auto', opacity: 1 }}
+                exit={{ height: 0, opacity: 0 }}
+                className="overflow-hidden"
+              >
+                <div className="space-y-4 mb-4">
+                  {cart.tickets.map((ticketInCart) => (
+                    <div key={ticketInCart.title} className="bg-black/50 p-4 rounded border border-gold/30">
+                      <h4 className="text-gold text-lg font-semibold mb-2">
+                        {ticketInCart.title}
+                      </h4>
+                      <div className="flex justify-between mb-1 text-sm">
+                        <span>Quantity:</span>
+                        <span>{ticketInCart.quantity}</span>
                       </div>
-                      <div className="flex justify-between mb-2">
-                        <h5 className="text-md text-white">Price:</h5>
-                        <p className="text-md text-white text-right">
-                          ${ticketInCart.price * ticketInCart.quantity}
-                        </p>
+                      <div className="flex justify-between text-sm">
+                        <span>Price:</span>
+                        <span>${ticketInCart.price * ticketInCart.quantity}</span>
                       </div>
-                    </li>
+                    </div>
                   ))}
-                  <button
-                    className="text-gold"
-                    type="button"
-                    name="hide cart contents"
-                    onClick={() => setSeeCart(!seeCart)}
-                  >
-                    Hide Cart
-                  </button>
-                </>
-              ) : (
-                <button
-                  className="text-gold"
-                  name="show cart contents"
-                  type="button"
-                  onClick={() => setSeeCart(!seeCart)}
-                >
-                  Show Cart
-                </button>
-              )}
-              {/* Total */}
-              <li className="flex justify-between text-xl text-white mt-4">
-                <span>Total:</span>
-                <span className="text-right">${cart.totalPrice}</span>
-              </li>
-            </ul>
-          </DialogDescription>
-        </DialogHeader>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+          
+          <div className="flex justify-between text-xl font-bold border-t border-gold/30 pt-2 mt-2">
+            <span>Total:</span>
+            <span>${cart.totalPrice}</span>
+          </div>
+        </div>
+        
         {shouldShowForm ? (
           <CheckoutForm
             onSubmit={onSubmit}
@@ -126,7 +128,7 @@ export const CheckoutDialog = ({ event }: { event: ParsedEvent }) => {
         ) : (
           <CheckoutResponseMessage errorMessage={errorMessage} />
         )}
-      </DialogContent>
-    </Dialog>
+      </div>
+    </dialog>
   );
 };

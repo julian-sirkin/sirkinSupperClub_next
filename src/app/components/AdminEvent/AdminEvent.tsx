@@ -19,7 +19,7 @@ export const AdminEvent = ({eventId, resetEvent}: {eventId: number, resetEvent: 
             setEventData(decodedEventData.data)
         }     
         fetchEventData()
-}, [])
+    }, [eventId])
     
     return (<div>
         <h3>Singular Event</h3>

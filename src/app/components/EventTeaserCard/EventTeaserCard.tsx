@@ -1,3 +1,4 @@
+"use client";
 import { ParsedEvent } from "@/app/networkCalls/contentful/contentfulServices.types";
 import Link from "next/link";
 
@@ -8,10 +9,14 @@ export const EventTeaserCard = ({
   event: ParsedEvent;
   isFeaturedEvent: boolean;
 }) => {
-  const eventDate = event.date.toLocaleString("en-us", {
+  const eventDate = new Date(event.date).toLocaleString("en-us", {
     month: "short",
     day: "numeric",
   });
+
+  // Check if the event is in the past
+  const isPastEvent = new Date(event.date) < new Date();
+
   const numberOfSeatsAvailable = event.tickets.reduce(
     (availableSeats, currentTicket) => {
       return !currentTicket.isAddonTicket
@@ -82,25 +87,28 @@ export const EventTeaserCard = ({
             {event.price > 0 ? `$${event.price}.00` : "Free"}
           </p>
         </div>
-        <div className="contents">
-          <span className="text-gold text-lg md:text-xl font-bold whitespace-nowrap">
-            Available seats:
-          </span>
-          <p
-            className={`${
-              isFeaturedEvent ? "md:text-2xl" : ""
-            } text-xl  -indent-[1ch] pl-[1ch]`}
-          >
-            {numberOfSeatsAvailable}
-          </p>
-        </div>
+        {/* Conditionally render available seats */}
+        {!isPastEvent && (
+          <div className="contents">
+            <span className="text-gold text-lg md:text-xl font-bold whitespace-nowrap">
+              Available seats:
+            </span>
+            <p
+              className={`${
+                isFeaturedEvent ? "md:text-2xl" : ""
+              } text-xl  -indent-[1ch] pl-[1ch]`}
+            >
+              {numberOfSeatsAvailable}
+            </p>
+          </div>
+        )}
       </div>
       <div className={`${
           isFeaturedEvent ? "relative mt-6" : "absolute bottom-6 left-0 right-0"
         } flex justify-center`}
       >
         <Link href={`/events/${event.title}`}>
-          <button className="p-6 bg-gold text-black text-xl font-bold">
+          <button className="p-6 bg-gold text-black text-xl font-bold transition-colors duration-300 hover:bg-white hover:text-gold">
             See Full Details
           </button>
         </Link>

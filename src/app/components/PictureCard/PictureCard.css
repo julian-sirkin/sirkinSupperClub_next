@@ -2,3 +2,22 @@
     width: 208px;
     height: 225px;
 }
+
+/* Add scrollbar styling for description overflow */
+.pictureSizing.overflow-y-auto {
+    scrollbar-width: thin;
+    scrollbar-color: #000 #f0f0f0;
+}
+
+.pictureSizing.overflow-y-auto::-webkit-scrollbar {
+    width: 6px;
+}
+
+.pictureSizing.overflow-y-auto::-webkit-scrollbar-track {
+    background: #f0f0f0;
+}
+
+.pictureSizing.overflow-y-auto::-webkit-scrollbar-thumb {
+    background-color: #000;
+    border-radius: 6px;
+}
