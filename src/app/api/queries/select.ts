@@ -171,69 +171,126 @@ export async function getAllAdminEvents(): Promise<adminEvent[]> {
 // }
 
 export async function getEventTicketsWithPurchases(eventId: number) {
-    try {
-        console.log(`🔍 Fetching event details for ID: ${eventId}`);
-  
-        // Fetch event details
-        const event = await db
-            .select({
-                id: eventsTable.id,
-                title: eventsTable.title,
-                date: eventsTable.date,
-            })
-            .from(eventsTable)
-            .where(eq(eventsTable.id, eventId))
-            .then((res) => res[0] || null);
-  
-        console.log("📋 Event fetched:", event);
-  
-        if (!event) {
-            console.error(`❌ Event not found for event ID: ${eventId}`);
-            return null;
-        }
-  
-        // Fetch tickets for this event
-        const tickets = await db
-            .select({
-                ticketId: ticketsTable.id,
-                time: ticketsTable.time,
-                totalSold: ticketsTable.totalSold,
-            })
-            .from(ticketsTable)
-            .where(eq(ticketsTable.event, eventId));
-  
-        console.log(`🎟 Found ${tickets.length} tickets for event ${eventId}`);
-  
-        if (tickets.length === 0) {
-            console.warn(`⚠️ No tickets found for event ID: ${eventId}`);
-        }
-  
-        // Fetch purchases for each ticket, ensuring ticketId is included
-        const ticketsWithPurchases = await Promise.all(
-            tickets.map(async (ticket) => {
-                const purchases = await db
-                    .select({
-                        purchaseId: purchasesTable.id,
-                        customerId: purchasesTable.customerId,
-                        paid: purchasesTable.paid,
-                        quantity: purchaseItemsTable.quantity,
-                        ticketId: purchaseItemsTable.ticketId, // ✅ Ensure ticketId is included
-                    })
-                    .from(purchaseItemsTable)
-                    .innerJoin(purchasesTable, eq(purchasesTable.id, purchaseItemsTable.purchaseId))
-                    .where(eq(purchaseItemsTable.ticketId, ticket.ticketId));
-  
-                console.log(`📦 Ticket ${ticket.ticketId} Purchases:`, purchases);
-  
-                return { ...ticket, purchases };
-            })
-        );
-  
-        console.log(`✅ Returning event details for event ID: ${eventId}`);
-  
-        return { ...event, tickets: ticketsWithPurchases };
-    } catch (error) {
-        console.error("🚨 Error in getEventTicketsWithPurchases:", error);
-        return null;
+  try {
+    console.log(`🔍 Fetching event details for ID: ${eventId}`);
+
+    // Fetch event details
+    const event = await db
+      .select({
+        id: eventsTable.id,
+        title: eventsTable.title,
+        date: eventsTable.date,
+      })
+      .from(eventsTable)
+      .where(eq(eventsTable.id, eventId))
+      .then((res) => res[0] || null);
+
+    console.log("📋 Event fetched:", event);
+
+    if (!event) {
+      console.error(`❌ Event not found for event ID: ${eventId}`);
+      return null;
     }
+
+    // Fetch tickets for this event
+    const tickets = await db
+      .select({
+        ticketId: ticketsTable.id,
+        time: ticketsTable.time,
+        totalAvailable: ticketsTable.totalAvailable,
+        totalSold: ticketsTable.totalSold,
+      })
+      .from(ticketsTable)
+      .where(eq(ticketsTable.event, eventId));
+
+    console.log(`🎟 Found ${tickets.length} tickets for event ${eventId}`);
+
+    if (tickets.length === 0) {
+      console.warn(`⚠️ No tickets found for event ID: ${eventId}`);
+    }
+
+    // Process each ticket one by one
+    const ticketsWithPurchases = [];
+    
+    for (const ticket of tickets) {
+      try {
+        // Get purchase items for this ticket
+        const purchaseItems = await db
+          .select()
+          .from(purchaseItemsTable)
+          .where(eq(purchaseItemsTable.ticketId, ticket.ticketId));
+        
+        // Process purchase items
+        const purchases = [];
+        
+        for (const item of purchaseItems) {
+          try {
+            // Get purchase details
+            const purchaseResult = await db
+              .select()
+              .from(purchasesTable)
+              .where(eq(purchasesTable.id, item.purchaseId));
+            
+            if (!purchaseResult || purchaseResult.length === 0) continue;
+            
+            const purchase = purchaseResult[0];
+            
+            // Get customer details
+            const customerResult = await db
+              .select()
+              .from(customersTable)
+              .where(eq(customersTable.id, purchase.customerId));
+            
+            if (!customerResult || customerResult.length === 0) continue;
+            
+            const customer = customerResult[0];
+            
+            // Add to purchases array
+            purchases.push({
+              purchaseId: purchase.id,
+              purchaseItemsId: item.id,
+              customerId: customer.id,
+              customerName: customer.name,
+              customerEmail: customer.email,
+              quantity: item.quantity,
+              paid: purchase.paid,
+              purchaseDate: purchase.purchaseDate,
+              ticketId: ticket.ticketId,
+              dietaryRestrictions: customer.dietaryRestrictions,
+              notes: customer.notes,
+            });
+          } catch (itemError) {
+            console.error(`Error processing purchase item ${item.id}:`, itemError);
+            // Continue with next item
+          }
+        }
+        
+        console.log(`📦 Ticket ${ticket.ticketId} has ${purchases.length} purchases`);
+        
+        // Add ticket with its purchases
+        ticketsWithPurchases.push({
+          ...ticket,
+          purchases,
+        });
+      } catch (ticketError) {
+        console.error(`Error processing ticket ${ticket.ticketId}:`, ticketError);
+        // Continue with next ticket
+      }
+    }
+
+    console.log(`✅ Returning event details for event ID: ${eventId}`);
+
+    return { 
+      ...event, 
+      tickets: ticketsWithPurchases 
+    };
+  } catch (error) {
+    console.error("🚨 Error in getEventTicketsWithPurchases:", error);
+    return {
+      id: eventId,
+      title: "Error loading event",
+      date: new Date(),
+      tickets: []
+    };
   }
+}

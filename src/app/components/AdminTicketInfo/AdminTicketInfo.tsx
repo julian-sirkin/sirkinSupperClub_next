@@ -73,7 +73,7 @@ export const AdminTicketInfo = ({ticket: initialTicket, setRefundToast}: {
                                             href={`/admin?view=customer&id=${order.customerId}`} 
                                             className="font-bold text-lg hover:text-gold transition-colors"
                                         >
-                                            {order.customerName}
+                                            {order.customerName || 'Unknown Customer'}
                                         </Link>
                                         <button 
                                             onClick={() => toggleOrderDetails(order.purchaseId)}
@@ -85,7 +85,7 @@ export const AdminTicketInfo = ({ticket: initialTicket, setRefundToast}: {
                                             }
                                         </button>
                                     </div>
-                                    <div className="text-gray-400">{order.customerEmail}</div>
+                                    <div className="text-gray-400">{order.customerEmail || 'No email'}</div>
                                     <div className="flex gap-2">
                                         <div className="bg-gold/20 inline-block px-2 py-1 rounded text-gold">
                                             Quantity: {order.quantity}
@@ -114,7 +114,7 @@ export const AdminTicketInfo = ({ticket: initialTicket, setRefundToast}: {
                                 <div className="bg-gray-900 p-3 rounded mt-2 space-y-3">
                                     <div>
                                         <h4 className="text-sm text-gray-400 mb-1">Purchase Date:</h4>
-                                        <p>{formatDate(new Date(order.purchaseDate))}</p>
+                                        <p>{order.purchaseDate ? formatDate(new Date(order.purchaseDate)) : 'Unknown'}</p>
                                     </div>
                                     
                                     {order.dietaryRestrictions && (
