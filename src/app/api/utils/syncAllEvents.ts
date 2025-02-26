@@ -26,7 +26,7 @@ export const syncAllEvents = async () => {
         console.log(`Creating new event: ${event.title}`);
         const result = await db.insert(eventsTable).values({
           contentfulId: event.contentfulEventId,
-          title: event.title,
+          title: event.title || "Untitled Event",
           date: new Date(event.date).getTime(),
         }).returning({ id: eventsTable.id });
         
@@ -38,7 +38,7 @@ export const syncAllEvents = async () => {
         
         await db.update(eventsTable)
           .set({
-            title: event.title,
+            title: event.title || existingEvents[0].title,
             date: new Date(event.date).getTime(),
           })
           .where(eq(eventsTable.id, eventId));

@@ -37,79 +37,260 @@ export async function getTicketsByIdAndEvent(
 
 
 export async function getAllAdminEvents(): Promise<adminEvent[]> {
+    // Use a different approach that doesn't rely on leftJoin
     const events = await db
         .select({
             id: eventsTable.id,
-            name: eventsTable.title,
+            title: eventsTable.title,
             date: eventsTable.date,
-            ticketsAvailable: sql<number>`SUM(${ticketsTable.totalAvailable})`.as('ticketsAvailable'), // Sum of available tickets
-            ticketsSold: sql<number>`SUM(${ticketsTable.totalSold})`.as('ticketsSold') // Sum of sold tickets
         })
-        .from(eventsTable)
-        .leftJoin(ticketsTable, eq(ticketsTable.event, eventsTable.id))
-        .groupBy(eventsTable.id, eventsTable.title, eventsTable.date); // Ensure grouping by event fields
-
-    return events.map(event => ({
-        id: event.id,
-        name: event.name,
-        date: new Date((Number(event?.date) ?? 0)), // Convert timestamp to ISO string
-        ticketsAvailable: event.ticketsAvailable || 0, // Default to 0 if no tickets
-        ticketsSold: event.ticketsSold || 0 // Default to 0 if no tickets
-    }));
+        .from(eventsTable);
+    
+    // Get ticket counts in a separate query
+    const ticketCounts = await Promise.all(
+        events.map(async (event) => {
+            const tickets = await db
+                .select({
+                    totalAvailable: sql<number>`SUM(${ticketsTable.totalAvailable})`.as('ticketsAvailable'),
+                    totalSold: sql<number>`SUM(${ticketsTable.totalSold})`.as('ticketsSold')
+                })
+                .from(ticketsTable)
+                .where(eq(ticketsTable.event, event.id));
+            
+            return {
+                id: event.id,
+                ticketsAvailable: tickets[0]?.totalAvailable || 0,
+                ticketsSold: tickets[0]?.totalSold || 0
+            };
+        })
+    );
+    
+    // Merge the results
+    return events.map(event => {
+        const ticketCount = ticketCounts.find(tc => tc.id === event.id) || { ticketsAvailable: 0, ticketsSold: 0 };
+        return {
+            id: event.id,
+            title: event.title,
+            date: Number(event?.date ?? 0),
+            ticketsAvailable: ticketCount.ticketsAvailable,
+            ticketsSold: ticketCount.ticketsSold
+        };
+    });
 }
 
-export async function getEventTicketsWithPurchases(eventId: number): Promise<TicketWithPurchases[]> {
-    const ticketsWithPurchases = await db
-    .select({
+// export async function getEventTicketsWithPurchases(eventId: number) {
+//   try {
+//     // First, get the event details
+//     const eventDetails = await db
+//       .select({
+//         id: eventsTable.id,
+//         title: eventsTable.title,
+//         date: eventsTable.date
+//       })
+//       .from(eventsTable)
+//       .where(eq(eventsTable.id, eventId));
+
+//     if (eventDetails.length === 0) {
+//       throw new Error("Event not found");
+//     }
+
+//     // Get all tickets for this event
+//     const tickets = await db
+//       .select()
+//       .from(ticketsTable)
+//       .where(eq(ticketsTable.event, eventId));
+
+//     if (!tickets || tickets.length === 0) {
+//       // Return event with empty tickets array
+//       return {
+//         id: eventDetails[0].id,
+//         title: eventDetails[0].title,
+//         date: eventDetails[0].date,
+//         tickets: []
+//       };
+//     }
+
+//     // Get all ticket purchases at once with proper joins
+//     const ticketPurchases = await db
+//       .select({
+//         purchaseId: purchasesTable.id,
+//         ticketId: ticketsTable.id,
+//         ticketTime: ticketsTable.time,
+//         customerId: customersTable.id,
+//         customerName: customersTable.name,
+//         customerEmail: customersTable.email,
+//         quantity: purchaseItemsTable.quantity,
+//         paid: purchasesTable.paid,
+//         purchaseDate: purchasesTable.purchaseDate,
+//         dietaryRestrictions: customersTable.dietaryRestrictions,
+//         notes: customersTable.notes
+//       })
+//       .from(ticketsTable)
+//       .innerJoin(purchaseItemsTable, eq(purchaseItemsTable.ticketId, ticketsTable.id))
+//       .innerJoin(purchasesTable, eq(purchaseItemsTable.purchaseId, purchasesTable.id))
+//       .innerJoin(customersTable, eq(purchasesTable.customerId, customersTable.id))
+//       .where(eq(ticketsTable.event, eventId));
+
+//     // Group purchases by ticketId
+//     const ticketData = tickets.map((ticket) => {
+//       const purchases = ticketPurchases
+//         .filter((p) => p.ticketId === ticket.id)
+//         .map((p) => ({
+//           purchaseId: p.purchaseId,
+//           customerId: p.customerId,
+//           customerName: p.customerName,
+//           customerEmail: p.customerEmail,
+//           quantity: p.quantity,
+//           paid: p.paid,
+//           purchaseDate: p.purchaseDate,
+//           ticketId: p.ticketId,
+//           dietaryRestrictions: p.dietaryRestrictions,
+//           notes: p.notes
+//         }));
+
+//       return {
+//         ticketId: ticket.id,
+//         ticketTime: ticket.time,
+//         totalAvailable: ticket.totalAvailable,
+//         totalSold: ticket.totalSold,
+//         purchases
+//       };
+//     });
+
+//     // Return the event with its tickets and purchases
+//     return {
+//       id: eventDetails[0].id,
+//       title: eventDetails[0].title,
+//       date: eventDetails[0].date,
+//       tickets: ticketData
+//     };
+//   } catch (error) {
+//     console.error("Error fetching event with tickets and purchases:", error);
+//     throw error;
+//   }
+// }
+
+export async function getEventTicketsWithPurchases(eventId: number) {
+  try {
+    console.log(`🔍 Fetching event details for ID: ${eventId}`);
+
+    // Fetch event details
+    const event = await db
+      .select({
+        id: eventsTable.id,
+        title: eventsTable.title,
+        date: eventsTable.date,
+      })
+      .from(eventsTable)
+      .where(eq(eventsTable.id, eventId))
+      .then((res) => res[0] || null);
+
+    console.log("📋 Event fetched:", event);
+
+    if (!event) {
+      console.error(`❌ Event not found for event ID: ${eventId}`);
+      return null;
+    }
+
+    // Fetch tickets for this event
+    const tickets = await db
+      .select({
         ticketId: ticketsTable.id,
-        ticketTime: ticketsTable.time,
-        contentfulId: ticketsTable.contentfulId,
+        time: ticketsTable.time,
         totalAvailable: ticketsTable.totalAvailable,
         totalSold: ticketsTable.totalSold,
-        purchaseId: sql<number>`${purchasesTable.id} as purchaseId`, // Aliased in `sql` template
-        customerId: sql<number>`${purchasesTable.customerId} as customerId`,
-        customerName: sql<string>`(SELECT name FROM customers WHERE id = ${purchasesTable.customerId}) as customerName`,
-        quantity: sql<number>`${purchaseItemsTable.quantity} as quantity`,
-        purchaseItemsId: sql<number>`${purchaseItemsTable.id} as purchaseItemsId`,
-        purchaseDate: sql<number>`${purchasesTable.purchaseDate} as purchaseDate`,
-    })
-    .from(ticketsTable)
-    .leftJoin(purchaseItemsTable, eq(purchaseItemsTable.ticketId, ticketsTable.id))
-    .leftJoin(purchasesTable, eq(purchasesTable.id, purchaseItemsTable.purchaseId))
-    .leftJoin(customersTable, eq(customersTable.id, purchasesTable.customerId)) // Join customersTable
-    .where(eq(ticketsTable.event, eventId)); // Filter by event ID
+      })
+      .from(ticketsTable)
+      .where(eq(ticketsTable.event, eventId));
 
-    // Transform the result into the desired shape
-    const result = ticketsWithPurchases.reduce((acc, ticket) => {
-        const { ticketId, ticketTime, contentfulId, totalAvailable, totalSold, purchaseId, customerId, customerName, quantity, purchaseItemsId, purchaseDate } = ticket;
+    console.log(`🎟 Found ${tickets.length} tickets for event ${eventId}`);
 
-        // Find or create the ticket entry in the accumulator
-        let ticketEntry = acc.find(t => t.ticketId === ticketId);
-        if (!ticketEntry) {
-            ticketEntry = {
-                ticketTime: ticketTime ? new Date(ticketTime) : new Date(), // Default to current date if ticketTime is null
-                ticketId,
-                contentfulId,
-                totalAvailable,
-                totalSold,
-                purchases: []
-            };
-            acc.push(ticketEntry);
-        }
+    if (tickets.length === 0) {
+      console.warn(`⚠️ No tickets found for event ID: ${eventId}`);
+    }
 
-        // If there's a purchase, add it to the ticket entry
-        if (purchaseId) {
-            ticketEntry.purchases.push({
-                purchaseId,
-                customerId,
-                customerName,
-                quantity,
-                purchaseItemsId,
-                purchaseDate
+    // Process each ticket one by one
+    const ticketsWithPurchases = [];
+    
+    for (const ticket of tickets) {
+      try {
+        // Get purchase items for this ticket
+        const purchaseItems = await db
+          .select()
+          .from(purchaseItemsTable)
+          .where(eq(purchaseItemsTable.ticketId, ticket.ticketId));
+        
+        // Process purchase items
+        const purchases = [];
+        
+        for (const item of purchaseItems) {
+          try {
+            // Get purchase details
+            const purchaseResult = await db
+              .select()
+              .from(purchasesTable)
+              .where(eq(purchasesTable.id, item.purchaseId));
+            
+            if (!purchaseResult || purchaseResult.length === 0) continue;
+            
+            const purchase = purchaseResult[0];
+            
+            // Get customer details
+            const customerResult = await db
+              .select()
+              .from(customersTable)
+              .where(eq(customersTable.id, purchase.customerId));
+            
+            if (!customerResult || customerResult.length === 0) continue;
+            
+            const customer = customerResult[0];
+            
+            // Add to purchases array
+            purchases.push({
+              purchaseId: purchase.id,
+              purchaseItemsId: item.id,
+              customerId: customer.id,
+              customerName: customer.name,
+              customerEmail: customer.email,
+              quantity: item.quantity,
+              paid: purchase.paid,
+              purchaseDate: purchase.purchaseDate,
+              ticketId: ticket.ticketId,
+              dietaryRestrictions: customer.dietaryRestrictions,
+              notes: customer.notes,
             });
+          } catch (itemError) {
+            console.error(`Error processing purchase item ${item.id}:`, itemError);
+            // Continue with next item
+          }
         }
-        return acc;
-    }, [] as any[]); // Initialize as an empty array
+        
+        console.log(`📦 Ticket ${ticket.ticketId} has ${purchases.length} purchases`);
+        
+        // Add ticket with its purchases
+        ticketsWithPurchases.push({
+          ...ticket,
+          purchases,
+        });
+      } catch (ticketError) {
+        console.error(`Error processing ticket ${ticket.ticketId}:`, ticketError);
+        // Continue with next ticket
+      }
+    }
 
-    return result;
+    console.log(`✅ Returning event details for event ID: ${eventId}`);
+
+    return { 
+      ...event, 
+      tickets: ticketsWithPurchases 
+    };
+  } catch (error) {
+    console.error("🚨 Error in getEventTicketsWithPurchases:", error);
+    return {
+      id: eventId,
+      title: "Error loading event",
+      date: new Date(),
+      tickets: []
+    };
+  }
 }
