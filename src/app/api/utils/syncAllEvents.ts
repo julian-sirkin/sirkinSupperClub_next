@@ -1,7 +1,12 @@
-import { db } from "@/db";
-import { eventsTable, ticketsTable } from "@/db/schema";
-import { eq } from "drizzle-orm";
 import { contentfulService } from "@/app/networkCalls/contentful/contentfulService";
+import { addNewEvent } from "./dbOperations/addNewEvent";
+import { updateExistingEvent } from "./dbOperations/updateExistingEvent";
+import { findEventByContentfulId } from "@/app/api/queries/select";
+import { processEventTickets } from "./dbOperations/processEventTickets";
+
+function logEventSummary(event: any): void {
+  console.log(`Event: ${event.title} (ID: ${event.contentfulEventId?.substring(0, 10)}...) | Date: ${event.date} | Tickets: ${event.tickets?.length || 0}`);
+}
 
 export const syncAllEvents = async () => {
   try {
@@ -19,189 +24,81 @@ export const syncAllEvents = async () => {
       eventsUpdated: 0,
       ticketsCreated: 0,
       ticketsUpdated: 0,
-      errors: []
+      errors: [] as string[]
     };
     
     // Process each event
     for (const event of contentfulEvents) {
       try {
-        console.log(`Processing event: ${event.title} (ID: ${event.contentfulEventId})`);
+        console.log(`\n▶ Processing: ${event.title}`);
+        logEventSummary(event);
         
-        // Check if event exists in database
-        const existingEvents = await db
-          .select()
-          .from(eventsTable)
-          .where(eq(eventsTable.contentfulId, event.contentfulEventId));
+        // Check if event exists using the query function
+        const existingEvents = await findEventByContentfulId(event.contentfulEventId);
         
         let eventId: number;
         
+        // Create or update event
         if (existingEvents.length === 0) {
           // Create new event
-          console.log(`Creating new event: ${event.title}`);
-          const result = await db.insert(eventsTable).values({
+          eventId = await addNewEvent({
             contentfulId: event.contentfulEventId,
-            title: event.title || "Untitled Event",
-            date: new Date(event.date).getTime(),
-          }).returning({ id: eventsTable.id });
-          
-          eventId = result[0].id;
+            title: event.title,
+            date: event.date
+          });
           syncResults.eventsCreated++;
         } else {
           // Update existing event
-          console.log(`Updating existing event: ${event.title}`);
           eventId = existingEvents[0].id;
-          
-          await db.update(eventsTable)
-            .set({
-              title: event.title || existingEvents[0].title,
-              date: new Date(event.date).getTime(),
-            })
-            .where(eq(eventsTable.id, eventId));
-          
+          await updateExistingEvent(eventId, {
+            title: event.title,
+            date: event.date
+          });
           syncResults.eventsUpdated++;
         }
         
-        // Process tickets for this event
-        console.log(`Processing ${event.tickets?.length || 0} tickets for event: ${event.title}`);
+        // Process all tickets for this event using our dedicated function
+        const updatedResults = await processEventTickets(
+          eventId,
+          event.title,
+          event.tickets,
+          syncResults
+        );
         
-        if (!event.tickets || event.tickets.length === 0) {
-          console.warn(`No tickets found for event: ${event.title}`);
-          continue;
-        }
+        // Update our sync results with the ticket processing results
+        syncResults.ticketsCreated = updatedResults.ticketsCreated;
+        syncResults.ticketsUpdated = updatedResults.ticketsUpdated;
+        syncResults.errors = updatedResults.errors;
         
-        for (const ticket of event.tickets) {
-          try {
-            console.log(`Processing ticket: ${ticket.contentfulTicketId}`);
-            
-            // Check if ticket exists
-            const existingTickets = await db
-              .select()
-              .from(ticketsTable)
-              .where(eq(ticketsTable.contentfulId, ticket.contentfulTicketId));
-            
-            if (existingTickets.length === 0) {
-              // Create new ticket
-              console.log(`Creating new ticket for event: ${event.title}`);
-              await db.insert(ticketsTable).values({
-                contentfulId: ticket.contentfulTicketId,
-                event: eventId,
-                time: new Date(ticket.time).getTime(),
-                totalAvailable: ticket.totalAvailable || 10, // Default value
-                totalSold: 0,
-              });
-              
-              syncResults.ticketsCreated++;
-            } else {
-              // Update existing ticket
-              console.log(`Updating existing ticket for event: ${event.title}`);
-              await db.update(ticketsTable)
-                .set({
-                  time: new Date(ticket.time).getTime(),
-                  totalAvailable: ticket.totalAvailable || existingTickets[0].totalAvailable,
-                })
-                .where(eq(ticketsTable.id, existingTickets[0].id));
-              
-              syncResults.ticketsUpdated++;
-            }
-          } catch (ticketError) {
-            console.error(`Error processing ticket ${ticket.contentfulTicketId}:`, ticketError);
-            syncResults.errors.push(`Ticket ${ticket.contentfulTicketId}: ${ticketError.message}`);
-          }
-        }
-      } catch (eventError) {
-        console.error(`Error processing event ${event.contentfulEventId}:`, eventError);
-        syncResults.errors.push(`Event ${event.contentfulEventId}: ${eventError.message}`);
+      } catch (processingError: any) {
+        const errorMessage = processingError?.message || String(processingError);
+        console.error(`Processing error for ${event.title}:`, processingError);
+        syncResults.errors.push(`Event ${event.title}: Processing error - ${errorMessage}`);
       }
     }
     
-    console.log("Event synchronization completed with results:", syncResults);
-    return { 
-      success: true, 
-      message: "Events synchronized successfully", 
-      results: syncResults 
-    };
-  } catch (error) {
-    console.error("Error synchronizing events:", error);
-    return { success: false, message: "Error synchronizing events", error };
-  }
-};
+    // Output results
+    console.log("\n📊 SYNC RESULTS 📊");
+    console.log(`Events: ${syncResults.eventsCreated} created, ${syncResults.eventsUpdated} updated`);
+    console.log(`Tickets: ${syncResults.ticketsCreated} created, ${syncResults.ticketsUpdated} updated`);
 
-export async function syncAllEventsWithDatabase() {
-  try {
-    console.log("Starting event synchronization with database");
-    
-    // Get all events from Contentful
-    const contentful = contentfulService();
-    const contentfulEvents = await contentful.getEventsWithoutDB();
-    
-    // Process each event
-    for (const event of contentfulEvents) {
-      // Check if event exists in database
-      const existingEvents = await db
-        .select()
-        .from(eventsTable)
-        .where(eq(eventsTable.contentfulId, event.contentfulEventId));
-      
-      let eventId: number;
-      
-      if (existingEvents.length === 0) {
-        // Create new event
-        console.log(`Creating new event: ${event.title}`);
-        const result = await db.insert(eventsTable).values({
-          contentfulId: event.contentfulEventId,
-          title: event.title,
-          date: new Date(event.date).getTime(),
-        }).returning({ id: eventsTable.id });
-        
-        eventId = result[0].id;
-      } else {
-        // Update existing event
-        console.log(`Updating existing event: ${event.title}`);
-        eventId = existingEvents[0].id;
-        
-        await db.update(eventsTable)
-          .set({
-            title: event.title,
-            date: new Date(event.date).getTime(),
-          })
-          .where(eq(eventsTable.id, eventId));
-      }
-      
-      // Process tickets for this event
-      for (const ticket of event.tickets) {
-        // Check if ticket exists
-        const existingTickets = await db
-          .select()
-          .from(ticketsTable)
-          .where(eq(ticketsTable.contentfulId, ticket.contentfulTicketId));
-        
-        if (existingTickets.length === 0) {
-          // Create new ticket
-          console.log(`Creating new ticket for event: ${event.title}`);
-          await db.insert(ticketsTable).values({
-            contentfulId: ticket.contentfulTicketId,
-            event: eventId,
-            time: new Date(ticket.time).getTime(),
-            totalAvailable: ticket.totalAvailable || 10, // Default value
-            totalSold: 0,
-          });
-        } else {
-          // Update existing ticket
-          console.log(`Updating existing ticket for event: ${event.title}`);
-          await db.update(ticketsTable)
-            .set({
-              time: new Date(ticket.time).getTime(),
-              totalAvailable: ticket.totalAvailable || existingTickets[0].totalAvailable,
-            })
-            .where(eq(ticketsTable.id, existingTickets[0].id));
-        }
-      }
+    if (syncResults.errors.length > 0) {
+      console.log(`\n⚠️ Errors (${syncResults.errors.length}):`);
+      syncResults.errors.forEach((error, index) => {
+        console.log(`  ${index + 1}. ${error}`);
+      });
     }
     
-    console.log("Event synchronization completed successfully");
-    return { success: true, message: "Events synchronized successfully" };
-  } catch (error) {
-    console.error("Error synchronizing events:", error);
-    return { success: false, message: "Error synchronizing events", error };
+    return {
+      success: true,
+      ...syncResults
+    };
+  } catch (error: any) {
+    console.error("Error in syncAllEvents:", error);
+    return {
+      success: false,
+      message: "Error synchronizing events",
+      error: error?.message || String(error)
+    };
   }
-} 
+}; 

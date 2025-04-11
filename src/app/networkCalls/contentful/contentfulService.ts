@@ -73,7 +73,14 @@ export const contentfulService = () => {
             const response = await fetch(contentfulEndpoint, fetchOptions)
             const decodedResponse: {data: any} = await response.json()
             if (decodedResponse?.data?.eventTypeCollection) {
-                return parseEvents(decodedResponse.data.eventTypeCollection)
+                const events = decodedResponse.data.eventTypeCollection
+                
+                // Log just event count and titles
+                console.log(`Fetched ${events.items.length} events from Contentful:`, 
+                    events.items.map(e => e.title).join(', '));
+                
+                const parsedEvents = parseEvents(events)
+                return parsedEvents
             } else {
                 return parseEvents(null)
             }
