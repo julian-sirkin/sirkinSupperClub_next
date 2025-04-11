@@ -2,11 +2,11 @@ import React from "react";
 import { Navbar } from "../navbar/Navbar";
 import { Footer } from "../Footer/Footer";
 import { defaultNavLinks } from "./MainLayout.constants";
-import { navLinkTypes } from "../componentsTypes";
+import { NavLinkType } from "@/types";
 
 type MainLayoutProps = {
   children: React.ReactNode;
-  navLinks?: navLinkTypes[];
+  navLinks?: NavLinkType[];
 };
 
 export const MainLayout = ({

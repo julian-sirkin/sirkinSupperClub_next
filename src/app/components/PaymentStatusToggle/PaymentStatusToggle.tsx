@@ -1,6 +1,7 @@
 'use client'
 import { useState } from 'react'
 import { toast } from 'react-toastify'
+import { StatusChangeFunction } from '@/types'
 
 export const PaymentStatusToggle = ({ 
     purchaseId, 
@@ -9,7 +10,7 @@ export const PaymentStatusToggle = ({
 }: { 
     purchaseId: number, 
     initialStatus: boolean, 
-    onStatusChange: (newStatus: boolean) => void 
+    onStatusChange: StatusChangeFunction 
 }) => {
     const [isPaid, setIsPaid] = useState(initialStatus)
     const [isUpdating, setIsUpdating] = useState(false)

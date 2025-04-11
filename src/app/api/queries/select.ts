@@ -3,6 +3,7 @@ import { customersTable, eventsTable, SelectCustomer, ticketsTable, purchaseItem
 import { CartTicketType } from "@/store/cartStore.types";
 import { and, eq, isNull, SQL, sql } from "drizzle-orm";
 import { adminEvent, DatabaseTickets, TicketWithPurchases } from "../api.types";
+import { AdminEvent } from '@/types';
 
 export async function getCustomerByEmail(email: SelectCustomer['email']){
 return db.select().from(customersTable).where(eq(customersTable.email, email));

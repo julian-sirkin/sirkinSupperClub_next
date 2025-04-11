@@ -1,36 +1,48 @@
 "use client";
 
 import { useState } from "react";
+import { ToastContainer } from "react-toastify";
+import { syncEvents } from "@/app/utils/syncEvents";
+import 'react-toastify/dist/ReactToastify.css';
+import { toast } from "react-toastify";
 
 export default function SyncPage() {
   const [isLoading, setIsLoading] = useState(false);
-  const [message, setMessage] = useState("");
 
   const handleSync = async () => {
+    if (isLoading) return;
+    
     setIsLoading(true);
-    setMessage("Syncing events...");
     
     try {
-      const response = await fetch("/api/sync", {
-        method: "POST",
-      });
-      
-      const data = await response.json();
-      
-      if (response.ok) {
-        setMessage("Sync completed successfully!");
-      } else {
-        setMessage(`Error: ${data.error || "Unknown error occurred"}`);
-      }
+        // Call sync with a direct page reload callback
+        const success = await syncEvents(() => {
+            console.log("Refreshing page after successful sync");
+            window.location.reload();
+        });
+        
+        if (!success) {
+            console.log("Sync failed, resetting loading state");
+            setIsLoading(false);
+        } else {
+            // Add a backup timeout to reset state if page doesn't refresh
+            setTimeout(() => {
+                if (isLoading) {
+                    setIsLoading(false);
+                    toast.info("Sync completed. Refresh the page to see changes.");
+                }
+            }, 5000);
+        }
     } catch (error) {
-      setMessage(`Error: ${error instanceof Error ? error.message : "Unknown error occurred"}`);
-    } finally {
-      setIsLoading(false);
+        console.error("Error in sync process:", error);
+        setIsLoading(false);
+        toast.error("Unexpected error during sync process");
     }
   };
 
   return (
     <div className="min-h-screen bg-black text-white p-8">
+      <ToastContainer position="top-right" />
       <h1 className="text-3xl font-bold text-gold mb-6">Admin Sync</h1>
       
       <div className="bg-black/80 border border-gold p-6 rounded-lg max-w-md mx-auto">
@@ -43,12 +55,6 @@ export default function SyncPage() {
         >
           {isLoading ? "Syncing..." : "Sync Events"}
         </button>
-        
-        {message && (
-          <div className={`mt-4 p-3 rounded ${message.includes("Error") ? "bg-red-900/50 border border-red-500" : "bg-green-900/50 border border-green-500"}`}>
-            {message}
-          </div>
-        )}
       </div>
     </div>
   );

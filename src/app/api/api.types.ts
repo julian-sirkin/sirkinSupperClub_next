@@ -1,26 +1,27 @@
-import { CartTicketType } from "@/store/cartStore.types"
+import { 
+  AdminEvent, 
+  AdminPurchase, 
+  TicketWithPurchases, 
+  EventWithTickets,
+  CartTicketType,
+  CustomerType,
+  PurchasedTickets,
+  GetTicketByIdAndEventProps,
+  DatabaseTickets
+} from '@/types';
 
-export type PurchasedTickets = {
-    eventContentfulId: string
-    ticketContentfulId: string
-    quantity: number
-}
-
-export type GetTicketByIdAndEventProps = {
-    ticketContentfulId: string 
-    eventContentfulId: string
-}
-
-export type DatabaseTickets = {
-    ticket: {
-        time: Date | null
-        id: number
-        event: number | null
-        contentfulId: string
-        totalAvailable: number
-        totalSold: number
-    }
-}
+// Re-export for backward compatibility
+export type {
+  AdminEvent,
+  AdminPurchase,
+  TicketWithPurchases,
+  EventWithTickets,
+  CartTicketType,
+  CustomerType,
+  PurchasedTickets,
+  GetTicketByIdAndEventProps,
+  DatabaseTickets
+};
 
 export type UpdatedTicketFields = {
     totalAvailable?: number;
@@ -68,29 +69,6 @@ export type adminEventDetails = {
         }[]
     }[]
 }
-
-export type AdminPurchase = {
-    purchaseId: number;
-    customerId: number;
-    customerName: string;
-    customerEmail: string;
-    quantity: number;
-    paid: boolean;
-    purchaseDate: number;
-    purchaseItemsId?: number;
-    refundDate?: number | null;
-    ticketId: number;
-    dietaryRestrictions?: string;
-    notes?: string;
-};
-
-export type TicketWithPurchases = {
-    ticketId: number;
-    ticketTime: number;
-    totalAvailable: number;
-    totalSold: number;
-    purchases: AdminPurchase[];
-};
 
 export type GetEventTicketsWithPurchasesReturnType = TicketWithPurchases[];
 

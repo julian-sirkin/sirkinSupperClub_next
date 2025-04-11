@@ -4,11 +4,13 @@ import EventData from '@/app/adminPannelSections/EventData';
 import { adminEvent } from '@/app/api/api.types';
 import { useState, useEffect } from 'react';
 import { toast, ToastContainer } from 'react-toastify';
+import { syncEvents } from '@/app/utils/syncEvents';
 import 'react-toastify/dist/ReactToastify.css';
 
 export const AdminLayout = ({adminEvents}: {adminEvents?: adminEvent[]}) => {
     const [activeSection, setActiveSection] = useState<'customers' | 'events'>('events');
     const [eventSelected, setEventSelected] = useState<number | null>(null);
+    const [isSyncing, setIsSyncing] = useState(false);
 
     // Check URL for view parameter on initial load and when URL changes
     useEffect(() => {
@@ -49,26 +51,36 @@ export const AdminLayout = ({adminEvents}: {adminEvents?: adminEvent[]}) => {
     }, []);
 
     const handleSyncEvents = async () => {
+        if (isSyncing) return; // Prevent multiple simultaneous syncs
+        
+        setIsSyncing(true);
+        
         try {
-            const response = await fetch('/api/sync', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
+            // Only refresh the page if sync was successful
+            const success = await syncEvents(() => {
+                // This will only be called on success after the delay
+                console.log("Refreshing page after successful sync");
+                window.location.reload();
             });
             
-            const data = await response.json();
-            
-            if (response.ok) {
-                toast.success('Events synchronized successfully!');
-                // Refresh the page to show updated data
-                window.location.reload();
+            if (success) {
+                console.log("Sync successful, page will refresh soon");
+                // Set a backup timeout to ensure UI doesn't get stuck
+                setTimeout(() => {
+                    if (isSyncing) {
+                        console.log("Backup timeout: resetting syncing state");
+                        setIsSyncing(false);
+                        window.location.reload();
+                    }
+                }, 5000); // Backup timeout longer than the expected refresh delay
             } else {
-                toast.error(`Error: ${data.error || 'Failed to sync events'}`);
+                console.log("Sync failed, resetting UI state");
+                setIsSyncing(false); // Reset syncing state immediately on error
             }
         } catch (error) {
-            toast.error('Error connecting to server');
-            console.error(error);
+            console.error("Error in sync process:", error);
+            setIsSyncing(false); // Ensure we reset state if there's an unexpected error
+            toast.error("Unexpected error during sync process");
         }
     };
 
@@ -105,10 +117,13 @@ export const AdminLayout = ({adminEvents}: {adminEvents?: adminEvent[]}) => {
             <div className='flex flex-col md:flex-row gap-6'>
                 <nav className='flex md:flex-col justify-start gap-4 md:w-64 p-4 bg-black/20 rounded-lg'>
                     <button 
-                        className="bg-black text-gold p-3 rounded-lg hover:bg-gold hover:text-black transition-colors shadow-md" 
+                        className={`bg-black text-gold p-3 rounded-lg hover:bg-gold hover:text-black transition-colors shadow-md ${
+                            isSyncing ? 'opacity-50 cursor-not-allowed' : ''
+                        }`} 
                         onClick={handleSyncEvents}
+                        disabled={isSyncing}
                     >
-                        Sync Events
+                        {isSyncing ? 'Syncing...' : 'Sync Events'}
                     </button>
                     <button 
                         className={`p-3 rounded-lg shadow-md transition-colors ${activeSection === 'customers' ? 'bg-gold text-black' : 'bg-black text-gold hover:bg-gold hover:text-black'}`} 
