@@ -1,5 +1,6 @@
 import { db } from "@/db";
 import { eventsTable } from "@/db/schema";
+import { createSingleEvent } from "@/app/api/queries/insert";
 
 // Helper function to convert any date value to a safe format for SQLite
 const prepareDateForDb = (dateValue: any): number => {
@@ -35,7 +36,6 @@ export async function addNewEvent(eventData: {
     console.log(`➕ Adding new event: ${eventData.title}`);
     
     // The key insight: Drizzle's SQLite timestamp expects a Date object!
-    // The error occurs because we're trying to be too clever with conversion
     const eventToInsert = {
       contentfulId: eventData.contentfulId,
       title: eventData.title,
@@ -43,14 +43,8 @@ export async function addNewEvent(eventData: {
       date: eventData.date instanceof Date ? eventData.date : new Date(eventData.date)
     };
     
-    // Log what we're inserting for debugging
-    console.log("Event data for insertion:", {
-      ...eventToInsert,
-      date: eventToInsert.date.toString()
-    });
-    
-    // Insert with explicit fields and return the ID
-    const result = await db.insert(eventsTable).values(eventToInsert).returning({ id: eventsTable.id });
+    // Use the dedicated query function
+    const result = await createSingleEvent(eventToInsert);
     
     if (!result || result.length === 0) {
       throw new Error("No ID returned from insert operation");

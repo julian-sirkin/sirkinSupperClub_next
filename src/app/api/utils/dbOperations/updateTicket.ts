@@ -1,6 +1,4 @@
-import { db } from "@/db";
-import { ticketsTable } from "@/db/schema";
-import { eq } from "drizzle-orm";
+import { updateTicketById } from "@/app/api/queries/update";
 
 /**
  * Updates an existing ticket in the database
@@ -30,11 +28,8 @@ export async function updateTicket(
     
     // Only update if we have data to update
     if (Object.keys(updateData).length > 0) {
-      // Update the ticket
-      await db.update(ticketsTable)
-        .set(updateData)
-        .where(eq(ticketsTable.id, ticketId));
-      
+      // Use the dedicated query function
+      await updateTicketById(ticketId, updateData);
       console.log(`✅ Ticket ${ticketId} updated successfully`);
     } else {
       console.log(`⚠️ No changes to update for ticket ${ticketId}`);

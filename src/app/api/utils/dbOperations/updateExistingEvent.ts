@@ -1,6 +1,4 @@
-import { db } from "@/db";
-import { eventsTable } from "@/db/schema";
-import { eq } from "drizzle-orm";
+import { updateEvent } from "@/app/api/queries/update";
 
 // Helper function to convert any date value to a safe format for SQLite
 const prepareDateForDb = (dateValue: any): number => {
@@ -43,16 +41,8 @@ export async function updateExistingEvent(
       date: eventData.date instanceof Date ? eventData.date : new Date(eventData.date)
     };
     
-    // Log what we're updating for debugging
-    console.log("Event data for update:", {
-      ...updateData,
-      date: updateData.date.toString()
-    });
-    
-    // Update with explicit fields
-    await db.update(eventsTable)
-      .set(updateData)
-      .where(eq(eventsTable.id, eventId));
+    // Use the dedicated query function
+    await updateEvent(eventId, updateData);
     
     console.log(`✅ Event ${eventId} updated successfully`);
   } catch (error) {

@@ -1,9 +1,23 @@
 import { ParsedEvent } from "@/app/networkCalls/contentful/contentfulServices.types";
 import { db } from "@/db";
 import { eventsTable, ticketsTable, purchasesTable, purchaseItemsTable } from "@/db/schema";
-import { sql } from 'drizzle-orm';
+import { eq, sql } from 'drizzle-orm';
 import { UpdatedEventFields, UpdatedTicketFields } from "../api.types";
 
+// Basic update operations
+export async function updateEvent(eventId: number, updateData: Partial<UpdatedEventFields>) {
+    return await db.update(eventsTable)
+        .set(updateData)
+        .where(eq(eventsTable.id, eventId));
+}
+
+export async function updateTicketById(ticketId: number, updateData: Partial<UpdatedTicketFields>) {
+    return await db.update(ticketsTable)
+        .set(updateData)
+        .where(eq(ticketsTable.id, ticketId));
+}
+
+// Complex operations
 export async function updateExistingEvents(events: ParsedEvent[]) {
     for (const event of events) {
         const existingEvent = await db.query.eventsTable.findFirst({
@@ -16,15 +30,15 @@ export async function updateExistingEvents(events: ParsedEvent[]) {
             if (event?.title && existingEvent.title !== event.title) {
                 updatedFields['title'] = event.title;
             }
-            if (event?.date && existingEvent.date !== event.date) {
-                updatedFields['date'] = event.date;
+            if (event?.date && existingEvent.date instanceof Date) {
+                const eventDate = event.date instanceof Date ? event.date : new Date(event.date);
+                if (existingEvent.date.getTime() !== eventDate.getTime()) {
+                    updatedFields['date'] = eventDate;
+                }
             }
-            // Add other fields as necessary
 
             if (Object.keys(updatedFields).length > 0) {
-                await db.update(eventsTable)
-                    .set(updatedFields)
-                    .where(sql`${eventsTable.contentfulId} = ${event.contentfulEventId}`);
+                await updateEvent(existingEvent.id, updatedFields);
             }
 
             // Update tickets
@@ -36,9 +50,16 @@ export async function updateExistingEvents(events: ParsedEvent[]) {
                 if (existingTicket) {
                     const updatedTicketFields: UpdatedTicketFields = {};
 
-                    if (ticket?.time && existingTicket.time !== ticket.time) {
-                        updatedTicketFields['time'] = new Date(ticket.time);
+                    // Prepare ticket time as Date object
+                    const ticketTime = ticket.time instanceof Date ? ticket.time : new Date(ticket.time);
+                    
+                    // Compare dates safely
+                    if (existingTicket.time instanceof Date && 
+                        ticketTime instanceof Date && 
+                        existingTicket.time.getTime() !== ticketTime.getTime()) {
+                        updatedTicketFields['time'] = ticketTime;
                     }
+                    
                     if (ticket?.ticketsAvailable && existingTicket.totalAvailable !== ticket.ticketsAvailable) {
                         updatedTicketFields['totalAvailable'] = ticket.ticketsAvailable;
                     }
@@ -47,18 +68,16 @@ export async function updateExistingEvents(events: ParsedEvent[]) {
                     }
 
                     if (Object.keys(updatedTicketFields).length > 0) {
-                        await db.update(ticketsTable)
-                            .set(updatedTicketFields)
-                            .where(sql`${ticketsTable.contentfulId} = ${ticket.contentfulTicketId}`);
+                        await updateTicketById(existingTicket.id, updatedTicketFields);
                     }
                 } else {
                     // Insert new ticket if it doesn't exist
                     await db.insert(ticketsTable).values({
                         contentfulId: ticket.contentfulTicketId,
-                        event: existingEvent.id,  // Associate this ticket with the correct event
+                        event: existingEvent.id,
                         totalAvailable: ticket.ticketsAvailable,
-                        totalSold: 0,  // Assuming tickets start with 0 sold
-                        time: ticket.time
+                        totalSold: 0,
+                        time: ticket.time instanceof Date ? ticket.time : new Date(ticket.time)
                     });
                 }
             }

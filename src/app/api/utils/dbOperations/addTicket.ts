@@ -1,5 +1,4 @@
-import { db } from "@/db";
-import { ticketsTable } from "@/db/schema";
+import { createSingleTicket } from "@/app/api/queries/insert";
 
 /**
  * Adds a new ticket to the database
@@ -23,8 +22,8 @@ export async function addTicket(ticketData: {
       totalSold: ticketData.totalSold || 0
     };
     
-    // Insert the ticket
-    const result = await db.insert(ticketsTable).values(ticketToInsert);
+    // Use the dedicated query function
+    await createSingleTicket(ticketToInsert);
     console.log(`✅ Ticket created successfully`);
     return true;
   } catch (error) {

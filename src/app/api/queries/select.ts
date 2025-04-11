@@ -295,3 +295,17 @@ export async function getEventTicketsWithPurchases(eventId: number) {
     };
   }
 }
+
+export async function findEventByContentfulId(contentfulId: string) {
+  return await db
+    .select()
+    .from(eventsTable)
+    .where(eq(eventsTable.contentfulId, contentfulId));
+}
+
+export async function findTicketByContentfulId(contentfulId: string) {
+  return await db
+    .select()
+    .from(ticketsTable)
+    .where(eq(ticketsTable.contentfulId, contentfulId));
+}
