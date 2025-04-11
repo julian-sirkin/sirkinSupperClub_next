@@ -4,7 +4,7 @@ import { useState } from "react";
 import { ToastContainer } from "react-toastify";
 import { syncEvents } from "@/app/utils/syncEvents";
 import 'react-toastify/dist/ReactToastify.css';
-import { toast } from "react-hot-toast";
+import { toast } from "react-toastify";
 
 export default function SyncPage() {
   const [isLoading, setIsLoading] = useState(false);
