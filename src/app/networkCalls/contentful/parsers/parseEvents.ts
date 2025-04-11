@@ -4,7 +4,7 @@ export const parseEvents = (eventData: ContentfulEventResponse | null): ParsedEv
     if (eventData === null) {
         return []
     }
-    
+   
     return eventData.items.map( event => (
         {
             contentfulEventId: event._id,
