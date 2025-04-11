@@ -1,5 +1,6 @@
+import { NavLinkType } from '@/types';
 
-export type navLinkTypes = {
-    displayName: string
-    href: string
-}
+// Re-export for backward compatibility
+export type navLinkTypes = NavLinkType;
+
+// Any other component-specific types that haven't been migrated yet

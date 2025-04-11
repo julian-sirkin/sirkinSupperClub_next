@@ -26,7 +26,7 @@ export const EventsTable = ({events, handleEventClick}: EventsTableType) => {
         <tbody>
         {events ? (events.map((event, idx) => (
           <tr className={idx % 2 === 1 ? 'bg-black text-white p-4' : 'bg-gold text-white p-4'} key={event.id}>
-            <th className='p-2'><button onClick={() => handleEventClick(event.id)}>{event.name} </button></th>
+            <th className='p-2'><button onClick={() => handleEventClick(event.id)}>{event.name}</button></th>
             <th className='p-2'>{event.date.toLocaleString("en-us", {
     month: "short",
     day: "numeric",

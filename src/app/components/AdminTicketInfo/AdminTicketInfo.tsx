@@ -1,4 +1,4 @@
-import { TicketWithPurchases } from "@/app/api/api.types"
+import { TicketWithPurchases, RefundToastFunction } from '@/types';
 import { AdminRefundForm } from "../AdminRefundForm/AdminRefundForm"
 import { PaymentStatusToggle } from "../PaymentStatusToggle/PaymentStatusToggle"
 import { formatDate } from "@/app/utils/formatDate"
@@ -6,9 +6,10 @@ import Link from "next/link"
 import { useState } from "react"
 import { FiChevronDown, FiChevronUp } from 'react-icons/fi'
 
-export const AdminTicketInfo = ({ticket: initialTicket, setRefundToast}: {
+export const AdminTicketInfo = ({ticket: initialTicket, setRefundToast, ticketName = ""}: {
   ticket: TicketWithPurchases, 
-  setRefundToast: (toastText: string) => void
+  setRefundToast: RefundToastFunction,
+  ticketName?: string
 }) => {
     const [ticket, setTicket] = useState(initialTicket);
     const ticketDate = new Date(ticket.ticketTime)
@@ -52,7 +53,7 @@ export const AdminTicketInfo = ({ticket: initialTicket, setRefundToast}: {
         <div className="bg-black rounded-lg overflow-hidden shadow-lg">
             <header className="bg-gold text-black font-bold text-xl p-3 flex justify-between items-center">
                 <div>
-                    {formatDate(ticketDate)} at {ticketDate.toLocaleString("en-us", {hour: 'numeric', minute: 'numeric'})}
+                    {ticketName ? `${ticketName} - ` : ""}{formatDate(ticketDate)} at {ticketDate.toLocaleString("en-us", {hour: 'numeric', minute: 'numeric'})}
                 </div>
                 <div className="text-sm">
                     Total Available: {ticket.totalAvailable} | Sold: {ticket.totalSold}
