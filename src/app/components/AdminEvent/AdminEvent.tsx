@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { AdminTicketInfo } from '../AdminTicketInfo/AdminTicketInfo'
 import { toast } from 'react-toastify'
 import { formatDate } from '@/app/utils/formatDate'
+import { getAdminEvent } from '@/app/lib/apiClient'
 
 export const AdminEvent = ({eventId, resetEvent}: {eventId: number, resetEvent: (event: number | null) => void}) => {
     const [eventData, setEventData] = useState<TicketWithPurchases[]>([])
@@ -12,40 +13,34 @@ export const AdminEvent = ({eventId, resetEvent}: {eventId: number, resetEvent: 
     const [isLoading, setIsLoading] = useState<boolean>(true)
     const [error, setError] = useState<string | null>(null)
 
-    useEffect(() => {
-        const fetchEventData = async () => {
-            setIsLoading(true)
-            setError(null)
-            
-            try {
-                const fetchedEventData = await fetch('/api/getAdminEvent', {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                    body: JSON.stringify({eventId})
-                })
-                
-                const decodedEventData = await fetchedEventData.json()
-                
-                if (decodedEventData.status === 200 && decodedEventData.data) {
-                    setEventData(decodedEventData.data.tickets || [])
-                    setEventTitle(decodedEventData.data.title || "Event Details")
-                    setEventDate(decodedEventData.data.date || null)
-                } else {
-                    const errorMsg = decodedEventData.message || "Failed to load event data";
-                    setError(errorMsg)
-                    toast.error(errorMsg)
-                }
-            } catch (error) {
-                console.error("Error fetching event data:", error)
-                setError("Error connecting to server")
-                toast.error("Error connecting to server")
-            } finally {
-                setIsLoading(false)
-            }
-        }     
+    const fetchEventData = async () => {
+        setIsLoading(true)
+        setError(null)
         
+        try {
+            const fetchedEventData = await getAdminEvent(eventId);
+            
+            const decodedEventData = await fetchedEventData.json()
+            
+            if (fetchedEventData.ok && decodedEventData.data) {
+                setEventData(decodedEventData.data.tickets || [])
+                setEventTitle(decodedEventData.data.title || "Event Details")
+                setEventDate(decodedEventData.data.date || null)
+            } else {
+                const errorMsg = decodedEventData.message || "Failed to load event data";
+                setError(errorMsg)
+                toast.error(errorMsg)
+            }
+        } catch (error) {
+            console.error("Error fetching event data:", error)
+            setError("Error connecting to server")
+            toast.error("Error connecting to server")
+        } finally {
+            setIsLoading(false)
+        }
+    }    
+
+    useEffect(() => { 
         fetchEventData()
     }, [eventId])
     
@@ -55,26 +50,8 @@ export const AdminEvent = ({eventId, resetEvent}: {eventId: number, resetEvent: 
             autoClose: 3000
         })
         
-        // Refresh data after refund
         setTimeout(() => {
-            const fetchEventData = async () => {
-                try {
-                    const fetchedEventData = await fetch('/api/getAdminEvent', {
-                        method: "POST",
-                        headers: {
-                            "Content-Type": "application/json",
-                        },
-                        body: JSON.stringify({eventId})
-                    })
-                    const decodedEventData = await fetchedEventData.json()
-                    if (decodedEventData.status === 200) {
-                        setEventData(decodedEventData.data.tickets || [])
-                    }
-                } catch (error) {
-                    console.error("Error refreshing event data:", error)
-                }
-            }
-            fetchEventData()
+            fetchEventData();
         }, 1000)
     }
 

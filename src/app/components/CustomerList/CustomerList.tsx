@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { formatDate } from '@/app/utils/formatDate';
+import { getAllCustomers } from '@/app/lib/apiClient';
 
 type Customer = {
   id: number;
@@ -20,11 +21,13 @@ export const CustomerList = ({ onSelectCustomer }: { onSelectCustomer: (id: numb
 
   useEffect(() => {
     const fetchCustomers = async () => {
+      setIsLoading(true);
+      setError(null);
       try {
-        const response = await fetch('/api/getAllCustomers');
+        const response = await getAllCustomers();
         const data = await response.json();
         
-        if (data.status === 200) {
+        if (response.ok) {
           setCustomers(data.customers || []);
         } else {
           setError(data.message || 'Failed to load customers');

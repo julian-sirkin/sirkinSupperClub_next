@@ -1,6 +1,7 @@
 import { AdminPurchase } from "@/app/api/api.types";
 import { useState } from "react";
 import { toast } from 'react-toastify';
+import { refundTickets } from "@/app/lib/apiClient";
 
 export const AdminRefundForm = ({
   order, 
@@ -23,19 +24,11 @@ export const AdminRefundForm = ({
     setIsProcessing(true);
     
     try {
-      const body = JSON.stringify({
-        orderId: order.purchaseId,
-        ticketId: order.ticketId,
-        quantity: refundQuantity
-      });
-
-      const refundResult = await fetch('/api/refundTickets', {
-          method: 'POST',
-          headers: {
-              'Content-Type': 'application/json',
-          }, 
-          body
-      });
+      const refundResult = await refundTickets(
+        order.purchaseId, 
+        order.ticketId, 
+        refundQuantity
+      );
       
       const result = await refundResult.json();
       
