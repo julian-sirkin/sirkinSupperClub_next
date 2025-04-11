@@ -1,44 +1,19 @@
 "use client"
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+// Remove useState import if no longer needed
+// import { useState } from 'react'; 
+// Remove useRouter import if no longer needed here (it's used in LoginForm)
+// import { useRouter } from 'next/navigation';
+import LoginForm from '@/app/components/LoginForm/LoginForm'; // Import the new component
 
 export default function Login() {
-  const [password, setPassword] = useState('');
-  const [passwordError, setPasswordError] = useState('');
-  const router = useRouter();
-
-  const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-
-    // Send password to the API to verify
-    const res = await fetch('api/login', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ password }),
-    });
-  
-    if (res.status === 200) {
-      router.push('/admin'); // Redirect to admin page
-    } else {
-      setPasswordError('Invalid password');
-    }
-  };
+  // Remove useState hooks and handleLogin function - they are now in LoginForm
 
   return (
-    <div className='bg-black p-2 text-white h-screen'>
-      <h1>Admin Login</h1>
-      <form onSubmit={handleLogin} className='w-1/2 m-auto p-4 border-2 border-gold flex gap-6'>
-        <input
-          className='text-black'
-          type="password"
-          placeholder="Enter password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-        />
-        <button className='p-2 bg-gold hover:bg-white hover:text-gold' type="submit">Login</button>
-        {passwordError && <p className='text-red-600 p-2'>{passwordError}</p>}
-      </form>
-     
+    // Update the outer div styling - remove centering, let LoginForm handle it
+    // Add min-h-screen to ensure background covers the page
+    <div className='bg-black text-white min-h-screen flex items-center justify-center'> 
+      {/* Render the new LoginForm component */}
+      <LoginForm /> 
     </div>
   );
 }
