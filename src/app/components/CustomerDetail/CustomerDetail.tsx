@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react'
 import { formatDate } from '@/app/utils/formatDate'
 import Link from 'next/link'
+import { getCustomerDetails } from '@/app/lib/apiClient'
 
 type CustomerPurchase = {
     purchaseId: number
@@ -35,17 +36,11 @@ export const CustomerDetail = ({ customerId, onBack }: { customerId: number, onB
             setError(null)
             
             try {
-                const response = await fetch('/api/getCustomerDetails', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ customerId }),
-                })
+                const response = await getCustomerDetails(customerId)
                 
                 const data = await response.json()
                 
-                if (data.status === 200) {
+                if (response.ok) {
                     setCustomer(data.customer || null)
                 } else {
                     const errorMsg = data.message || 'Failed to load customer details'

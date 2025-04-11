@@ -7,6 +7,7 @@ import { CheckoutForm } from "../CheckoutForm/CheckoutForm";
 import { FormData } from "../CheckoutForm/CheckoutForm.fixture";
 import { CheckoutResponseMessage } from "../CheckoutForm/CheckoutResponseMessage";
 import { motion, AnimatePresence } from "framer-motion";
+import { claimTickets } from "@/app/lib/apiClient";
 
 export const CheckoutDialog = ({ event }: { event: ParsedEvent }) => {
   const [seeCart, setSeeCart] = useState<boolean>(true);
@@ -21,28 +22,34 @@ export const CheckoutDialog = ({ event }: { event: ParsedEvent }) => {
 
   const onSubmit = async (data: FormData) => {
     setShouldDisableSubmitButton(true);
-    const body = JSON.stringify({ ...data, purchasedTickets: cart.tickets });
+    const requestBody = { ...data, purchasedTickets: cart.tickets };
 
-    const response = await fetch("/api/claimTickets", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body,
-    });
-
-    const decodedResponse = await response.json();
-    setShouldDisableSubmitButton(false);
-    setShouldShowForm(false);
-    if (decodedResponse.status !== 200) {
-      setErrorMessage(decodedResponse.message);
-      setTimeout(() => {
-        setErrorMessage("");
-        setShouldShowForm(true);
+    try {
+      const response = await claimTickets(requestBody);
+      const decodedResponse = await response.json();
+      
+      setShouldDisableSubmitButton(false);
+      setShouldShowForm(false);
+      
+      if (!response.ok) {
+        setErrorMessage(decodedResponse.message || 'Ticket claim failed');
+        setTimeout(() => {
+          setErrorMessage("");
+          setShouldShowForm(true);
+          setShouldDisableSubmitButton(false);
+        }, 15000);
+      } else {
+        emptyCart();
+      }
+    } catch (error) {
+        console.error("Error claiming tickets:", error);
+        setErrorMessage("An unexpected network error occurred. Please try again.");
         setShouldDisableSubmitButton(false);
-      }, 15000);
-    } else {
-      emptyCart();
+        setShouldShowForm(false);
+         setTimeout(() => {
+          setErrorMessage("");
+          setShouldShowForm(true);
+        }, 15000);
     }
   };
 

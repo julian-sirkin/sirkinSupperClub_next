@@ -2,6 +2,7 @@
 import { useState } from 'react'
 import { toast } from 'react-toastify'
 import { StatusChangeFunction } from '@/types'
+import { updatePaymentStatus } from '@/app/lib/apiClient'
 
 export const PaymentStatusToggle = ({ 
     purchaseId, 
@@ -20,11 +21,7 @@ export const PaymentStatusToggle = ({
         setIsUpdating(true);
         
         try {
-            const response = await fetch('/api/updatePaymentStatus', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ purchaseId, paid: !isPaid }),
-            });
+            const response = await updatePaymentStatus(purchaseId, !isPaid);
             
             const data = await response.json();
             
