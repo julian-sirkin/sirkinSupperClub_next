@@ -14,7 +14,8 @@ export const TicketsSection = ({ event }: { event: ParsedEvent }) => {
     return acc + (ticket.price * ticket.quantity);
   }, 0);
   
-  const hasItemsInCart = total > 0;
+  // Check if there are any tickets in the cart (regardless of price)
+  const hasItemsInCart = cart.tickets.length > 0;
 
   // Check if the event is in the past
   const isPastEvent = new Date(event.date) < new Date();
