@@ -14,6 +14,7 @@ export const AdminEvent = ({eventId, resetEvent}: {eventId: number, resetEvent: 
     const [isLoading, setIsLoading] = useState<boolean>(true)
     const [error, setError] = useState<string | null>(null)
     const [showEmailComposer, setShowEmailComposer] = useState(false)
+    const [recipientEmails, setRecipientEmails] = useState<string[]>([])
 
     const fetchEventData = async () => {
         setIsLoading(true)
@@ -28,6 +29,17 @@ export const AdminEvent = ({eventId, resetEvent}: {eventId: number, resetEvent: 
                 setEventData(decodedEventData.data.tickets || [])
                 setEventTitle(decodedEventData.data.title || "Event Details")
                 setEventDate(decodedEventData.data.date || null)
+
+                // Extract unique emails from all tickets and their purchases
+                const uniqueEmails = new Set<string>();
+                decodedEventData.data.tickets.forEach((ticket: TicketWithPurchases) => {
+                    ticket.purchases.forEach(purchase => {
+                        if (purchase.customerEmail) {
+                            uniqueEmails.add(purchase.customerEmail);
+                        }
+                    });
+                });
+                setRecipientEmails(Array.from(uniqueEmails));
             } else {
                 const errorMsg = decodedEventData.message || "Failed to load event data";
                 setError(errorMsg)
@@ -67,8 +79,8 @@ export const AdminEvent = ({eventId, resetEvent}: {eventId: number, resetEvent: 
                 body: JSON.stringify({
                     subject,
                     content,
-                    type: 'event',
-                    eventId
+                    type: 'specific',
+                    recipients: recipientEmails
                 }),
             });
 
@@ -146,10 +158,18 @@ export const AdminEvent = ({eventId, resetEvent}: {eventId: number, resetEvent: 
 
             {showEmailComposer && (
                 <div className="mb-8 p-6 bg-black/20 rounded-lg border border-gold/30">
+                    <div className="mb-6">
+                        <h3 className="text-gold font-semibold mb-2">Recipients</h3>
+                        <div className="bg-black/50 p-4 rounded border border-gold/30 max-h-32 overflow-y-auto">
+                            <p className="text-white">
+                                {recipientEmails.join(', ')}
+                            </p>
+                        </div>
+                    </div>
                     <EmailComposer
                         onSend={handleSendEmail}
-                        recipientCount={totalAttendees}
-                        recipientDescription="attendees for this event"
+                        recipientCount={recipientEmails.length}
+                        recipientDescription="attendees"
                     />
                 </div>
             )}
