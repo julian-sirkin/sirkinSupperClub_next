@@ -5,6 +5,7 @@ import { AdminTicketInfo } from '../AdminTicketInfo/AdminTicketInfo'
 import { toast } from 'react-toastify'
 import { formatDate } from '@/app/utils/formatDate'
 import { getAdminEvent } from '@/app/lib/apiClient'
+import { EmailComposer } from '../EmailComposer/EmailComposer'
 
 export const AdminEvent = ({eventId, resetEvent}: {eventId: number, resetEvent: (event: number | null) => void}) => {
     const [eventData, setEventData] = useState<TicketWithPurchases[]>([])
@@ -12,6 +13,7 @@ export const AdminEvent = ({eventId, resetEvent}: {eventId: number, resetEvent: 
     const [eventDate, setEventDate] = useState<number | null>(null)
     const [isLoading, setIsLoading] = useState<boolean>(true)
     const [error, setError] = useState<string | null>(null)
+    const [showEmailComposer, setShowEmailComposer] = useState(false)
 
     const fetchEventData = async () => {
         setIsLoading(true)
@@ -55,6 +57,35 @@ export const AdminEvent = ({eventId, resetEvent}: {eventId: number, resetEvent: 
         }, 1000)
     }
 
+    const handleSendEmail = async (subject: string, content: string) => {
+        try {
+            const response = await fetch('/api/sendBulkEmail', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    subject,
+                    content,
+                    type: 'event',
+                    eventId
+                }),
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to send email');
+            }
+        } catch (error) {
+            console.error('Error sending email:', error);
+            throw error;
+        }
+    };
+
+    // Calculate total attendees
+    const totalAttendees = eventData.reduce((sum, ticket) => {
+        return sum + ticket.purchases.reduce((purchaseSum, purchase) => purchaseSum + purchase.quantity, 0);
+    }, 0);
+
     if (isLoading) {
         return <div className="flex justify-center items-center h-64">
             <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-gold"></div>
@@ -97,13 +128,31 @@ export const AdminEvent = ({eventId, resetEvent}: {eventId: number, resetEvent: 
                         </p>
                     )}
                 </div>
-                <button 
-                    onClick={() => resetEvent(null)} 
-                    className="bg-black text-gold px-4 py-2 rounded hover:bg-gold hover:text-black transition-colors"
-                >
-                    Back to Events
-                </button>
+                <div className="flex gap-4">
+                    <button 
+                        onClick={() => setShowEmailComposer(!showEmailComposer)}
+                        className="bg-black text-gold px-4 py-2 rounded hover:bg-gold hover:text-black transition-colors"
+                    >
+                        {showEmailComposer ? 'Hide Email Composer' : 'Email Attendees'}
+                    </button>
+                    <button 
+                        onClick={() => resetEvent(null)} 
+                        className="bg-black text-gold px-4 py-2 rounded hover:bg-gold hover:text-black transition-colors"
+                    >
+                        Back to Events
+                    </button>
+                </div>
             </div>
+
+            {showEmailComposer && (
+                <div className="mb-8 p-6 bg-black/20 rounded-lg border border-gold/30">
+                    <EmailComposer
+                        onSend={handleSendEmail}
+                        recipientCount={totalAttendees}
+                        recipientDescription="attendees for this event"
+                    />
+                </div>
+            )}
             
             {eventData.length > 0 ? (
                 <div className="space-y-6">

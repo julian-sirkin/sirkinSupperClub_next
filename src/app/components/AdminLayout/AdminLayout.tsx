@@ -6,9 +6,11 @@ import { useState, useEffect } from 'react';
 import { toast, ToastContainer } from 'react-toastify';
 import { syncEvents } from '@/app/utils/syncEvents';
 import 'react-toastify/dist/ReactToastify.css';
+import { EmailSection } from '../EmailSection/EmailSection';
+import { TestEmailSection } from '../TestEmailSection/TestEmailSection';
 
 export const AdminLayout = ({adminEvents}: {adminEvents?: adminEvent[]}) => {
-    const [activeSection, setActiveSection] = useState<'customers' | 'events'>('events');
+    const [activeSection, setActiveSection] = useState<'customers' | 'events' | 'email' | 'test-email'>('customers');
     const [eventSelected, setEventSelected] = useState<number | null>(null);
     const [isSyncing, setIsSyncing] = useState(false);
 
@@ -20,12 +22,16 @@ export const AdminLayout = ({adminEvents}: {adminEvents?: adminEvent[]}) => {
             
             if (view === 'customer') {
                 setActiveSection('customers');
+            } else if (view === 'email') {
+                setActiveSection('email');
             } else if (view === 'event') {
                 setActiveSection('events');
                 const eventId = params.get('id');
                 if (eventId) {
                     setEventSelected(Number(eventId));
                 }
+            } else if (view === 'test-email') {
+                setActiveSection('test-email');
             }
         }
         
@@ -36,10 +42,14 @@ export const AdminLayout = ({adminEvents}: {adminEvents?: adminEvent[]}) => {
             
             if (view === 'customer') {
                 setActiveSection('customers');
+            } else if (view === 'email') {
+                setActiveSection('email');
             } else if (view === 'event' || !view) {
                 setActiveSection('events');
                 const eventId = params.get('id');
                 setEventSelected(eventId ? Number(eventId) : null);
+            } else if (view === 'test-email') {
+                setActiveSection('test-email');
             }
         };
         
@@ -51,54 +61,53 @@ export const AdminLayout = ({adminEvents}: {adminEvents?: adminEvent[]}) => {
     }, []);
 
     const handleSyncEvents = async () => {
-        if (isSyncing) return; // Prevent multiple simultaneous syncs
-        
+        if (isSyncing) return;
         setIsSyncing(true);
         
         try {
-            // Only refresh the page if sync was successful
             const success = await syncEvents(() => {
-                // This will only be called on success after the delay
                 console.log("Refreshing page after successful sync");
                 window.location.reload();
             });
             
             if (success) {
                 console.log("Sync successful, page will refresh soon");
-                // Set a backup timeout to ensure UI doesn't get stuck
                 setTimeout(() => {
                     if (isSyncing) {
                         console.log("Backup timeout: resetting syncing state");
                         setIsSyncing(false);
                         window.location.reload();
                     }
-                }, 5000); // Backup timeout longer than the expected refresh delay
+                }, 5000);
             } else {
                 console.log("Sync failed, resetting UI state");
-                setIsSyncing(false); // Reset syncing state immediately on error
+                setIsSyncing(false);
             }
         } catch (error) {
             console.error("Error in sync process:", error);
-            setIsSyncing(false); // Ensure we reset state if there's an unexpected error
+            setIsSyncing(false);
             toast.error("Unexpected error during sync process");
         }
     };
 
-    const handleSectionChange = (section: 'customers' | 'events') => {
+    const handleSectionChange = (section: 'customers' | 'events' | 'email' | 'test-email') => {
         setActiveSection(section);
         
-        // Update URL when changing sections
         if (typeof window !== 'undefined') {
             const url = new URL(window.location.href);
             
             if (section === 'customers') {
                 url.searchParams.set('view', 'customer');
-                // Keep the customer ID if it exists
-                if (!url.searchParams.has('id')) {
-                    url.searchParams.delete('id');
-                }
+            } else if (section === 'email') {
+                url.searchParams.set('view', 'email');
+            } else if (section === 'test-email') {
+                url.searchParams.set('view', 'test-email');
             } else {
                 url.searchParams.delete('view');
+            }
+            
+            // Keep the event ID if it exists and we're in events section
+            if (section !== 'events') {
                 url.searchParams.delete('id');
             }
             
@@ -137,6 +146,18 @@ export const AdminLayout = ({adminEvents}: {adminEvents?: adminEvent[]}) => {
                     >
                         Events
                     </button>
+                    <button 
+                        className={`p-3 rounded-lg shadow-md transition-colors ${activeSection === 'email' ? 'bg-gold text-black' : 'bg-black text-gold hover:bg-gold hover:text-black'}`} 
+                        onClick={() => handleSectionChange('email')}
+                    >
+                        Email All
+                    </button>
+                    <button 
+                        className={`p-3 rounded-lg shadow-md transition-colors ${activeSection === 'test-email' ? 'bg-gold text-black' : 'bg-black text-gold hover:bg-gold hover:text-black'}`} 
+                        onClick={() => handleSectionChange('test-email')}
+                    >
+                        Send Email
+                    </button>
                 </nav>
                 
                 <main className='flex-1 bg-black/20 p-6 rounded-lg'>
@@ -146,6 +167,8 @@ export const AdminLayout = ({adminEvents}: {adminEvents?: adminEvent[]}) => {
                         handleEventClick={setEventSelected} 
                         eventSelected={eventSelected}
                     />}
+                    {activeSection === 'email' && <EmailSection />}
+                    {activeSection === 'test-email' && <TestEmailSection />}
                 </main>
             </div>
         </div>
