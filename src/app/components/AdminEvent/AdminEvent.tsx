@@ -1,11 +1,9 @@
 'use client'
 import { TicketWithPurchases } from '@/app/api/api.types'
 import { useState, useEffect } from 'react'
-import { AdminTicketInfo } from '../AdminTicketInfo/AdminTicketInfo'
 import { toast } from 'react-toastify'
-import { formatDate } from '@/app/utils/formatDate'
-import { getAdminEvent } from '@/app/lib/apiClient'
-import { EmailComposer } from '../EmailComposer/EmailComposer'
+import { AdminEventUI } from './AdminEventUI'
+import { fetchEventData, sendEventEmail } from './services/eventService'
 
 export const AdminEvent = ({eventId, resetEvent}: {eventId: number, resetEvent: (event: number | null) => void}) => {
     const [eventData, setEventData] = useState<TicketWithPurchases[]>([])
@@ -16,46 +14,28 @@ export const AdminEvent = ({eventId, resetEvent}: {eventId: number, resetEvent: 
     const [showEmailComposer, setShowEmailComposer] = useState(false)
     const [recipientEmails, setRecipientEmails] = useState<string[]>([])
 
-    const fetchEventData = async () => {
+    const loadEventData = async () => {
         setIsLoading(true)
         setError(null)
         
         try {
-            const fetchedEventData = await getAdminEvent(eventId);
-            
-            const decodedEventData = await fetchedEventData.json()
-            
-            if (fetchedEventData.ok && decodedEventData.data) {
-                setEventData(decodedEventData.data.tickets || [])
-                setEventTitle(decodedEventData.data.title || "Event Details")
-                setEventDate(decodedEventData.data.date || null)
-
-                // Extract unique emails from all tickets and their purchases
-                const uniqueEmails = new Set<string>();
-                decodedEventData.data.tickets.forEach((ticket: TicketWithPurchases) => {
-                    ticket.purchases.forEach(purchase => {
-                        if (purchase.customerEmail) {
-                            uniqueEmails.add(purchase.customerEmail);
-                        }
-                    });
-                });
-                setRecipientEmails(Array.from(uniqueEmails));
-            } else {
-                const errorMsg = decodedEventData.message || "Failed to load event data";
-                setError(errorMsg)
-                toast.error(errorMsg)
-            }
+            const data = await fetchEventData(eventId);
+            setEventData(data.tickets)
+            setEventTitle(data.title)
+            setEventDate(data.date)
+            setRecipientEmails(data.recipientEmails)
         } catch (error) {
             console.error("Error fetching event data:", error)
-            setError("Error connecting to server")
-            toast.error("Error connecting to server")
+            const errorMessage = error instanceof Error ? error.message : "Error connecting to server"
+            setError(errorMessage)
+            toast.error(errorMessage)
         } finally {
             setIsLoading(false)
         }
     }    
 
     useEffect(() => { 
-        fetchEventData()
+        loadEventData()
     }, [eventId])
     
     const handleRefund = (message: string) => {
@@ -65,130 +45,33 @@ export const AdminEvent = ({eventId, resetEvent}: {eventId: number, resetEvent: 
         })
         
         setTimeout(() => {
-            fetchEventData();
+            loadEventData();
         }, 1000)
     }
 
     const handleSendEmail = async (subject: string, content: string) => {
         try {
-            const response = await fetch('/api/sendBulkEmail', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    subject,
-                    content,
-                    type: 'specific',
-                    recipients: recipientEmails
-                }),
-            });
-
-            if (!response.ok) {
-                throw new Error('Failed to send email');
-            }
+            await sendEventEmail(recipientEmails, subject, content);
         } catch (error) {
             console.error('Error sending email:', error);
             throw error;
         }
     };
 
-    // Calculate total attendees
-    const totalAttendees = eventData.reduce((sum, ticket) => {
-        return sum + ticket.purchases.reduce((purchaseSum, purchase) => purchaseSum + purchase.quantity, 0);
-    }, 0);
-
-    if (isLoading) {
-        return <div className="flex justify-center items-center h-64">
-            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-gold"></div>
-        </div>
-    }
-    
-    if (error) {
-        return (
-            <div className="bg-black/30 rounded-lg p-4">
-                <div className="flex justify-between items-center mb-6">
-                    <h2 className="text-2xl font-bold text-gold">Error Loading Event</h2>
-                    <button 
-                        onClick={() => resetEvent(null)} 
-                        className="bg-black text-gold px-4 py-2 rounded hover:bg-gold hover:text-black transition-colors"
-                    >
-                        Back to Events
-                    </button>
-                </div>
-                <div className="text-center p-8 text-white bg-black/50 rounded-lg">
-                    <p className="text-red-400 mb-4">{error}</p>
-                    <button 
-                        onClick={() => window.location.reload()} 
-                        className="bg-gold text-black px-4 py-2 rounded hover:bg-white transition-colors"
-                    >
-                        Retry
-                    </button>
-                </div>
-            </div>
-        )
-    }
-    
     return (
-        <div className="bg-black/30 rounded-lg p-4">
-            <div className="flex justify-between items-center mb-6">
-                <div>
-                    <h2 className="text-2xl font-bold text-gold">{eventTitle}</h2>
-                    {eventDate && (
-                        <p className="text-gray-400 mt-1">
-                            {formatDate(new Date(eventDate))}
-                        </p>
-                    )}
-                </div>
-                <div className="flex gap-4">
-                    <button 
-                        onClick={() => setShowEmailComposer(!showEmailComposer)}
-                        className="bg-black text-gold px-4 py-2 rounded hover:bg-gold hover:text-black transition-colors"
-                    >
-                        {showEmailComposer ? 'Hide Email Composer' : 'Email Attendees'}
-                    </button>
-                    <button 
-                        onClick={() => resetEvent(null)} 
-                        className="bg-black text-gold px-4 py-2 rounded hover:bg-gold hover:text-black transition-colors"
-                    >
-                        Back to Events
-                    </button>
-                </div>
-            </div>
-
-            {showEmailComposer && (
-                <div className="mb-8 p-6 bg-black/20 rounded-lg border border-gold/30">
-                    <div className="mb-6">
-                        <h3 className="text-gold font-semibold mb-2">Recipients</h3>
-                        <div className="bg-black/50 p-4 rounded border border-gold/30 max-h-32 overflow-y-auto">
-                            <p className="text-white">
-                                {recipientEmails.join(', ')}
-                            </p>
-                        </div>
-                    </div>
-                    <EmailComposer
-                        onSend={handleSendEmail}
-                        recipientCount={recipientEmails.length}
-                        recipientDescription="attendees"
-                    />
-                </div>
-            )}
-            
-            {eventData.length > 0 ? (
-                <div className="space-y-6">
-                    {eventData.map(ticket => (
-                        <AdminTicketInfo 
-                            key={ticket.ticketId} 
-                            ticket={ticket} 
-                            setRefundToast={handleRefund}
-                        />
-                    ))}
-                </div>
-            ) : (
-                <div className="text-center p-8 text-white bg-black/50 rounded-lg">
-                    No tickets found for this event.
-                </div>
-            )}
-        </div>
-    )
+        <AdminEventUI
+            eventData={eventData}
+            eventTitle={eventTitle}
+            eventDate={eventDate}
+            isLoading={isLoading}
+            error={error}
+            showEmailComposer={showEmailComposer}
+            recipientEmails={recipientEmails}
+            onToggleEmailComposer={() => setShowEmailComposer(!showEmailComposer)}
+            onResetEvent={resetEvent}
+            onRefund={handleRefund}
+            onSendEmail={handleSendEmail}
+            onRetry={() => window.location.reload()}
+        />
+    );
 }

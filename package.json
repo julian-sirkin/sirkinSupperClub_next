@@ -7,8 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "test": "jest",
-    "test:watch": "jest --watchAll",
+    "test": "jest --config=jest.config.ts",
+    "test:watch": "jest --config=jest.config.ts --watchAll",
     "validate-routes": "node scripts/validate-routes.js"
   },
   "dependencies": {
@@ -57,9 +57,10 @@
     "@graphql-codegen/typescript-react-query": "^6.1.0",
     "@testing-library/dom": "^10.4.0",
     "@testing-library/jest-dom": "^5.17.0",
-    "@testing-library/react": "^16.0.0",
+    "@testing-library/react": "^16.3.0",
     "@testing-library/user-event": "^14.5.2",
     "@types/cookie": "^0.6.0",
+    "@types/jest": "^29.5.14",
     "@types/js-cookie": "^3.0.6",
     "@types/node": "^20",
     "@types/react": "^18",
