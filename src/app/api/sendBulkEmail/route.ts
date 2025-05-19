@@ -4,6 +4,8 @@ import { customersTable, purchaseItemsTable, purchasesTable, SelectCustomer } fr
 import { transporter } from '@/app/config/nodemailer';
 import { eq, and } from 'drizzle-orm';
 
+const ADMIN_EMAIL = 'sirkinsupperclub@gmail.com';
+
 export async function POST(request: Request) {
   try {
     const { subject, content, type, eventId, recipients } = await request.json();
@@ -12,7 +14,7 @@ export async function POST(request: Request) {
     if (type === 'test') {
       await transporter.sendMail({
         from: process.env.GMAIL_FROM,
-        to: 'sirkinsupperclub@gmail.com',
+        to: ADMIN_EMAIL,
         subject,
         html: content,
       });
@@ -68,10 +70,20 @@ export async function POST(request: Request) {
       );
     }
 
-    // Send email to all recipients using BCC
+    // Get the first recipient for the "To" field
+    const [primaryRecipient, ...otherRecipients] = emailRecipients;
+    
+    // Add admin email to BCC list if not already included
+    const bccList = [...otherRecipients];
+    if (!bccList.includes(ADMIN_EMAIL)) {
+      bccList.push(ADMIN_EMAIL);
+    }
+
+    // Send email with one primary recipient and others in BCC
     await transporter.sendMail({
       from: process.env.GMAIL_FROM,
-      bcc: emailRecipients,
+      to: primaryRecipient,
+      bcc: bccList,
       subject,
       html: content,
     });
