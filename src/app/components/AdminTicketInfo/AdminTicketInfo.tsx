@@ -2,14 +2,19 @@ import { TicketWithPurchases, RefundToastFunction } from '@/types';
 import { AdminRefundForm } from "../AdminRefundForm/AdminRefundForm"
 import { PaymentStatusToggle } from "../PaymentStatusToggle/PaymentStatusToggle"
 import { formatDate } from "@/app/utils/formatDate"
-import Link from "next/link"
 import { useState } from "react"
 import { FiChevronDown, FiChevronUp } from 'react-icons/fi'
 
-export const AdminTicketInfo = ({ticket: initialTicket, setRefundToast, ticketName = ""}: {
-  ticket: TicketWithPurchases, 
-  setRefundToast: RefundToastFunction,
-  ticketName?: string
+export const AdminTicketInfo = ({
+    ticket: initialTicket, 
+    setRefundToast, 
+    ticketName = "",
+    onCustomerClick
+}: {
+    ticket: TicketWithPurchases, 
+    setRefundToast: RefundToastFunction,
+    ticketName?: string,
+    onCustomerClick?: (customerId: number) => void
 }) => {
     const [ticket, setTicket] = useState(initialTicket);
     const ticketDate = new Date(ticket.ticketTime)
@@ -49,6 +54,12 @@ export const AdminTicketInfo = ({ticket: initialTicket, setRefundToast, ticketNa
         }));
     }
 
+    const handleCustomerClick = (customerId: number) => {
+        if (onCustomerClick) {
+            onCustomerClick(customerId);
+        }
+    };
+
     return (
         <div className="bg-black rounded-lg overflow-hidden shadow-lg">
             <header className="bg-gold text-black font-bold text-xl p-3 flex justify-between items-center">
@@ -70,12 +81,12 @@ export const AdminTicketInfo = ({ticket: initialTicket, setRefundToast, ticketNa
                             <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                                 <div className="space-y-1">
                                     <div className="flex items-center gap-2">
-                                        <Link 
-                                            href={`/admin?view=customer&id=${order.customerId}`} 
-                                            className="font-bold text-lg hover:text-gold transition-colors"
+                                        <button 
+                                            onClick={() => handleCustomerClick(order.customerId)}
+                                            className="font-bold text-lg hover:text-gold transition-colors text-left"
                                         >
                                             {order.customerName || 'Unknown Customer'}
-                                        </Link>
+                                        </button>
                                         <button 
                                             onClick={() => toggleOrderDetails(order.purchaseId)}
                                             className="p-1 rounded-full hover:bg-gray-800 transition-colors"

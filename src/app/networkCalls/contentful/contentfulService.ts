@@ -7,6 +7,18 @@ import { getTicketsByIdAndEvent } from "@/app/api/queries/select"
 
 export const contentfulService = () => {
     const contentfulEndpoint = process.env.CONTENTFUL_GRAPHQL_ENDPOINT
+    
+    // Log endpoint info (masked for security)
+    if (contentfulEndpoint) {
+        const envMatch = contentfulEndpoint.match(/environments\/([^/]+)/);
+        const environment = envMatch ? envMatch[1] : 'master';
+        const isPreview = contentfulEndpoint.includes('preview') || environment !== 'master';
+        const envType = isPreview ? 'PREVIEW/DEV' : 'PRODUCTION';
+        
+        console.log(`🔵 [Contentful] ${envType}`);
+    } else {
+        console.warn('[Contentful] ⚠️  No CONTENTFUL_GRAPHQL_ENDPOINT found');
+    }
 
     const getPhotoGallery = async () => {
         const requestBody = JSON.stringify({query: photoAlbumQuery})

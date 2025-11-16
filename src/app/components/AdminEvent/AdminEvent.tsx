@@ -5,7 +5,15 @@ import { toast } from 'react-toastify'
 import { AdminEventUI } from './AdminEventUI'
 import { fetchEventData, sendEventEmail } from './services/eventService'
 
-export const AdminEvent = ({eventId, resetEvent}: {eventId: number, resetEvent: (event: number | null) => void}) => {
+export const AdminEvent = ({
+    eventId, 
+    resetEvent,
+    onCustomerClick
+}: {
+    eventId: number, 
+    resetEvent: (event: number | null) => void,
+    onCustomerClick?: (customerId: number) => void
+}) => {
     const [eventData, setEventData] = useState<TicketWithPurchases[]>([])
     const [eventTitle, setEventTitle] = useState<string>("Event Details")
     const [eventDate, setEventDate] = useState<number | null>(null)
@@ -72,6 +80,7 @@ export const AdminEvent = ({eventId, resetEvent}: {eventId: number, resetEvent: 
             onRefund={handleRefund}
             onSendEmail={handleSendEmail}
             onRetry={() => window.location.reload()}
+            onCustomerClick={onCustomerClick}
         />
     );
 }

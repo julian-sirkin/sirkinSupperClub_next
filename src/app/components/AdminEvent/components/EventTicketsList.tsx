@@ -6,11 +6,13 @@ import { AdminTicketInfo } from '../../AdminTicketInfo/AdminTicketInfo';
 interface EventTicketsListProps {
   tickets: TicketWithPurchases[];
   onRefund: (message: string) => void;
+  onCustomerClick?: (customerId: number) => void;
 }
 
 export function EventTicketsList({
   tickets,
-  onRefund
+  onRefund,
+  onCustomerClick
 }: EventTicketsListProps) {
   if (tickets.length === 0) {
     return (
@@ -27,6 +29,7 @@ export function EventTicketsList({
           key={ticket.ticketId} 
           ticket={ticket} 
           setRefundToast={onRefund}
+          onCustomerClick={onCustomerClick}
         />
       ))}
     </div>

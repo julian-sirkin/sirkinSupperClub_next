@@ -29,7 +29,6 @@ export const AdminRefundForm = ({
         order.ticketId, 
         refundQuantity
       );
-      
       const result = await refundResult.json();
       
       if (refundResult.ok && result.success) {

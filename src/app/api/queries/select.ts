@@ -4,9 +4,13 @@ import { CartTicketType } from "@/store/cartStore.types";
 import { and, eq, isNull, SQL, sql } from "drizzle-orm";
 import { adminEvent, DatabaseTickets, TicketWithPurchases } from "../api.types";
 import { AdminEvent } from '@/types';
+import type { LibSQLDatabase } from 'drizzle-orm/libsql';
+
+// Type the database properly
+const typedDb = db as LibSQLDatabase<typeof import('@/db/schema')>;
 
 export async function getCustomerByEmail(email: SelectCustomer['email']){
-return db.select().from(customersTable).where(eq(customersTable.email, email));
+return typedDb.select().from(customersTable).where(eq(customersTable.email, email));
 }
 
 
@@ -16,7 +20,7 @@ export async function getTicketsByIdAndEvent(
 ): Promise <DatabaseTickets[]> {
     const tickets = await Promise.all(
         ticketEventProps.map(({ contentfulTicketId, eventContentfulId }) =>
-            db
+            typedDb
                 .select({
                     ticket: ticketsTable,
                 })
@@ -38,45 +42,34 @@ export async function getTicketsByIdAndEvent(
 
 
 export async function getAllAdminEvents(): Promise<adminEvent[]> {
-    // Use a different approach that doesn't rely on leftJoin
-    const events = await db
-        .select({
-            id: eventsTable.id,
-            title: eventsTable.title,
-            date: eventsTable.date,
-        })
-        .from(eventsTable);
+    // Get all events first
+    const allEvents = await typedDb.select().from(eventsTable);
     
-    // Get ticket counts in a separate query
-    const ticketCounts = await Promise.all(
-        events.map(async (event) => {
-            const tickets = await db
+    // For each event, get ticket counts separately to avoid join issues
+    const eventsWithCounts = await Promise.all(
+        allEvents.map(async (event) => {
+            const ticketCounts = await typedDb
                 .select({
-                    totalAvailable: sql<number>`SUM(${ticketsTable.totalAvailable})`.as('ticketsAvailable'),
-                    totalSold: sql<number>`SUM(${ticketsTable.totalSold})`.as('ticketsSold')
+                    totalAvailable: sql<number>`COALESCE(SUM(${ticketsTable.totalAvailable}), 0)`,
+                    totalSold: sql<number>`COALESCE(SUM(${ticketsTable.totalSold}), 0)`
                 })
                 .from(ticketsTable)
                 .where(eq(ticketsTable.event, event.id));
             
+            const counts = ticketCounts[0] || { totalAvailable: 0, totalSold: 0 };
+            
             return {
                 id: event.id,
-                ticketsAvailable: tickets[0]?.totalAvailable || 0,
-                ticketsSold: tickets[0]?.totalSold || 0
+                title: event.title,
+                date: Number(event.date ?? 0),
+                ticketsAvailable: counts.totalAvailable,
+                ticketsSold: counts.totalSold
             };
         })
     );
     
-    // Merge the results
-    return events.map(event => {
-        const ticketCount = ticketCounts.find(tc => tc.id === event.id) || { ticketsAvailable: 0, ticketsSold: 0 };
-        return {
-            id: event.id,
-            title: event.title,
-            date: Number(event?.date ?? 0),
-            ticketsAvailable: ticketCount.ticketsAvailable,
-            ticketsSold: ticketCount.ticketsSold
-        };
-    });
+    // Sort by date
+    return eventsWithCounts.sort((a, b) => a.date - b.date);
 }
 
 // export async function getEventTicketsWithPurchases(eventId: number) {
@@ -173,10 +166,8 @@ export async function getAllAdminEvents(): Promise<adminEvent[]> {
 
 export async function getEventTicketsWithPurchases(eventId: number) {
   try {
-    console.log(`🔍 Fetching event details for ID: ${eventId}`);
-
     // Fetch event details
-    const event = await db
+    const event = await typedDb
       .select({
         id: eventsTable.id,
         title: eventsTable.title,
@@ -184,31 +175,23 @@ export async function getEventTicketsWithPurchases(eventId: number) {
       })
       .from(eventsTable)
       .where(eq(eventsTable.id, eventId))
-      .then((res) => res[0] || null);
-
-    console.log("📋 Event fetched:", event);
+      .then((res: any) => res[0] || null);
 
     if (!event) {
-      console.error(`❌ Event not found for event ID: ${eventId}`);
+      console.error(`Event not found for event ID: ${eventId}`);
       return null;
     }
 
     // Fetch tickets for this event
-    const tickets = await db
+    const tickets = await typedDb
       .select({
         ticketId: ticketsTable.id,
-        time: ticketsTable.time,
+        ticketTime: ticketsTable.time,
         totalAvailable: ticketsTable.totalAvailable,
         totalSold: ticketsTable.totalSold,
       })
       .from(ticketsTable)
       .where(eq(ticketsTable.event, eventId));
-
-    console.log(`🎟 Found ${tickets.length} tickets for event ${eventId}`);
-
-    if (tickets.length === 0) {
-      console.warn(`⚠️ No tickets found for event ID: ${eventId}`);
-    }
 
     // Process each ticket one by one
     const ticketsWithPurchases = [];
@@ -216,7 +199,7 @@ export async function getEventTicketsWithPurchases(eventId: number) {
     for (const ticket of tickets) {
       try {
         // Get purchase items for this ticket
-        const purchaseItems = await db
+        const purchaseItems = await typedDb
           .select()
           .from(purchaseItemsTable)
           .where(eq(purchaseItemsTable.ticketId, ticket.ticketId));
@@ -227,7 +210,7 @@ export async function getEventTicketsWithPurchases(eventId: number) {
         for (const item of purchaseItems) {
           try {
             // Get purchase details
-            const purchaseResult = await db
+            const purchaseResult = await typedDb
               .select()
               .from(purchasesTable)
               .where(eq(purchasesTable.id, item.purchaseId));
@@ -237,7 +220,7 @@ export async function getEventTicketsWithPurchases(eventId: number) {
             const purchase = purchaseResult[0];
             
             // Get customer details
-            const customerResult = await db
+            const customerResult = await typedDb
               .select()
               .from(customersTable)
               .where(eq(customersTable.id, purchase.customerId));
@@ -257,7 +240,6 @@ export async function getEventTicketsWithPurchases(eventId: number) {
               paid: purchase.paid,
               purchaseDate: purchase.purchaseDate,
               ticketId: ticket.ticketId,
-              dietaryRestrictions: customer.dietaryRestrictions,
               notes: customer.notes,
             });
           } catch (itemError) {
@@ -265,8 +247,6 @@ export async function getEventTicketsWithPurchases(eventId: number) {
             // Continue with next item
           }
         }
-        
-        console.log(`📦 Ticket ${ticket.ticketId} has ${purchases.length} purchases`);
         
         // Add ticket with its purchases
         ticketsWithPurchases.push({
@@ -278,8 +258,6 @@ export async function getEventTicketsWithPurchases(eventId: number) {
         // Continue with next ticket
       }
     }
-
-    console.log(`✅ Returning event details for event ID: ${eventId}`);
 
     return { 
       ...event, 
@@ -297,14 +275,14 @@ export async function getEventTicketsWithPurchases(eventId: number) {
 }
 
 export async function findEventByContentfulId(contentfulId: string) {
-  return await db
+  return await typedDb
     .select()
     .from(eventsTable)
     .where(eq(eventsTable.contentfulId, contentfulId));
 }
 
 export async function findTicketByContentfulId(contentfulId: string) {
-  return await db
+  return await typedDb
     .select()
     .from(ticketsTable)
     .where(eq(ticketsTable.contentfulId, contentfulId));

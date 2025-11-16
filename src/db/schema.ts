@@ -7,7 +7,8 @@ export const customersTable = sqliteTable('customers', {
     email: text('email').notNull(),
     phoneNumber: text('phoneNumber'),
     priorCustomer: integer('priorCustomer', {mode: 'boolean'}).notNull(),
-    notes: text('notes')
+    notes: text('notes'),
+    dietaryRestrictions: text('dietaryRestrictions')
 })
 
 export const ticketsTable = sqliteTable('tickets', {

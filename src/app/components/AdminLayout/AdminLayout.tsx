@@ -12,6 +12,7 @@ import { TestEmailSection } from '../TestEmailSection/TestEmailSection';
 export const AdminLayout = ({adminEvents}: {adminEvents?: adminEvent[]}) => {
     const [activeSection, setActiveSection] = useState<'customers' | 'events' | 'email' | 'test-email'>('customers');
     const [eventSelected, setEventSelected] = useState<number | null>(null);
+    const [customerSelected, setCustomerSelected] = useState<number | null>(null);
     const [isSyncing, setIsSyncing] = useState(false);
 
     // Check URL for view parameter on initial load and when URL changes
@@ -19,19 +20,29 @@ export const AdminLayout = ({adminEvents}: {adminEvents?: adminEvent[]}) => {
         if (typeof window !== 'undefined') {
             const params = new URLSearchParams(window.location.search);
             const view = params.get('view');
+            const id = params.get('id');
             
             if (view === 'customer') {
                 setActiveSection('customers');
+                setEventSelected(null);
+                setCustomerSelected(id ? Number(id) : null);
             } else if (view === 'email') {
                 setActiveSection('email');
+                setEventSelected(null);
+                setCustomerSelected(null);
             } else if (view === 'event') {
                 setActiveSection('events');
-                const eventId = params.get('id');
-                if (eventId) {
-                    setEventSelected(Number(eventId));
-                }
+                setEventSelected(id ? Number(id) : null);
+                setCustomerSelected(null);
             } else if (view === 'test-email') {
                 setActiveSection('test-email');
+                setEventSelected(null);
+                setCustomerSelected(null);
+            } else {
+                // Default to events if no view specified
+                setActiveSection('events');
+                setEventSelected(id ? Number(id) : null);
+                setCustomerSelected(null);
             }
         }
         
@@ -39,17 +50,24 @@ export const AdminLayout = ({adminEvents}: {adminEvents?: adminEvent[]}) => {
         const handleUrlChange = () => {
             const params = new URLSearchParams(window.location.search);
             const view = params.get('view');
+            const id = params.get('id');
             
             if (view === 'customer') {
                 setActiveSection('customers');
+                setEventSelected(null);
+                setCustomerSelected(id ? Number(id) : null);
             } else if (view === 'email') {
                 setActiveSection('email');
+                setEventSelected(null);
+                setCustomerSelected(null);
             } else if (view === 'event' || !view) {
                 setActiveSection('events');
-                const eventId = params.get('id');
-                setEventSelected(eventId ? Number(eventId) : null);
+                setEventSelected(id ? Number(id) : null);
+                setCustomerSelected(null);
             } else if (view === 'test-email') {
                 setActiveSection('test-email');
+                setEventSelected(null);
+                setCustomerSelected(null);
             }
         };
         
@@ -98,19 +116,60 @@ export const AdminLayout = ({adminEvents}: {adminEvents?: adminEvent[]}) => {
             
             if (section === 'customers') {
                 url.searchParams.set('view', 'customer');
+                // Keep customer ID if switching to customers
+                if (customerSelected) {
+                    url.searchParams.set('id', customerSelected.toString());
+                } else {
+                    url.searchParams.delete('id');
+                }
             } else if (section === 'email') {
                 url.searchParams.set('view', 'email');
+                url.searchParams.delete('id');
             } else if (section === 'test-email') {
                 url.searchParams.set('view', 'test-email');
+                url.searchParams.delete('id');
             } else {
                 url.searchParams.delete('view');
+                // Keep event ID if switching to events
+                if (eventSelected) {
+                    url.searchParams.set('id', eventSelected.toString());
+                } else {
+                    url.searchParams.delete('id');
+                }
             }
             
-            // Keep the event ID if it exists and we're in events section
-            if (section !== 'events') {
+            window.history.pushState({}, '', url);
+        }
+    };
+
+    const handleEventClick = (eventId: number | null) => {
+        setEventSelected(eventId);
+        setCustomerSelected(null);
+        
+        if (typeof window !== 'undefined') {
+            const url = new URL(window.location.href);
+            url.searchParams.set('view', 'event');
+            if (eventId) {
+                url.searchParams.set('id', eventId.toString());
+            } else {
                 url.searchParams.delete('id');
             }
-            
+            window.history.pushState({}, '', url);
+        }
+    };
+
+    const handleCustomerClick = (customerId: number | null) => {
+        setCustomerSelected(customerId);
+        setEventSelected(null);
+        
+        if (typeof window !== 'undefined') {
+            const url = new URL(window.location.href);
+            url.searchParams.set('view', 'customer');
+            if (customerId) {
+                url.searchParams.set('id', customerId.toString());
+            } else {
+                url.searchParams.delete('id');
+            }
             window.history.pushState({}, '', url);
         }
     };
@@ -161,12 +220,21 @@ export const AdminLayout = ({adminEvents}: {adminEvents?: adminEvent[]}) => {
                 </nav>
                 
                 <main className='flex-1 bg-black/20 p-6 rounded-lg'>
-                    {activeSection === 'customers' && <CustomerSection />}
-                    {activeSection === 'events' && <EventData 
-                        events={adminEvents} 
-                        handleEventClick={setEventSelected} 
-                        eventSelected={eventSelected}
-                    />}
+                    {activeSection === 'customers' && (
+                        <CustomerSection 
+                            selectedCustomerId={customerSelected}
+                            onCustomerSelect={handleCustomerClick}
+                            onEventClick={handleEventClick}
+                        />
+                    )}
+                    {activeSection === 'events' && (
+                        <EventData 
+                            events={adminEvents} 
+                            handleEventClick={handleEventClick} 
+                            eventSelected={eventSelected}
+                            onCustomerClick={handleCustomerClick}
+                        />
+                    )}
                     {activeSection === 'email' && <EmailSection />}
                     {activeSection === 'test-email' && <TestEmailSection />}
                 </main>

@@ -50,11 +50,19 @@ export async function processEventTickets(
         });
         results.ticketsCreated++;
       } else {
-        // Update existing ticket
+        // Update existing ticket - also update event association if it's different
+        const existingTicket = existingTickets[0];
+        const needsEventUpdate = existingTicket.event !== eventId;
+        
+        if (needsEventUpdate) {
+          console.log(`⚠️  Ticket ${ticket.contentfulTicketId} was linked to event ${existingTicket.event}, updating to event ${eventId}`);
+        }
+        
         console.log(`Updating existing ticket for event: ${eventTitle}`);
-        await updateTicket(existingTickets[0].id, {
+        await updateTicket(existingTicket.id, {
+          event: eventId,
           time: ticket.time,
-          totalAvailable: ticket.ticketsAvailable || existingTickets[0].totalAvailable
+          totalAvailable: ticket.ticketsAvailable || existingTicket.totalAvailable
         });
         results.ticketsUpdated++;
       }

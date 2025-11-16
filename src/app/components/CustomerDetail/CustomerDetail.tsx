@@ -1,7 +1,6 @@
 'use client'
 import { useState, useEffect } from 'react'
 import { formatDate } from '@/app/utils/formatDate'
-import Link from 'next/link'
 import { getCustomerDetails } from '@/app/lib/apiClient'
 
 type CustomerPurchase = {
@@ -25,7 +24,15 @@ type CustomerDetails = {
     purchases: CustomerPurchase[]
 }
 
-export const CustomerDetail = ({ customerId, onBack }: { customerId: number, onBack: () => void }) => {
+export const CustomerDetail = ({ 
+    customerId, 
+    onBack,
+    onEventClick
+}: { 
+    customerId: number, 
+    onBack: () => void,
+    onEventClick?: (eventId: number) => void
+}) => {
     const [customer, setCustomer] = useState<CustomerDetails | null>(null)
     const [isLoading, setIsLoading] = useState(true)
     const [error, setError] = useState<string | null>(null)
@@ -56,6 +63,12 @@ export const CustomerDetail = ({ customerId, onBack }: { customerId: number, onB
         
         fetchCustomerDetails()
     }, [customerId])
+    
+    const handleEventClick = (eventId: number) => {
+        if (onEventClick) {
+            onEventClick(eventId);
+        }
+    };
     
     if (isLoading) {
         return (
@@ -155,12 +168,12 @@ export const CustomerDetail = ({ customerId, onBack }: { customerId: number, onB
                                 {customer.purchases.map((purchase) => (
                                     <tr key={purchase.purchaseId} className="text-white">
                                         <td className="py-2 px-4">
-                                            <Link 
-                                                href={`/admin?view=event&id=${purchase.eventId}`}
-                                                className="hover:text-gold transition-colors"
+                                            <button 
+                                                onClick={() => handleEventClick(purchase.eventId)}
+                                                className="hover:text-gold transition-colors text-left"
                                             >
                                                 {purchase.eventTitle}
-                                            </Link>
+                                            </button>
                                         </td>
                                         <td className="py-2 px-4">{formatDate(new Date(purchase.eventDate))}</td>
                                         <td className="py-2 px-4">
