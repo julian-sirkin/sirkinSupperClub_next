@@ -42,27 +42,34 @@ export async function getTicketsByIdAndEvent(
 
 
 export async function getAllAdminEvents(): Promise<adminEvent[]> {
-    // Use a single optimized query with left joins to get all events and their ticket counts
-    const eventsWithTicketCounts = await typedDb
-        .select({
-            id: eventsTable.id,
-            title: eventsTable.title,
-            date: eventsTable.date,
-            totalAvailable: sql<number>`COALESCE(SUM(${ticketsTable.totalAvailable}), 0)`.as('ticketsAvailable'),
-            totalSold: sql<number>`COALESCE(SUM(${ticketsTable.totalSold}), 0)`.as('ticketsSold')
-        })
-        .from(eventsTable)
-        .leftJoin(ticketsTable, eq(eventsTable.id, ticketsTable.event))
-        .groupBy(eventsTable.id, eventsTable.title, eventsTable.date)
-        .orderBy(eventsTable.date);
+    // Get all events first
+    const allEvents = await typedDb.select().from(eventsTable);
     
-    return eventsWithTicketCounts.map((event: any) => ({
-        id: event.id,
-        title: event.title,
-        date: Number(event.date ?? 0),
-        ticketsAvailable: event.totalAvailable,
-        ticketsSold: event.totalSold
-    }));
+    // For each event, get ticket counts separately to avoid join issues
+    const eventsWithCounts = await Promise.all(
+        allEvents.map(async (event) => {
+            const ticketCounts = await typedDb
+                .select({
+                    totalAvailable: sql<number>`COALESCE(SUM(${ticketsTable.totalAvailable}), 0)`,
+                    totalSold: sql<number>`COALESCE(SUM(${ticketsTable.totalSold}), 0)`
+                })
+                .from(ticketsTable)
+                .where(eq(ticketsTable.event, event.id));
+            
+            const counts = ticketCounts[0] || { totalAvailable: 0, totalSold: 0 };
+            
+            return {
+                id: event.id,
+                title: event.title,
+                date: Number(event.date ?? 0),
+                ticketsAvailable: counts.totalAvailable,
+                ticketsSold: counts.totalSold
+            };
+        })
+    );
+    
+    // Sort by date
+    return eventsWithCounts.sort((a, b) => a.date - b.date);
 }
 
 // export async function getEventTicketsWithPurchases(eventId: number) {
@@ -159,8 +166,6 @@ export async function getAllAdminEvents(): Promise<adminEvent[]> {
 
 export async function getEventTicketsWithPurchases(eventId: number) {
   try {
-    console.log(`🔍 Fetching event details for ID: ${eventId}`);
-
     // Fetch event details
     const event = await typedDb
       .select({
@@ -172,10 +177,8 @@ export async function getEventTicketsWithPurchases(eventId: number) {
       .where(eq(eventsTable.id, eventId))
       .then((res: any) => res[0] || null);
 
-    console.log("📋 Event fetched:", event);
-
     if (!event) {
-      console.error(`❌ Event not found for event ID: ${eventId}`);
+      console.error(`Event not found for event ID: ${eventId}`);
       return null;
     }
 
@@ -189,12 +192,6 @@ export async function getEventTicketsWithPurchases(eventId: number) {
       })
       .from(ticketsTable)
       .where(eq(ticketsTable.event, eventId));
-
-    console.log(`🎟 Found ${tickets.length} tickets for event ${eventId}`);
-
-    if (tickets.length === 0) {
-      console.warn(`⚠️ No tickets found for event ID: ${eventId}`);
-    }
 
     // Process each ticket one by one
     const ticketsWithPurchases = [];
@@ -251,8 +248,6 @@ export async function getEventTicketsWithPurchases(eventId: number) {
           }
         }
         
-        console.log(`📦 Ticket ${ticket.ticketId} has ${purchases.length} purchases`);
-        
         // Add ticket with its purchases
         ticketsWithPurchases.push({
           ...ticket,
@@ -263,8 +258,6 @@ export async function getEventTicketsWithPurchases(eventId: number) {
         // Continue with next ticket
       }
     }
-
-    console.log(`✅ Returning event details for event ID: ${eventId}`);
 
     return { 
       ...event, 

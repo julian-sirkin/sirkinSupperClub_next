@@ -1,5 +1,5 @@
 export const eventsQuery = `query fetch{
-    eventTypeCollection(limit:5){
+    eventTypeCollection(limit:100, order: date_DESC){
     items{
         _id
         title

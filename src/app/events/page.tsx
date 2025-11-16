@@ -30,7 +30,6 @@ export default async function Events() {
     // Fallback: Get events without DB integration
     try {
       eventData = await contentful.getEventsWithoutDB();
-      console.log('Successfully fetched events without DB integration');
     } catch (fallbackError) {
       console.error('Critical error: Failed to fetch events even without DB:', fallbackError);
       eventData = []; // Empty array as last resort

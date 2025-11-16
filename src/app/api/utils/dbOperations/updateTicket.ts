@@ -6,6 +6,7 @@ import { updateTicketById } from "@/app/api/queries/update";
 export async function updateTicket(
   ticketId: number,
   ticketData: {
+    event?: number;
     time?: any;
     totalAvailable?: number;
   }
@@ -15,6 +16,10 @@ export async function updateTicket(
     
     // Build update data with only the fields that are provided
     const updateData: any = {};
+    
+    if (ticketData.event !== undefined) {
+      updateData.event = ticketData.event;
+    }
     
     if (ticketData.totalAvailable !== undefined) {
       updateData.totalAvailable = ticketData.totalAvailable;

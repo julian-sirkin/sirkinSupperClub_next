@@ -18,6 +18,7 @@ interface AdminEventUIProps {
   onRefund: (message: string) => void;
   onSendEmail: (subject: string, content: string) => Promise<void>;
   onRetry: () => void;
+  onCustomerClick?: (customerId: number) => void;
 }
 
 export function AdminEventUI({
@@ -32,7 +33,8 @@ export function AdminEventUI({
   onResetEvent,
   onRefund,
   onSendEmail,
-  onRetry
+  onRetry,
+  onCustomerClick
 }: AdminEventUIProps) {
   if (isLoading) {
     return (
@@ -87,6 +89,7 @@ export function AdminEventUI({
       <EventTicketsList
         tickets={eventData}
         onRefund={onRefund}
+        onCustomerClick={onCustomerClick}
       />
     </div>
   );
