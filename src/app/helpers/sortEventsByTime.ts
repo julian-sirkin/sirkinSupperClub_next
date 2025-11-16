@@ -20,9 +20,9 @@ export const sortEventsByTime = (parsedEvents: ParsedEvent[]) => {
   
       upcomingEvents.sort((a, b) => {
         if (a?.date && b?.date) {
-          return b?.date?.valueOf() - a?.date?.valueOf(); // Descending: most future first
+          return a?.date?.valueOf() - b?.date?.valueOf(); // Ascending: soonest first
         } else {
-          return b.price - a.price;
+          return a.price - b.price;
         }
       });
 
