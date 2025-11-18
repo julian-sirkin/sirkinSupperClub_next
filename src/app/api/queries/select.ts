@@ -35,7 +35,7 @@ export async function getTicketsByIdAndEvent(
         )
     );
 
-    return tickets.flat(); // Flatten the array of results if necessary
+    return tickets.flat();
 }
 
 

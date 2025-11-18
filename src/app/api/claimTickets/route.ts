@@ -18,7 +18,6 @@ export async function POST(request: Request) {
     const notes: string = data?.notes ?? ''
     const dietaryRestrictions: string = data?.dietaryRestrictions
 
-
     /**
      * Verify Requested tickets are available in database
      */
@@ -38,12 +37,35 @@ export async function POST(request: Request) {
      */
     const customerInDatabase = await getCustomerByEmail(email)
 
-    const customerId = customerInDatabase[0]?.id ? customerInDatabase[0]?.id : (await createCustomer({email, name: customerName, priorCustomer: false, phoneNumber, notes}))[0].id
+    let customerId: number;
+    if (customerInDatabase[0]?.id) {
+        customerId = customerInDatabase[0].id;
+    } else {
+        const customerData = {
+            email,
+            name: customerName,
+            priorCustomer: false,
+            phoneNumber: phoneNumber || null,
+            notes: notes || null,
+            dietaryRestrictions: dietaryRestrictions || null
+        };
+        
+        try {
+            const newCustomer = await createCustomer(customerData);
+            customerId = newCustomer[0].id;
+        } catch (error) {
+            return NextResponse.json({
+                status: 500,
+                message: `Failed to create customer: ${error instanceof Error ? error.message : 'Database error'}`,
+                error: 'CUSTOMER_CREATION_FAILED'
+            });
+        }
+    }
 
     /**
      * Complete purchase
      */
-    const {isSuccessful, message} = await createTicketPurchase(ticketsInRequest, customerId, false) 
+    const {isSuccessful, message} = await createTicketPurchase(ticketsInRequest, customerId, false)
 
     if(isSuccessful) {
         const {emailSuccessfully} = await successEmail({customer: {name: customerName, email, phoneNumber, notes, dietaryRestrictions}, tickets: ticketsInRequest})
