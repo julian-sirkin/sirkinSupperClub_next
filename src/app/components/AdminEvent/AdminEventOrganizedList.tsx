@@ -77,13 +77,15 @@ export const AdminEventOrganizedList = ({ events, onEventClick }: AdminEventOrga
       {/* Past Events by Year */}
       {Object.keys(organizedEvents.pastEventsByYear)
         .sort((a, b) => parseInt(b) - parseInt(a)) // Sort years descending (newest first)
-        .map((year) => 
-          renderEventTable(
-            organizedEvents.pastEventsByYear[year],
-            year,
-            `No events in ${year}`
-          )
-        )}
+        .map((year) => (
+          <div key={year}>
+            {renderEventTable(
+              organizedEvents.pastEventsByYear[year],
+              year,
+              `No events in ${year}`
+            )}
+          </div>
+        ))}
     </div>
   );
 }; 
