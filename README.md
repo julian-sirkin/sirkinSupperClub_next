@@ -9,6 +9,23 @@ Built with:
 - Jest
 - nodeMailer
 
+## Database Migrations (Drizzle + Turso)
+
+- Run all pending migrations:
+
+```bash
+npm run db:migrate
+```
+
+- If your database already has old tables but Drizzle history is missing (for example: `table customers already exists`), run one-time baseline first:
+
+```bash
+npm run db:baseline
+npm run db:migrate
+```
+
+- The baseline script records existing legacy migrations in `__drizzle_migrations` so Drizzle skips re-running them.
+
 ## Getting Started
 
 First, run the development server:

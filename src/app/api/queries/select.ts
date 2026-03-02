@@ -1,5 +1,5 @@
 import { db } from "@/db";
-import { customersTable, eventsTable, SelectCustomer, ticketsTable, purchaseItemsTable, purchasesTable } from "@/db/schema";
+import { addonsTable, customersTable, eventsTable, SelectCustomer, ticketAddonsTable, ticketsTable, purchaseItemsTable, purchasesTable } from "@/db/schema";
 import { CartTicketType } from "@/store/cartStore.types";
 import { and, eq, isNull, SQL, sql } from "drizzle-orm";
 import { adminEvent, DatabaseTickets, TicketWithPurchases } from "../api.types";
@@ -286,4 +286,49 @@ export async function findTicketByContentfulId(contentfulId: string) {
     .select()
     .from(ticketsTable)
     .where(eq(ticketsTable.contentfulId, contentfulId));
+}
+
+export async function findAddonByContentfulId(contentfulId: string) {
+  return await typedDb
+    .select()
+    .from(addonsTable)
+    .where(eq(addonsTable.contentfulId, contentfulId));
+}
+
+export async function getTicketAddonLinks(ticketId: number) {
+  return await typedDb
+    .select({
+      id: ticketAddonsTable.id,
+      addonId: ticketAddonsTable.addonId,
+      addonContentfulId: addonsTable.contentfulId,
+    })
+    .from(ticketAddonsTable)
+    .innerJoin(addonsTable, eq(ticketAddonsTable.addonId, addonsTable.id))
+    .where(eq(ticketAddonsTable.ticketId, ticketId));
+}
+
+export async function getAllowedAddonsForTicketSelections(
+  ticketEventProps: Array<Pick<CartTicketType, 'contentfulTicketId' | 'eventContentfulId'>>
+) {
+  const addonLinks = await Promise.all(
+    ticketEventProps.map(({ contentfulTicketId, eventContentfulId }) =>
+      typedDb
+        .select({
+          ticketContentfulId: ticketsTable.contentfulId,
+          addonContentfulId: addonsTable.contentfulId,
+        })
+        .from(ticketsTable)
+        .innerJoin(eventsTable, eq(ticketsTable.event, eventsTable.id))
+        .innerJoin(ticketAddonsTable, eq(ticketAddonsTable.ticketId, ticketsTable.id))
+        .innerJoin(addonsTable, eq(ticketAddonsTable.addonId, addonsTable.id))
+        .where(
+          and(
+            eq(ticketsTable.contentfulId, contentfulTicketId),
+            eq(eventsTable.contentfulId, eventContentfulId)
+          )
+        )
+    )
+  );
+
+  return addonLinks.flat();
 }

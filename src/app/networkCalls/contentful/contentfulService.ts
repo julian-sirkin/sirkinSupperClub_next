@@ -7,6 +7,10 @@ import { getTicketsByIdAndEvent } from "@/app/api/queries/select"
 
 export const contentfulService = () => {
     const contentfulEndpoint = process.env.CONTENTFUL_GRAPHQL_ENDPOINT
+    type GraphQLResponse = {
+        data?: any
+        errors?: { message: string }[]
+    }
     
     // Log endpoint info (masked for security)
     if (contentfulEndpoint) {
@@ -45,22 +49,27 @@ export const contentfulService = () => {
         const requestBody = JSON.stringify({query: eventsQuery})
 
         if (contentfulEndpoint) {
-            const fetchOptions = {
+            const fetchOptions: RequestInit = {
                 method: "POST",
                 headers: {
                 "Content-Type": "application/json",
                 Authorization: `Bearer ${process.env.CONTENTFUL_DELIVERY_TOKEN}`
                 },
                 body: requestBody,
-                cache: 'no-store'
+                cache: "no-store"
             }
 
             const response = await fetch(contentfulEndpoint, fetchOptions)
-            const decodedResponse: {data: any} = await response.json()
+            const decodedResponse: GraphQLResponse = await response.json()
+            if (decodedResponse?.errors?.length) {
+                console.error("[Contentful] GraphQL errors in getEvents:", decodedResponse.errors);
+            }
             if (decodedResponse?.data?.eventTypeCollection) {
                 const parsedEvents = parseEvents(decodedResponse.data.eventTypeCollection)
+                console.log(`[Contentful] getEvents fetched ${decodedResponse.data.eventTypeCollection.items?.length ?? 0} events`);
                 return await updateTicketsAvailability(parsedEvents)
             } else {
+                console.warn("[Contentful] getEvents returned no eventTypeCollection data");
                 return parseEvents(null)
             }
         } else {
@@ -72,24 +81,27 @@ export const contentfulService = () => {
         const requestBody = JSON.stringify({query: eventsQuery})
 
         if (contentfulEndpoint) {
-            const fetchOptions = {
+            const fetchOptions: RequestInit = {
                 method: "POST",
                 headers: {
                 "Content-Type": "application/json",
                 Authorization: `Bearer ${process.env.CONTENTFUL_DELIVERY_TOKEN}`
                 },
                 body: requestBody,
-                cache: 'no-store'
+                cache: "no-store"
             }
 
             const response = await fetch(contentfulEndpoint, fetchOptions)
-            const decodedResponse: {data: any} = await response.json()
+            const decodedResponse: GraphQLResponse = await response.json()
+            if (decodedResponse?.errors?.length) {
+                console.error("[Contentful] GraphQL errors in getEventsWithoutDB:", decodedResponse.errors);
+            }
             if (decodedResponse?.data?.eventTypeCollection) {
                 const events = decodedResponse.data.eventTypeCollection
                 
                 // Log just event count and titles
                 console.log(`Fetched ${events.items.length} events from Contentful:`, 
-                    events.items.map(e => e.title).join(', '));
+                    events.items.map((e: { title: string }) => e.title).join(', '));
                 
                 const parsedEvents = parseEvents(events)
                 return parsedEvents

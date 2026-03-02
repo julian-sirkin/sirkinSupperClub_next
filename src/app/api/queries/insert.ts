@@ -1,8 +1,7 @@
 import { ParsedEvent } from "@/app/networkCalls/contentful/contentfulServices.types";
 import { db } from "@/db";
-import { customersTable, eventsTable, InsertCustomer, InsertEvent, InsertPurchase, InsertPurchaseItem, InsertTicket, purchaseItemsTable, purchasesTable, ticketsTable } from "@/db/schema";
-import { sql } from 'drizzle-orm';
-import { PurchasedTickets } from "../api.types";
+import { addonsTable, customersTable, eventsTable, InsertAddon, InsertCustomer, InsertEvent, InsertPurchase, InsertPurchaseItem, InsertPurchaseItemAddon, InsertTicket, purchaseItemAddonsTable, purchaseItemsTable, purchasesTable, ticketAddonsTable, ticketsTable } from "@/db/schema";
+import { and, eq, sql } from 'drizzle-orm';
 import { CartTicketType } from "@/store/cartStore.types";
 
 // Basic database operations
@@ -23,7 +22,59 @@ export async function createTicket(data: InsertTicket[]) {
 }
 
 export async function createSingleTicket(data: InsertTicket) {
-    return await db.insert(ticketsTable).values(data);
+    return await db.insert(ticketsTable).values(data).returning({id: ticketsTable.id});
+}
+
+export async function upsertAddonByContentfulId(data: InsertAddon) {
+    const existingAddon = await db
+        .select()
+        .from(addonsTable)
+        .where(eq(addonsTable.contentfulId, data.contentfulId));
+
+    if (existingAddon.length > 0) {
+        const addon = existingAddon[0];
+        await db
+            .update(addonsTable)
+            .set({
+                title: data.title,
+                price: data.price,
+            })
+            .where(eq(addonsTable.id, addon.id));
+
+        return addon.id;
+    }
+
+    const [insertedAddon] = await db
+        .insert(addonsTable)
+        .values(data)
+        .returning({id: addonsTable.id});
+
+    return insertedAddon.id;
+}
+
+export async function linkTicketAddon(ticketId: number, addonId: number) {
+    const existingLink = await db
+        .select()
+        .from(ticketAddonsTable)
+        .where(and(eq(ticketAddonsTable.ticketId, ticketId), eq(ticketAddonsTable.addonId, addonId)));
+
+    if (existingLink.length === 0) {
+        await db.insert(ticketAddonsTable).values({ ticketId, addonId });
+    }
+}
+
+export async function removeTicketAddonLinks(ticketId: number, addonIdsToKeep: number[]) {
+    const currentLinks = await db
+        .select()
+        .from(ticketAddonsTable)
+        .where(eq(ticketAddonsTable.ticketId, ticketId));
+
+    const addonIdsSet = new Set(addonIdsToKeep);
+    const linksToDelete = currentLinks.filter(link => !addonIdsSet.has(link.addonId));
+
+    for (const link of linksToDelete) {
+        await db.delete(ticketAddonsTable).where(eq(ticketAddonsTable.id, link.id));
+    }
 }
 
 // Complex operations
@@ -109,7 +160,56 @@ export async function createTicketPurchase(purchasedTickets: CartTicketType[], c
                     updatedAt: new Date()
                 };
 
-                await trx.insert(purchaseItemsTable).values(purchaseItem)
+                const [{purchaseItemId}] = await trx
+                    .insert(purchaseItemsTable)
+                    .values(purchaseItem)
+                    .returning({purchaseItemId: purchaseItemsTable.id});
+
+                const addonQuantity = Number(purchasedTicket.addonQuantity ?? 0);
+                const selectedAddonContentfulId = purchasedTicket.selectedAddonContentfulId ?? null;
+
+                if (addonQuantity > 0) {
+                    if (!selectedAddonContentfulId) {
+                        throw new Error(`Addon quantity provided without addon id for ticket ${purchasedTicket.contentfulTicketId}`);
+                    }
+
+                    if (addonQuantity > purchasedTicket.quantity) {
+                        throw new Error(`Addon quantity cannot exceed ticket quantity for ${purchasedTicket.contentfulTicketId}`);
+                    }
+
+                    const addons = await trx
+                        .select()
+                        .from(addonsTable)
+                        .where(eq(addonsTable.contentfulId, selectedAddonContentfulId));
+
+                    const addon = addons.length > 0 ? addons[0] : null;
+
+                    if (!addon) {
+                        throw new Error(`Addon ${selectedAddonContentfulId} not found`);
+                    }
+
+                    const ticketAddonLink = await trx
+                        .select()
+                        .from(ticketAddonsTable)
+                        .where(and(
+                            eq(ticketAddonsTable.ticketId, ticket.id),
+                            eq(ticketAddonsTable.addonId, addon.id),
+                        ));
+
+                    if (ticketAddonLink.length === 0) {
+                        throw new Error(`Addon ${selectedAddonContentfulId} is not linked to ticket ${purchasedTicket.contentfulTicketId}`);
+                    }
+
+                    const purchaseItemAddon: InsertPurchaseItemAddon = {
+                        purchaseItemId,
+                        addonId: addon.id,
+                        quantity: addonQuantity,
+                        createdAt: new Date(),
+                        updatedAt: new Date(),
+                    };
+
+                    await trx.insert(purchaseItemAddonsTable).values(purchaseItemAddon);
+                }
             }
         });
 

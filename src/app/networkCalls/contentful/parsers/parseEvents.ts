@@ -26,6 +26,13 @@ const parseTickets = (tickets: UnparsedTickets, eventPrice: ParsedEvent['price']
         ticketsAvailable: Number(ticket?.ticketsAvailable ?? 0),
         time: new Date(ticket?.ticketTime),
         price: ticket?.price ?? eventPrice,
-        isAddonTicket: ticket?.isAddonTicket ?? false,
+        isAddonTicket: false,
+        addons: (ticket?.addonCollection?.items ?? [])
+            .filter(addon => addon?._id && addon?.title)
+            .map(addon => ({
+                contentfulAddonId: addon._id,
+                title: addon.title ?? '',
+                price: Number(addon.price ?? 0),
+            })),
     }))
 }

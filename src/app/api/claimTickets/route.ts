@@ -1,8 +1,9 @@
 import { validateTicketQuantityForPurchase } from "@/app/helpers/validateTicketQuantityForPurchase"
+import { validateAddonSelectionsForPurchase } from "@/app/helpers/validateAddonSelectionsForPurchase"
 import { CartTicketType } from "@/store/cartStore.types"
 import { NextResponse } from "next/server"
 import { createCustomer, createTicketPurchase } from "../queries/insert"
-import { getCustomerByEmail, getTicketsByIdAndEvent } from "../queries/select"
+import { getAllowedAddonsForTicketSelections, getCustomerByEmail, getTicketsByIdAndEvent } from "../queries/select"
 import { successEmail } from "./successEmail"
 import { emailFailMessage, successfulRegisteredMessage } from "@/app/constants"
 
@@ -30,6 +31,22 @@ export async function POST(request: Request) {
             message: "Cannot complete order",
             data: ticketsWithNotEnoughAvailable
         }})
+    }
+
+    const addonLinks = await getAllowedAddonsForTicketSelections(ticketsInRequest);
+    const { areAddonSelectionsValid, addonSelectionErrors } = validateAddonSelectionsForPurchase({
+        ticketsInRequest,
+        addonLinks,
+    });
+
+    if (!areAddonSelectionsValid) {
+        return NextResponse.json({
+            status: 500,
+            error: {
+                message: "Invalid addon selection",
+                data: addonSelectionErrors,
+            },
+        });
     }
 
     /**

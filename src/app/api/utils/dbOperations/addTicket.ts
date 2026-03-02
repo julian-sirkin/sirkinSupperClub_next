@@ -23,9 +23,9 @@ export async function addTicket(ticketData: {
     };
     
     // Use the dedicated query function
-    await createSingleTicket(ticketToInsert);
+    const [insertedTicket] = await createSingleTicket(ticketToInsert);
     console.log(`✅ Ticket created successfully`);
-    return true;
+    return insertedTicket.id;
   } catch (error) {
     console.error(`❌ Error adding ticket:`, error);
     throw error;

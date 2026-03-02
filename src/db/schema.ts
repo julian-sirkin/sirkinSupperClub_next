@@ -21,6 +21,19 @@ export const ticketsTable = sqliteTable('tickets', {
     time: integer('time', {mode: 'timestamp'})
 })
 
+export const addonsTable = sqliteTable('addons', {
+    id: integer('id').primaryKey(),
+    contentfulId: text('contentfulId').notNull().unique(),
+    title: text('title').notNull(),
+    price: integer('price').notNull(),
+})
+
+export const ticketAddonsTable = sqliteTable('ticket_addons', {
+    id: integer('id').primaryKey(),
+    ticketId: integer('ticket_id').references(() => ticketsTable.id).notNull(),
+    addonId: integer('addon_id').references(() => addonsTable.id).notNull(),
+})
+
 export const eventsTable = sqliteTable('events', {
     id: integer('id').primaryKey(),
     title: text('title').notNull(),
@@ -46,11 +59,26 @@ export const purchaseItemsTable = sqliteTable('purchase_items', {
     updatedAt: integer('updated_at', { mode: 'timestamp' }).notNull()  // Track updates (e.g., item returns/refunds)
 });
 
+export const purchaseItemAddonsTable = sqliteTable('purchase_item_addons', {
+    id: integer('id').primaryKey(),
+    purchaseItemId: integer('purchase_item_id').references(() => purchaseItemsTable.id).notNull(),
+    addonId: integer('addon_id').references(() => addonsTable.id).notNull(),
+    quantity: integer('quantity').notNull(),
+    createdAt: integer('created_at', { mode: 'timestamp' }).notNull(),
+    updatedAt: integer('updated_at', { mode: 'timestamp' }).notNull(),
+});
+
 export type InsertCustomer = typeof customersTable.$inferInsert;
 export type SelectCustomer = typeof customersTable.$inferSelect; 
 
 export type InsertTicket = typeof ticketsTable.$inferInsert
 export type SelectTicket = typeof ticketsTable.$inferSelect; 
+
+export type InsertAddon = typeof addonsTable.$inferInsert
+export type SelectAddon = typeof addonsTable.$inferSelect;
+
+export type InsertTicketAddon = typeof ticketAddonsTable.$inferInsert
+export type SelectTicketAddon = typeof ticketAddonsTable.$inferSelect;
 
 export type InsertEvent = typeof eventsTable.$inferInsert
 export type SelectEvent = typeof eventsTable.$inferSelect; 
@@ -60,3 +88,6 @@ export type SelectPurchase = typeof purchasesTable.$inferSelect;
 
 export type InsertPurchaseItem = typeof purchaseItemsTable.$inferInsert
 export type SelectPurchaseItem = typeof purchaseItemsTable.$inferSelect; 
+
+export type InsertPurchaseItemAddon = typeof purchaseItemAddonsTable.$inferInsert
+export type SelectPurchaseItemAddon = typeof purchaseItemAddonsTable.$inferSelect;
