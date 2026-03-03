@@ -1,6 +1,6 @@
 'use client'
 import { TicketWithPurchases } from '@/app/api/api.types'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { toast } from 'react-toastify'
 import { AdminEventUI } from './AdminEventUI'
 import { fetchEventData, sendEventEmail } from './services/eventService'
@@ -22,7 +22,7 @@ export const AdminEvent = ({
     const [showEmailComposer, setShowEmailComposer] = useState(false)
     const [recipientEmails, setRecipientEmails] = useState<string[]>([])
 
-    const loadEventData = async () => {
+    const loadEventData = useCallback(async () => {
         setIsLoading(true)
         setError(null)
         
@@ -40,11 +40,11 @@ export const AdminEvent = ({
         } finally {
             setIsLoading(false)
         }
-    }    
+    }, [eventId])    
 
     useEffect(() => { 
         loadEventData()
-    }, [eventId])
+    }, [loadEventData])
     
     const handleRefund = (message: string) => {
         toast(message, { 

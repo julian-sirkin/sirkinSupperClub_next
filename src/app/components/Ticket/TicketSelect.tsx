@@ -28,9 +28,10 @@ export const TicketSelect = ({
     state.cart.tickets.find((t) => t.title === ticketTitle)
   );
 
-  const placeholderValue = ticketInCart?.quantity
-    ? ticketInCart.quantity
-    : "Select";
+  const placeholderValue =
+    ticketInCart && ticketInCart.quantity > 0
+      ? `Qty: ${ticketInCart.quantity}`
+      : "No Ticket Selected";
 
   return (
     <motion.div
@@ -41,19 +42,19 @@ export const TicketSelect = ({
       <Select
         onValueChange={(newQuantity) => handleChangeQuantity(Number(newQuantity))}
       >
-        <SelectTrigger className={triggerClassName ?? "bg-gold w-full md:w-[180px] h-12 font-bold text-md md:text-lg text-black hover:bg-white hover:text-gold transition-colors duration-300"}>
+        <SelectTrigger className={triggerClassName ?? "bg-gold w-full md:w-[180px] h-11 text-base font-semibold text-black"}>
           <SelectValue placeholder={placeholderValue} />
         </SelectTrigger>
         <SelectContent className="bg-gold border-none rounded">
-          <SelectGroup className="text-lg">
+          <SelectGroup className="text-base font-semibold">
             <SelectLabel className="text-black font-semibold">Tickets</SelectLabel>
             {availableTickets.map((ticketQuantity) => (
               <SelectItem
                 key={`${ticketTitle}quantity-${ticketQuantity}`}
                 value={String(ticketQuantity)}
-                className="text-lg font-bold text-black hover:bg-white hover:text-gold"
+                className="text-base font-semibold text-black"
               >
-                {ticketQuantity}
+                {ticketQuantity === 0 ? "No Ticket Selected" : `Qty: ${ticketQuantity}`}
               </SelectItem>
             ))}
           </SelectGroup>

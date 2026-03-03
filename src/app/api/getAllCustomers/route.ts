@@ -16,6 +16,7 @@ export async function GET() {
             })
             .from(customersTable)
             .leftJoin(purchasesTable, eq(customersTable.id, purchasesTable.customerId))
+            .where(eq(customersTable.emailSubscribed, true))
             .groupBy(customersTable.id)
             .orderBy(customersTable.name)
         

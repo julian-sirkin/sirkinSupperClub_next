@@ -6,11 +6,11 @@ import { eq } from 'drizzle-orm';
 
 export async function GET() {
   try {
-    // Count only customers with valid emails
+    // Count only subscribed customers with valid emails.
     const result = await db
       .select({ value: count() })
       .from(customersTable)
-      .where(eq(customersTable.email, customersTable.email)); // SQLite pattern for IS NOT NULL
+      .where(eq(customersTable.emailSubscribed, true));
     
     return NextResponse.json({ count: result[0].value });
   } catch (error) {
