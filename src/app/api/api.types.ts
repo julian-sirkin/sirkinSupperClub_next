@@ -45,6 +45,7 @@ export type SuccessEmailProps = {
         phoneNumber: string
     }
     tickets: CartTicketType[]
+    clientTimeZone?: string
 }
 
 export type adminEvent = {

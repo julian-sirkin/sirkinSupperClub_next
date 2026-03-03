@@ -2,7 +2,55 @@ import { transporter } from "@/app/config/nodemailer";
 import { SuccessEmailProps } from "../api.types";
 
 
-export const successEmail = async ({customer, tickets}: SuccessEmailProps) => {
+const formatTicketDateTime = (
+    ticketTime: string | Date,
+    clientTimeZone?: string
+) => {
+    const parsedTime = new Date(ticketTime);
+
+    if (Number.isNaN(parsedTime.getTime())) {
+        return String(ticketTime);
+    }
+
+    const timezoneOptions = clientTimeZone
+        ? { timeZone: clientTimeZone }
+        : {};
+
+    try {
+        return parsedTime.toLocaleString("en-us", {
+            month: "short",
+            day: "numeric",
+            year: "numeric",
+            hour: "numeric",
+            minute: "2-digit",
+            ...timezoneOptions,
+        });
+    } catch {
+        return parsedTime.toLocaleString("en-us", {
+            month: "short",
+            day: "numeric",
+            year: "numeric",
+            hour: "numeric",
+            minute: "2-digit",
+        });
+    }
+};
+
+const getTicketLineTotal = (ticket: SuccessEmailProps["tickets"][number]) => {
+    const ticketTotal = ticket.price * ticket.quantity;
+    const addonTotal =
+        ticket.selectedAddonContentfulId && (ticket.addonQuantity ?? 0) > 0
+            ? (ticket.selectedAddonPrice ?? 0) * (ticket.addonQuantity ?? 0)
+            : 0;
+
+    return ticketTotal + addonTotal;
+};
+
+const getOrderTotal = (tickets: SuccessEmailProps["tickets"]) => {
+    return tickets.reduce((total, ticket) => total + getTicketLineTotal(ticket), 0);
+};
+
+export const successEmail = async ({customer, tickets, clientTimeZone}: SuccessEmailProps) => {
 
     const customerEmailHtml = `
     <main style="font-family: Arial, sans-serif; color: #333;">
@@ -17,15 +65,14 @@ export const successEmail = async ({customer, tickets}: SuccessEmailProps) => {
             ${tickets.map(ticket => `
                 <li>
                     Event: ${ticket.title} <br>
-                    Date: ${ticket.time.toLocaleString("en-us", {
-              hour: "numeric",
-              minute: "numeric",
-            })} <br>
-                    Quantity: ${ticket.quantity}
+                    Date: ${formatTicketDateTime(ticket.time, clientTimeZone)} <br>
+                    Quantity: ${ticket.quantity} <br>
+                    ${ticket.selectedAddonContentfulId && (ticket.addonQuantity ?? 0) > 0 ? `Addon: ${ticket.selectedAddonTitle} (x${ticket.addonQuantity})<br>` : ''}
+                    Line Total: $${getTicketLineTotal(ticket).toFixed(2)}
                 </li>
             `).join('')}
         </ul>
-        <p><strong>Total Price: $${tickets.reduce((total, ticket) => total + ticket.price * ticket.quantity, 0).toFixed(2)}</strong></p>
+        <p><strong>Total Price: $${getOrderTotal(tickets).toFixed(2)}</strong></p>
         <p>Please remember to pay via Venmo if you haven't already. You can send the payment to <a href="https://venmo.com/julian-sirkin" style="color: #4CAF50;">@julian-sirkin</a>.</p>
         <p>Don't forget to bring anything outside of water and coffee.</p>
         <p>If you have any questions, feel free to contact us at <a href="mailto:sirkinsupperclub@gmail.com" style="color: #4CAF50;">sirkinsupperclub@gmail.com</a> or on Instagram <a href="https://instagram.com/julian.sirkin" style="color: #4CAF50;">@julian.sirkin</a>.</p>
@@ -48,15 +95,14 @@ export const successEmail = async ({customer, tickets}: SuccessEmailProps) => {
             ${tickets.map(ticket => `
                 <li>
                     Event: ${ticket.title} <br>
-                    Date: ${ticket.time.toLocaleString("en-us", {
-              hour: "numeric",
-              minute: "numeric",
-            })} <br>
-                    Quantity: ${ticket.quantity}
+                    Date: ${formatTicketDateTime(ticket.time, clientTimeZone)} <br>
+                    Quantity: ${ticket.quantity} <br>
+                    ${ticket.selectedAddonContentfulId && (ticket.addonQuantity ?? 0) > 0 ? `Addon: ${ticket.selectedAddonTitle} (x${ticket.addonQuantity})<br>` : ''}
+                    Line Total: $${getTicketLineTotal(ticket).toFixed(2)}
                 </li>
             `).join('')}
         </ul>
-        <p><strong>Total Price: $${tickets.reduce((total, ticket) => total + ticket.price * ticket.quantity, 0).toFixed(2)}</strong></p>
+        <p><strong>Total Price: $${getOrderTotal(tickets).toFixed(2)}</strong></p>
 
     </main>
     `;

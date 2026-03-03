@@ -4,10 +4,12 @@ export const updateCartHelper = (ticket: CartTicketType, cartInState: CartInStat
 
     let currentTickets = [...cartInState.tickets]
     const isTicketInCart = currentTickets.find(ticketInCart => ticketInCart.contentfulTicketId === ticket.contentfulTicketId)
-    const normalizedAddonQuantity = Math.max(0, Math.min(ticket.addonQuantity ?? 0, ticket.quantity))
+    const normalizedAddonQuantity = ticket.addonQuantity === undefined
+        ? undefined
+        : Math.max(0, Math.min(ticket.addonQuantity, ticket.quantity))
     const normalizedTicket: CartTicketType = {
         ...ticket,
-        addonQuantity: normalizedAddonQuantity,
+        ...(normalizedAddonQuantity !== undefined ? { addonQuantity: normalizedAddonQuantity } : {}),
     }
 
     /**
@@ -31,7 +33,7 @@ export const updateCartHelper = (ticket: CartTicketType, cartInState: CartInStat
                         cartTicket.selectedAddonPrice = normalizedTicket.selectedAddonPrice ?? null
                     }
                     if (normalizedTicket.addonQuantity !== undefined) {
-                        cartTicket.addonQuantity = normalizedAddonQuantity
+                        cartTicket.addonQuantity = normalizedTicket.addonQuantity
                     } else if ((cartTicket.addonQuantity ?? 0) > normalizedTicket.quantity) {
                         cartTicket.addonQuantity = normalizedTicket.quantity
                     }

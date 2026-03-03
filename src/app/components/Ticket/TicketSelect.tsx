@@ -15,12 +15,14 @@ type TicketSelectProps = {
   availableTickets: number[];
   handleChangeQuantity: (numberOfTickets: number) => void;
   ticketTitle: string;
+  triggerClassName?: string;
 };
 
 export const TicketSelect = ({
   availableTickets,
   handleChangeQuantity,
   ticketTitle,
+  triggerClassName,
 }: TicketSelectProps) => {
   const ticketInCart = useCartStore((state) =>
     state.cart.tickets.find((t) => t.title === ticketTitle)
@@ -39,7 +41,7 @@ export const TicketSelect = ({
       <Select
         onValueChange={(newQuantity) => handleChangeQuantity(Number(newQuantity))}
       >
-        <SelectTrigger className="bg-gold w-full md:w-[180px] h-12 font-bold text-md md:text-lg text-black hover:bg-white hover:text-gold transition-colors duration-300">
+        <SelectTrigger className={triggerClassName ?? "bg-gold w-full md:w-[180px] h-12 font-bold text-md md:text-lg text-black hover:bg-white hover:text-gold transition-colors duration-300"}>
           <SelectValue placeholder={placeholderValue} />
         </SelectTrigger>
         <SelectContent className="bg-gold border-none rounded">

@@ -2,8 +2,25 @@ import { documentToReactComponents } from "@contentful/rich-text-react-renderer"
 import type { Document } from "@contentful/rich-text-types";
 import { MENU_RICH_TEXT_OPTIONS } from "./MenuRichTextOptions";
 import { motion } from "framer-motion";
+import { ParsedTicket } from "@/app/networkCalls/contentful/contentfulServices.types";
 
-export const Menu = ({ menu, price }: { menu: Document; price: number }) => {
+export const Menu = ({
+  menu,
+  price,
+  tickets,
+}: {
+  menu: Document;
+  price: number;
+  tickets: ParsedTicket[];
+}) => {
+  const uniqueAddonLabels = Array.from(
+    new Set(
+      tickets.flatMap((ticket) =>
+        ticket.addons.map((addon) => `${addon.title}(+$${addon.price.toFixed(2)})`)
+      )
+    )
+  );
+
   return (
     <motion.section
       initial={{ opacity: 0, y: 20 }}
@@ -18,6 +35,11 @@ export const Menu = ({ menu, price }: { menu: Document; price: number }) => {
       </div>
       <div className="mt-12 border-t-2 border-gold pt-6 max-w-2xl mx-auto">
         <p className="text-right text-xl md:text-2xl font-bold">${price} per person</p>
+        {uniqueAddonLabels.length > 0 && (
+          <p className="text-right text-sm md:text-base mt-2">
+            Addon options: {uniqueAddonLabels.join(", ")}
+          </p>
+        )}
         <motion.p 
           whileHover={{ scale: 1.05 }}
           className="mt-4 text-right"

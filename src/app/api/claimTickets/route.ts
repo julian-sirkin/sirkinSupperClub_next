@@ -18,6 +18,7 @@ export async function POST(request: Request) {
     const phoneNumber: string = data?.phoneNumber ?? ''
     const notes: string = data?.notes ?? ''
     const dietaryRestrictions: string = data?.dietaryRestrictions
+    const clientTimeZone: string | undefined = data?.clientTimeZone
 
     /**
      * Verify Requested tickets are available in database
@@ -85,7 +86,11 @@ export async function POST(request: Request) {
     const {isSuccessful, message} = await createTicketPurchase(ticketsInRequest, customerId, false)
 
     if(isSuccessful) {
-        const {emailSuccessfully} = await successEmail({customer: {name: customerName, email, phoneNumber, notes, dietaryRestrictions}, tickets: ticketsInRequest})
+        const {emailSuccessfully} = await successEmail({
+            customer: {name: customerName, email, phoneNumber, notes, dietaryRestrictions},
+            tickets: ticketsInRequest,
+            clientTimeZone,
+        })
         
         return emailSuccessfully ? NextResponse.json({status: 200, message: successfulRegisteredMessage}) : NextResponse.json({status: 500, message: emailFailMessage})
 
