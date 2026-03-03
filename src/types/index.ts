@@ -83,6 +83,9 @@ export type AdminPurchase = BasePurchaseInfo & {
   ticketId: number;
   dietaryRestrictions?: string;
   notes?: string;
+  addonQuantity?: number;
+  addonTitle?: string | null;
+  addonId?: number | null;
 };
 
 export type TicketWithPurchases = {

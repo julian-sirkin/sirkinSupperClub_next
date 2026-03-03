@@ -46,6 +46,38 @@ export const AdminTicketInfo = ({
             setRefundToast(message);
         }
     }
+
+    const handleRefundApplied = (payload: {
+        target: "ticket" | "addon";
+        refundedTicketQuantity?: number;
+        refundedAddonQuantity?: number;
+        autoRefundedAddonQuantity?: number;
+        remainingTicketQuantity?: number;
+        remainingAddonQuantity?: number;
+        purchaseId: number;
+    }) => {
+        setPurchases(prevPurchases => {
+            return prevPurchases
+                .map(purchase => {
+                    if (purchase.purchaseId !== payload.purchaseId) {
+                        return purchase;
+                    }
+
+                    const nextTicketQuantity = payload.remainingTicketQuantity ?? purchase.quantity;
+                    const nextAddonQuantity = payload.remainingAddonQuantity ?? (purchase.addonQuantity ?? 0);
+
+                    return {
+                        ...purchase,
+                        quantity: nextTicketQuantity,
+                        addonQuantity: nextAddonQuantity,
+                        ...(nextAddonQuantity === 0
+                            ? { addonTitle: null, addonId: null }
+                            : {}),
+                    };
+                })
+                .filter(purchase => purchase.quantity > 0);
+        });
+    };
     
     const toggleOrderDetails = (purchaseId: number) => {
         setExpandedOrders(prev => ({
@@ -100,7 +132,10 @@ export const AdminTicketInfo = ({
                                     <div className="text-gray-400">{order.customerEmail || 'No email'}</div>
                                     <div className="flex gap-2">
                                         <div className="bg-gold/20 inline-block px-2 py-1 rounded text-gold">
-                                            Quantity: {order.quantity}
+                                            Tickets: {order.quantity}
+                                        </div>
+                                        <div className="bg-blue-800/30 inline-block px-2 py-1 rounded text-blue-300">
+                                            Addons: {order.addonQuantity ?? 0}
                                         </div>
                                         {order.paid !== undefined && (
                                             <div className={`inline-block px-2 py-1 rounded ${order.paid ? 'bg-green-800/30 text-green-400' : 'bg-red-800/30 text-red-400'}`}>
@@ -118,6 +153,7 @@ export const AdminTicketInfo = ({
                                     <AdminRefundForm 
                                         order={order} 
                                         setRefundToast={handleRefund}
+                                        onRefundApplied={handleRefundApplied}
                                     />
                                 </div>
                             </div>
@@ -140,6 +176,15 @@ export const AdminTicketInfo = ({
                                         <div>
                                             <h4 className="text-sm text-gray-400 mb-1">Notes:</h4>
                                             <p className="bg-black/30 p-2 rounded">{order.notes}</p>
+                                        </div>
+                                    )}
+
+                                    {(order.addonQuantity ?? 0) > 0 && (
+                                        <div>
+                                            <h4 className="text-sm text-gray-400 mb-1">Addon Details:</h4>
+                                            <p className="bg-black/30 p-2 rounded">
+                                                {order.addonTitle ?? "Addon"} x{order.addonQuantity}
+                                            </p>
                                         </div>
                                     )}
                                 </div>

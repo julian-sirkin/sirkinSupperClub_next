@@ -1,5 +1,5 @@
 import { db } from "@/db";
-import { addonsTable, customersTable, eventsTable, SelectCustomer, ticketAddonsTable, ticketsTable, purchaseItemsTable, purchasesTable } from "@/db/schema";
+import { addonsTable, customersTable, eventsTable, purchaseItemAddonsTable, SelectCustomer, ticketAddonsTable, ticketsTable, purchaseItemsTable, purchasesTable } from "@/db/schema";
 import { CartTicketType } from "@/store/cartStore.types";
 import { and, eq, isNull, SQL, sql } from "drizzle-orm";
 import { adminEvent, DatabaseTickets, TicketWithPurchases } from "../api.types";
@@ -228,6 +228,22 @@ export async function getEventTicketsWithPurchases(eventId: number) {
             if (!customerResult || customerResult.length === 0) continue;
             
             const customer = customerResult[0];
+
+            const addonRows = await typedDb
+              .select({
+                addonId: purchaseItemAddonsTable.addonId,
+                addonQuantity: purchaseItemAddonsTable.quantity,
+                addonTitle: addonsTable.title,
+              })
+              .from(purchaseItemAddonsTable)
+              .leftJoin(addonsTable, eq(purchaseItemAddonsTable.addonId, addonsTable.id))
+              .where(eq(purchaseItemAddonsTable.purchaseItemId, item.id));
+
+            const totalAddonQuantity = addonRows.reduce(
+              (sum, addonRow) => sum + Number(addonRow.addonQuantity ?? 0),
+              0
+            );
+            const primaryAddon = addonRows[0];
             
             // Add to purchases array
             purchases.push({
@@ -241,6 +257,9 @@ export async function getEventTicketsWithPurchases(eventId: number) {
               purchaseDate: purchase.purchaseDate,
               ticketId: ticket.ticketId,
               notes: customer.notes,
+              addonQuantity: totalAddonQuantity,
+              addonTitle: primaryAddon?.addonTitle ?? null,
+              addonId: primaryAddon?.addonId ?? null,
             });
           } catch (itemError) {
             console.error(`Error processing purchase item ${item.id}:`, itemError);
