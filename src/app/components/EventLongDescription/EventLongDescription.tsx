@@ -18,7 +18,7 @@ export const EventLongDescription = ({
       className="text-gold h-auto w-auto md:w-9/12 mx-auto bg-black/90 px-6 md:px-12 py-12 mb-8 rounded-lg shadow-lg border-l-4 border-gold"
     >
       <h2 className="text-3xl md:text-4xl font-bold mb-8 text-center md:text-left">Event Details</h2>
-      <div className="event-description prose prose-invert prose-gold max-w-none">
+      <div className="event-description max-w-none">
         {documentToReactComponents(description, EVENT_RICHTEXT_OPTIONS)}
       </div>
       <motion.div 

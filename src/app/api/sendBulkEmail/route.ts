@@ -1,14 +1,51 @@
 import { NextResponse } from 'next/server';
 import { db } from '@/db';
-import { customersTable, purchaseItemsTable, purchasesTable, SelectCustomer } from '@/db/schema';
+import { customersTable, purchaseItemsTable, purchasesTable } from '@/db/schema';
 import { transporter } from '@/app/config/nodemailer';
-import { eq, and } from 'drizzle-orm';
+import { eq, and, inArray } from 'drizzle-orm';
+import { createUnsubscribeToken } from '@/app/lib/unsubscribeToken';
 
 const ADMIN_EMAIL = 'sirkinsupperclub@gmail.com';
+const MAX_CONCURRENT_SENDS = 10;
+
+type Recipient = {
+  id: number;
+  email: string;
+};
+
+function appendUnsubscribeFooter(content: string, unsubscribeUrl: string): string {
+  return `
+    <main style="background:#000000;color:#ffffff;font-family:Arial,sans-serif;padding:24px;">
+      <section style="max-width:680px;margin:0 auto;border:1px solid #d4af37;border-radius:12px;padding:24px;background:#111111;">
+        <h1 style="margin:0 0 16px 0;color:#d4af37;font-size:28px;">Sirkin Supper Club</h1>
+        <div style="line-height:1.6;font-size:16px;">
+          ${content}
+        </div>
+        <hr style="margin-top:24px;margin-bottom:12px;border:0;border-top:1px solid #d4af37;" />
+        <p style="font-size:12px;color:#e7e7e7;margin:0;">
+          If you no longer want these emails, <a href="${unsubscribeUrl}" style="color:#d4af37;">unsubscribe</a>.
+        </p>
+      </section>
+    </main>
+  `;
+}
+
+async function sendEmailsInBatches(tasks: Array<() => Promise<void>>) {
+  for (let index = 0; index < tasks.length; index += MAX_CONCURRENT_SENDS) {
+    const chunk = tasks.slice(index, index + MAX_CONCURRENT_SENDS);
+    const results = await Promise.allSettled(chunk.map((task) => task()));
+    const failed = results.filter((result) => result.status === 'rejected');
+
+    if (failed.length > 0) {
+      throw new Error(`Failed to send ${failed.length} bulk emails`);
+    }
+  }
+}
 
 export async function POST(request: Request) {
   try {
     const { subject, content, type, eventId, recipients } = await request.json();
+    const origin = new URL(request.url).origin;
 
     // For test emails, only send to the test email address
     if (type === 'test') {
@@ -23,21 +60,19 @@ export async function POST(request: Request) {
     }
 
     // Get recipients based on type
-    let emailRecipients: string[] = [];
+    let emailRecipients: Recipient[] = [];
     
     if (type === 'all') {
       const result = await db
-        .select({ email: customersTable.email })
+        .select({ id: customersTable.id, email: customersTable.email })
         .from(customersTable)
-        .where(and(
-          // Only select customers with non-null emails
-          // SQLite doesn't have IS NOT NULL, so we use this pattern
-          eq(customersTable.email, customersTable.email)
-        ));
-      emailRecipients = result.map(row => row.email as string);
+        .where(eq(customersTable.emailSubscribed, true));
+      emailRecipients = result
+        .filter((row): row is Recipient => row.id !== null && !!row.email)
+        .map((row) => ({ id: row.id, email: row.email }));
     } else if (type === 'event' && eventId) {
       const result = await db
-        .select({ email: customersTable.email })
+        .select({ id: customersTable.id, email: customersTable.email })
         .from(customersTable)
         .innerJoin(
           purchasesTable,
@@ -49,13 +84,37 @@ export async function POST(request: Request) {
         )
         .where(and(
           eq(purchaseItemsTable.ticketId, eventId),
-          eq(customersTable.email, customersTable.email) // Ensure email is not null
+          eq(customersTable.emailSubscribed, true)
         ));
-      // Convert to array and remove duplicates
-      emailRecipients = Array.from(new Set(result.map(row => row.email as string)));
+      // Remove duplicate rows by email.
+      const deduped = new Map<string, Recipient>();
+      for (const row of result) {
+        if (row.id !== null && row.email) {
+          deduped.set(row.email, { id: row.id, email: row.email });
+        }
+      }
+      emailRecipients = Array.from(deduped.values());
     } else if (type === 'specific' && recipients && Array.isArray(recipients)) {
-      // For sending to specific recipients
-      emailRecipients = recipients;
+      const normalizedRecipients = recipients
+        .filter((value): value is string => typeof value === 'string')
+        .map((email) => email.trim().toLowerCase())
+        .filter((email) => email.length > 0);
+
+      if (normalizedRecipients.length > 0) {
+        const result = await db
+          .select({ id: customersTable.id, email: customersTable.email })
+          .from(customersTable)
+          .where(
+            and(
+              inArray(customersTable.email, normalizedRecipients),
+              eq(customersTable.emailSubscribed, true)
+            )
+          );
+
+        emailRecipients = result
+          .filter((row): row is Recipient => row.id !== null && !!row.email)
+          .map((row) => ({ id: row.id, email: row.email }));
+      }
     } else {
       return NextResponse.json(
         { error: 'Invalid email type or missing required parameters' },
@@ -65,28 +124,25 @@ export async function POST(request: Request) {
 
     if (emailRecipients.length === 0) {
       return NextResponse.json(
-        { error: 'No recipients found' },
+        { error: 'No subscribed recipients found' },
         { status: 400 }
       );
     }
 
-    // Get the first recipient for the "To" field
-    const [primaryRecipient, ...otherRecipients] = emailRecipients;
-    
-    // Add admin email to BCC list if not already included
-    const bccList = [...otherRecipients];
-    if (!bccList.includes(ADMIN_EMAIL)) {
-      bccList.push(ADMIN_EMAIL);
-    }
+    const sendTasks = emailRecipients.map((recipient) => async () => {
+      const unsubscribeToken = createUnsubscribeToken(recipient.id, recipient.email);
+      const unsubscribeUrl = `${origin}/api/unsubscribe?token=${encodeURIComponent(unsubscribeToken)}`;
 
-    // Send email with one primary recipient and others in BCC
-    await transporter.sendMail({
-      from: process.env.GMAIL_FROM,
-      to: primaryRecipient,
-      bcc: bccList,
-      subject,
-      html: content,
+      await transporter.sendMail({
+        from: process.env.GMAIL_FROM,
+        to: recipient.email,
+        bcc: ADMIN_EMAIL,
+        subject,
+        html: appendUnsubscribeFooter(content, unsubscribeUrl),
+      });
     });
+
+    await sendEmailsInBatches(sendTasks);
 
     return NextResponse.json({ 
       message: 'Emails sent successfully',

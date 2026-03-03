@@ -64,10 +64,10 @@ const renderDialogWithCart = (tickets: CartTicketType[]) => {
 
 const fillAndSubmitCheckoutForm = async () => {
   const user = userEvent.setup();
-  const nameInput = document.querySelector('input[name="name"]') as HTMLInputElement;
-  const emailInput = document.querySelector('input[name="email"]') as HTMLInputElement;
-  const phoneNumberInput = document.querySelector('input[name="phoneNumber"]') as HTMLInputElement;
-  const submitButton = document.querySelector('button[type="submit"]') as HTMLButtonElement;
+  const nameInput = screen.getByLabelText("Name");
+  const emailInput = screen.getByLabelText("Email");
+  const phoneNumberInput = screen.getByLabelText("Phone Number");
+  const submitButton = screen.getByRole("button", { name: "Checkout" });
 
   await user.type(nameInput, "Jane Buyer");
   await user.type(emailInput, "jane@example.com");

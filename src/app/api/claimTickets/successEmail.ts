@@ -53,29 +53,31 @@ const getOrderTotal = (tickets: SuccessEmailProps["tickets"]) => {
 export const successEmail = async ({customer, tickets, clientTimeZone}: SuccessEmailProps) => {
 
     const customerEmailHtml = `
-    <main style="font-family: Arial, sans-serif; color: #333;">
-        <h1 style="color: #4CAF50;">Order Confirmation</h1>
-        <p>Dear ${customer.name},</p>
-        <p>Thank you so much for your order! This is my side passion project, and it's super fun. 
-        Without people like you willing to take a leap, I couldn't do this. I truly appreciate your support. 
-        I look forward to sharing some creative food with you, some of what I enjoy in hospitality, and to give you the chance to meet some awesome, 
-        like-minded people.</p>
-        <p>Here are the details of your purchase:</p>
-        <ul>
-            ${tickets.map(ticket => `
-                <li>
-                    Event: ${ticket.title} <br>
-                    Date: ${formatTicketDateTime(ticket.time, clientTimeZone)} <br>
-                    Quantity: ${ticket.quantity} <br>
-                    ${ticket.selectedAddonContentfulId && (ticket.addonQuantity ?? 0) > 0 ? `Addon: ${ticket.selectedAddonTitle} (x${ticket.addonQuantity})<br>` : ''}
-                    Line Total: $${getTicketLineTotal(ticket).toFixed(2)}
-                </li>
-            `).join('')}
-        </ul>
-        <p><strong>Total Price: $${getOrderTotal(tickets).toFixed(2)}</strong></p>
-        <p>Please remember to pay via Venmo if you haven't already. You can send the payment to <a href="https://venmo.com/julian-sirkin" style="color: #4CAF50;">@julian-sirkin</a>.</p>
-        <p>Don't forget to bring anything outside of water and coffee.</p>
-        <p>If you have any questions, feel free to contact us at <a href="mailto:sirkinsupperclub@gmail.com" style="color: #4CAF50;">sirkinsupperclub@gmail.com</a> or on Instagram <a href="https://instagram.com/julian.sirkin" style="color: #4CAF50;">@julian.sirkin</a>.</p>
+    <main style="background:#000000;color:#ffffff;font-family:Arial,sans-serif;padding:24px;">
+        <section style="max-width:680px;margin:0 auto;border:1px solid #d4af37;border-radius:12px;padding:24px;background:#111111;">
+            <h1 style="margin:0 0 16px 0;color:#d4af37;">Order Confirmation</h1>
+            <p>Dear ${customer.name},</p>
+            <p>Thank you so much for your order! This is my side passion project, and it's super fun.
+            Without people like you willing to take a leap, I couldn't do this. I truly appreciate your support.
+            I look forward to sharing some creative food with you, some of what I enjoy in hospitality, and to give you the chance to meet some awesome,
+            like-minded people.</p>
+            <p>Here are the details of your purchase:</p>
+            <ul style="padding-left:18px;">
+                ${tickets.map(ticket => `
+                    <li style="margin-bottom:12px;">
+                        Event: ${ticket.title} <br>
+                        Date: ${formatTicketDateTime(ticket.time, clientTimeZone)} <br>
+                        Quantity: ${ticket.quantity} <br>
+                        ${ticket.selectedAddonContentfulId && (ticket.addonQuantity ?? 0) > 0 ? `Addon: ${ticket.selectedAddonTitle} (x${ticket.addonQuantity})<br>` : ''}
+                        Line Total: $${getTicketLineTotal(ticket).toFixed(2)}
+                    </li>
+                `).join('')}
+            </ul>
+            <p><strong style="color:#d4af37;">Total Price: $${getOrderTotal(tickets).toFixed(2)}</strong></p>
+            <p>Please remember to pay via Venmo if you haven't already. You can send the payment to <a href="https://venmo.com/julian-sirkin" style="color:#d4af37;">@julian-sirkin</a>.</p>
+            <p>Don't forget to bring anything outside of water and coffee.</p>
+            <p>If you have any questions, feel free to contact us at <a href="mailto:sirkinsupperclub@gmail.com" style="color:#d4af37;">sirkinsupperclub@gmail.com</a> or on Instagram <a href="https://instagram.com/julian.sirkin" style="color:#d4af37;">@julian.sirkin</a>.</p>
+        </section>
     </main>
     `;
 

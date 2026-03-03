@@ -10,6 +10,12 @@ export async function POST(request: Request) {
     const email: string = data?.email?.toLowerCase() ?? ''
     const phoneNumber: string = data?.phoneNumber ?? ''
     const comment: string = data?.comment ?? ''
+    const normalizedComment = comment.trim()
+    const isOneWordComment = normalizedComment.length > 0 && !/\s/.test(normalizedComment)
+
+    if (isOneWordComment) {
+        return NextResponse.json({status: 200})
+    }
     
     const emailHtml = `
     <main>
