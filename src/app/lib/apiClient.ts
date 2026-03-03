@@ -32,13 +32,20 @@ export const claimTickets = async (data: any) => { // Use a more specific type i
     return res; // Caller handles response
 };
 
-export const refundTickets = async (orderId: number, ticketId: number, quantity: number) => {
+export const refundTickets = async (
+    orderId: number,
+    ticketId: number,
+    quantity: number,
+    target: "ticket" | "addon" = "ticket",
+    purchaseItemId?: number,
+    addonId?: number
+) => {
     const res = await fetch('/api/refundTickets', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
         }, 
-        body: JSON.stringify({ orderId, ticketId, quantity })
+        body: JSON.stringify({ orderId, ticketId, quantity, target, purchaseItemId, addonId })
     });
     return res; // Caller handles response
 };

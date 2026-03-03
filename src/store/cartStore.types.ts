@@ -4,6 +4,10 @@ export type CartTicketType = ParsedTicket & {
     quantity: number
     price: number
     eventContentfulId: string
+    selectedAddonContentfulId?: string | null
+    selectedAddonTitle?: string | null
+    selectedAddonPrice?: number | null
+    addonQuantity?: number
 }
 
 export type CartInStateType = {

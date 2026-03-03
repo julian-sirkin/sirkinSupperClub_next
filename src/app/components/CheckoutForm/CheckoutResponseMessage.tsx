@@ -3,10 +3,14 @@ import { useCartStore } from "@/store/cartStore";
 
 export const CheckoutResponseMessage = ({
   errorMessage,
+  submittedTotalPrice,
 }: {
   errorMessage: string;
+  submittedTotalPrice?: number | null;
 }) => {
   const cart = useCartStore((state) => state.cart);
+  const successfulOrderTotal =
+    submittedTotalPrice ?? cart.totalPrice;
 
   return (
     <>
@@ -61,10 +65,7 @@ export const CheckoutResponseMessage = ({
             If you have any questions, please reach out via{" "}
             <a
               href="mailto:sirkinsupperclub@gmail.com"
-              className="text-gold hov  setShowErrorMessage(true);
-    setTimeout(() => {
-      setShowErrorMessage(false);
-    }, 15000);er:underline"
+              className="text-gold hover:underline"
             >
               email
             </a>
@@ -77,6 +78,9 @@ export const CheckoutResponseMessage = ({
             >
               Instagram
             </a>
+          </p>
+          <p className="mb-4 text-lg font-semibold text-gold">
+            Order Total: ${successfulOrderTotal.toFixed(2)}
           </p>
 
           <div className="mt-6">

@@ -37,8 +37,10 @@ export type TicketType = BaseEntity & {
 
 export type CartTicketType = {
   eventContentfulId: string;
-  ticketContentfulId: string;
+  contentfulTicketId: string;
   quantity: number;
+  selectedAddonContentfulId?: string | null;
+  addonQuantity?: number;
 };
 
 // Purchase Types
@@ -81,6 +83,9 @@ export type AdminPurchase = BasePurchaseInfo & {
   ticketId: number;
   dietaryRestrictions?: string;
   notes?: string;
+  addonQuantity?: number;
+  addonTitle?: string | null;
+  addonId?: number | null;
 };
 
 export type TicketWithPurchases = {
@@ -120,19 +125,22 @@ export type StatusChangeFunction = (newStatus: boolean) => void;
 // Legacy types from api.types.ts
 export type PurchasedTickets = {
   eventContentfulId: string;
-  ticketContentfulId: string;
+  contentfulTicketId: string;
   quantity: number;
 };
 
 export type GetTicketByIdAndEventProps = {
-  ticketContentfulId: string;
+  contentfulTicketId: string;
   eventContentfulId: string;
 };
 
 export type DatabaseTickets = {
   ticket: {
+    id: number;
+    contentfulId: string;
     time: Date | null;
-    // other properties...
+    totalAvailable: number;
+    totalSold: number;
   };
 };
 

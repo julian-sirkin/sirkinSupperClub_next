@@ -14,6 +14,13 @@ export type ParsedTicket = {
     title: string 
     price: number
     isAddonTicket: boolean
+    addons: ParsedAddon[]
+}
+
+export type ParsedAddon = {
+    contentfulAddonId: string
+    title: string
+    price: number
 }
 
 export type UnparsedTickets = {
@@ -23,7 +30,13 @@ export type UnparsedTickets = {
         ticketsAvailable: string
         title: string
         price?: number
-        isAddonTicket: boolean
+        addonCollection?: {
+            items: {
+                _id: string
+                title?: string
+                price?: number
+            }[]
+        }
     }[]
 }
 

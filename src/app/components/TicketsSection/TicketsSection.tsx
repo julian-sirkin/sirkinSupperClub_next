@@ -9,11 +9,6 @@ import { useCartStore } from "@/store/cartStore";
 export const TicketsSection = ({ event }: { event: ParsedEvent }) => {
   const cart = useCartStore((state) => state.cart);
   
-  // Calculate total
-  const total = cart.tickets.reduce((acc, ticket) => {
-    return acc + (ticket.price * ticket.quantity);
-  }, 0);
-  
   // Check if there are any tickets in the cart (regardless of price)
   const hasItemsInCart = cart.tickets.length > 0;
 
@@ -60,7 +55,7 @@ export const TicketsSection = ({ event }: { event: ParsedEvent }) => {
         >
           <div className="flex justify-between items-center mb-4">
             <h3 className="text-xl font-bold">Your Selection</h3>
-            <p className="text-xl font-bold">${total.toFixed(2)}</p>
+            <p className="text-xl font-bold">${cart.totalPrice.toFixed(2)}</p>
           </div>
           
           <motion.button

@@ -13,7 +13,13 @@ export const useCartStore= create<ZustandCartStateType>((set) => ({
         const filteredTickets = updatedCart.tickets.filter(t => t.quantity > 0)
         
         // Calculate new total price
-        const newTotalPrice = filteredTickets.reduce((acc, t) => acc + (t.price * t.quantity), 0)
+        const newTotalPrice = filteredTickets.reduce((acc, t) => {
+            const ticketTotal = t.price * t.quantity;
+            const addonTotal = t.selectedAddonContentfulId && (t.addonQuantity ?? 0) > 0
+                ? (t.selectedAddonPrice ?? 0) * (t.addonQuantity ?? 0)
+                : 0;
+            return acc + ticketTotal + addonTotal;
+        }, 0)
         
         return {...state, cart: {tickets: filteredTickets, totalPrice: newTotalPrice}}
     }),

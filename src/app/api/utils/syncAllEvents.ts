@@ -58,9 +58,22 @@ export const syncAllEvents = async () => {
         contentfulTicketId: t.contentfulTicketId,
         title: t.title,
         time: t.time,
-        ticketsAvailable: t.ticketsAvailable
+        ticketsAvailable: t.ticketsAvailable,
+        addonCount: t.addons?.length ?? 0,
+        addons: (t.addons ?? []).map(addon => ({
+          contentfulAddonId: addon.contentfulAddonId,
+          title: addon.title,
+          price: addon.price,
+        })),
       })) || []
     }))));
+
+    const contentfulTicketCount = contentfulEvents.reduce((count, event) => count + (event.tickets?.length ?? 0), 0);
+    const contentfulTicketWithAddonsCount = contentfulEvents.reduce((count, event) => {
+      const eventAddonTicketCount = (event.tickets ?? []).filter(ticket => (ticket.addons?.length ?? 0) > 0).length;
+      return count + eventAddonTicketCount;
+    }, 0);
+    console.log(`Contentful sync summary: ${contentfulEvents.length} event(s), ${contentfulTicketCount} ticket(s), ${contentfulTicketWithAddonsCount} ticket(s) with addon mappings.`);
     
     // Track sync results
     const syncResults = {
@@ -84,9 +97,12 @@ export const syncAllEvents = async () => {
             contentfulTicketId: t.contentfulTicketId,
             title: t.title,
             time: t.time,
-            ticketsAvailable: t.ticketsAvailable
+            ticketsAvailable: t.ticketsAvailable,
+            addonCount: t.addons?.length ?? 0,
           })) || []
         }));
+        const eventTicketsWithAddons = (event.tickets ?? []).filter(ticket => (ticket.addons?.length ?? 0) > 0).length;
+        console.log(`Event ${event.title} has ${(event.tickets ?? []).length} ticket(s), ${eventTicketsWithAddons} ticket(s) with addons.`);
         logEventSummary(event);
         
         // Check if event exists using the query function

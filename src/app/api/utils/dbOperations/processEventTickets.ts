@@ -1,6 +1,7 @@
 import { addTicket } from "./addTicket";
 import { updateTicket } from "./updateTicket";
 import { findTicketByContentfulId } from "@/app/api/queries/select";
+import { linkTicketAddon, removeTicketAddonLinks, upsertAddonByContentfulId } from "@/app/api/queries/insert";
 
 type SyncResults = {
   ticketsCreated: number;
@@ -32,6 +33,11 @@ export async function processEventTickets(
     title: string;
     time: any;
     ticketsAvailable?: number;
+    addons?: {
+      contentfulAddonId: string;
+      title: string;
+      price: number;
+    }[];
   }[],
   syncResults: SyncResults
 ): Promise<SyncResults> {
@@ -43,7 +49,13 @@ export async function processEventTickets(
     contentfulTicketId: t.contentfulTicketId,
     title: t.title,
     time: t.time,
-    ticketsAvailable: t.ticketsAvailable
+    ticketsAvailable: t.ticketsAvailable,
+    addonCount: t.addons?.length ?? 0,
+    addons: (t.addons ?? []).map(addon => ({
+      contentfulAddonId: addon.contentfulAddonId,
+      title: addon.title,
+      price: addon.price,
+    })),
   }))));
   
   for (const ticket of tickets) {
@@ -54,8 +66,15 @@ export async function processEventTickets(
         title: ticket.title,
         time: ticket.time,
         ticketsAvailable: ticket.ticketsAvailable,
-        eventId: eventId
+        eventId: eventId,
+        addonCount: ticket.addons?.length ?? 0,
+        addons: ticket.addons ?? [],
       }));
+      if ((ticket.addons?.length ?? 0) === 0) {
+        console.log(`No addons linked in Contentful for ticket ${ticket.contentfulTicketId}. Proceeding without addon mappings.`);
+      } else {
+        console.log(`Ticket ${ticket.contentfulTicketId} has ${(ticket.addons ?? []).length} addon link(s) in Contentful.`);
+      }
       
       // Check if ticket exists using the query function
       const existingTickets = await findTicketByContentfulId(ticket.contentfulTicketId);
@@ -81,7 +100,21 @@ export async function processEventTickets(
           totalAvailable: ticket.ticketsAvailable || 10
         };
         console.log("New Ticket Data: " + safeStringify(newTicketData));
-        await addTicket(newTicketData);
+        const newTicketId = await addTicket(newTicketData);
+        const addonIds: number[] = [];
+        for (const addon of ticket.addons ?? []) {
+          console.log(`Upserting addon for new ticket ${ticket.contentfulTicketId}: ${safeStringify(addon)}`);
+          const addonId = await upsertAddonByContentfulId({
+            contentfulId: addon.contentfulAddonId,
+            title: addon.title,
+            price: addon.price,
+          });
+          addonIds.push(addonId);
+          console.log(`Linking new ticket ${newTicketId} -> addon ${addonId} (${addon.contentfulAddonId})`);
+          await linkTicketAddon(newTicketId, addonId);
+        }
+        console.log(`Reconciling stale addon links for new ticket ${newTicketId}; keeping addon IDs: ${safeStringify(addonIds)}`);
+        await removeTicketAddonLinks(newTicketId, addonIds);
         results.ticketsCreated++;
         console.log(`Ticket created successfully`);
       } else {
@@ -101,6 +134,21 @@ export async function processEventTickets(
         };
         console.log("Update Ticket Data: " + safeStringify(updateData));
         await updateTicket(existingTicket.id, updateData);
+
+        const addonIds: number[] = [];
+        for (const addon of ticket.addons ?? []) {
+          console.log(`Upserting addon for existing ticket ${ticket.contentfulTicketId}: ${safeStringify(addon)}`);
+          const addonId = await upsertAddonByContentfulId({
+            contentfulId: addon.contentfulAddonId,
+            title: addon.title,
+            price: addon.price,
+          });
+          addonIds.push(addonId);
+          console.log(`Linking existing ticket ${existingTicket.id} -> addon ${addonId} (${addon.contentfulAddonId})`);
+          await linkTicketAddon(existingTicket.id, addonId);
+        }
+        console.log(`Reconciling stale addon links for ticket ${existingTicket.id}; keeping addon IDs: ${safeStringify(addonIds)}`);
+        await removeTicketAddonLinks(existingTicket.id, addonIds);
         results.ticketsUpdated++;
         console.log(`Ticket ${existingTicket.id} updated successfully`);
       }

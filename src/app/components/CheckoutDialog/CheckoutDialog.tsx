@@ -8,12 +8,15 @@ import { FormData } from "../CheckoutForm/CheckoutForm.fixture";
 import { CheckoutResponseMessage } from "../CheckoutForm/CheckoutResponseMessage";
 import { motion, AnimatePresence } from "framer-motion";
 import { claimTickets } from "@/app/lib/apiClient";
+import { CartTicketType } from "@/store/cartStore.types";
 
 export const CheckoutDialog = ({ event }: { event: ParsedEvent }) => {
   const [seeCart, setSeeCart] = useState<boolean>(true);
   const [shouldShowForm, setShouldShowForm] = useState<boolean>(true);
   const [shouldDisableSubmitButton, setShouldDisableSubmitButton] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState<string>("");
+  const [submittedTotalPrice, setSubmittedTotalPrice] = useState<number | null>(null);
+  const [submittedTickets, setSubmittedTickets] = useState<CartTicketType[]>([]);
 
   const { cart, emptyCart } = useCartStore((state) => ({
     cart: state.cart,
@@ -22,7 +25,13 @@ export const CheckoutDialog = ({ event }: { event: ParsedEvent }) => {
 
   const onSubmit = async (data: FormData) => {
     setShouldDisableSubmitButton(true);
-    const requestBody = { ...data, purchasedTickets: cart.tickets };
+    setSubmittedTotalPrice(cart.totalPrice);
+    setSubmittedTickets(cart.tickets.map((ticket) => ({ ...ticket })));
+    const requestBody = {
+      ...data,
+      purchasedTickets: cart.tickets,
+      clientTimeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+    };
 
     try {
       const response = await claimTickets(requestBody);
@@ -59,6 +68,12 @@ export const CheckoutDialog = ({ event }: { event: ParsedEvent }) => {
       dialog.close();
     }
   };
+
+  const isSuccessfulOrderState = !shouldShowForm && !errorMessage;
+  const orderSummaryTickets = isSuccessfulOrderState ? submittedTickets : cart.tickets;
+  const orderSummaryTotal = isSuccessfulOrderState
+    ? (submittedTotalPrice ?? cart.totalPrice)
+    : cart.totalPrice;
 
   return (
     <dialog 
@@ -101,19 +116,37 @@ export const CheckoutDialog = ({ event }: { event: ParsedEvent }) => {
                 className="overflow-hidden"
               >
                 <div className="space-y-4 mb-4">
-                  {cart.tickets.map((ticketInCart) => (
-                    <div key={ticketInCart.title} className="bg-black/50 p-4 rounded border border-gold/30">
+                  {orderSummaryTickets.map((ticketInCart) => (
+                    <div key={ticketInCart.contentfulTicketId} className="bg-black/50 p-4 rounded border border-gold/30">
                       <h4 className="text-gold text-lg font-semibold mb-2">
                         {ticketInCart.title}
                       </h4>
-                      <div className="flex justify-between mb-1 text-sm">
-                        <span>Quantity:</span>
-                        <span>{ticketInCart.quantity}</span>
-                      </div>
-                      <div className="flex justify-between text-sm">
-                        <span>Price:</span>
-                        <span>${ticketInCart.price * ticketInCart.quantity}</span>
-                      </div>
+                      {(() => {
+                        const ticketSubtotal = ticketInCart.price * ticketInCart.quantity;
+                        const hasAddonSelection =
+                          Boolean(ticketInCart.selectedAddonContentfulId) &&
+                          (ticketInCart.addonQuantity ?? 0) > 0;
+                        const addonSubtotal = hasAddonSelection
+                          ? (ticketInCart.selectedAddonPrice ?? 0) * (ticketInCart.addonQuantity ?? 0)
+                          : 0;
+
+                        return (
+                          <>
+                            <div className="flex justify-between mb-1 text-sm">
+                              <span>Base Ticket ({ticketInCart.quantity}):</span>
+                              <span>${ticketSubtotal.toFixed(2)}</span>
+                            </div>
+                            {hasAddonSelection && (
+                              <div className="flex justify-between mb-1 text-sm">
+                                <span>
+                                  Addon - {ticketInCart.selectedAddonTitle} ({ticketInCart.addonQuantity}):
+                                </span>
+                                <span>${addonSubtotal.toFixed(2)}</span>
+                              </div>
+                            )}
+                          </>
+                        );
+                      })()}
                     </div>
                   ))}
                 </div>
@@ -121,9 +154,9 @@ export const CheckoutDialog = ({ event }: { event: ParsedEvent }) => {
             )}
           </AnimatePresence>
           
-          <div className="flex justify-between text-xl font-bold border-t border-gold/30 pt-2 mt-2">
-            <span>Total:</span>
-            <span>${cart.totalPrice}</span>
+          <div className="flex justify-between text-xl font-bold border-t border-gold pt-3 mt-3">
+            <span>Final Total:</span>
+            <span>${orderSummaryTotal.toFixed(2)}</span>
           </div>
         </div>
         
@@ -133,7 +166,10 @@ export const CheckoutDialog = ({ event }: { event: ParsedEvent }) => {
             shouldDisableButton={shouldDisableSubmitButton}
           />
         ) : (
-          <CheckoutResponseMessage errorMessage={errorMessage} />
+          <CheckoutResponseMessage
+            errorMessage={errorMessage}
+            submittedTotalPrice={submittedTotalPrice}
+          />
         )}
       </div>
     </dialog>

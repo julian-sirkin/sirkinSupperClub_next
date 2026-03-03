@@ -13,7 +13,7 @@ export const EventModule = ({ event }: { event: ParsedEvent }) => {
       <EventTitle title={event.title} date={event.date} />
       
       <div className="container mx-auto px-4 pt-8 pb-2 md:pt-12">
-        <Menu menu={event.menu} price={event.price} />
+        <Menu menu={event.menu} price={event.price} tickets={event.tickets} />
         <EventLongDescription description={event.longDescription} />
         <TicketsSection event={event} />
         <CheckoutDialog event={event} />

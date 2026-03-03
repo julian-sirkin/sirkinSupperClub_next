@@ -1,5 +1,5 @@
 export const eventsQuery = `query fetch{
-    eventTypeCollection(limit:100, order: date_DESC){
+    eventTypeCollection(limit:30, order: date_DESC){
     items{
         _id
         title
@@ -12,14 +12,20 @@ export const eventsQuery = `query fetch{
         menu{
             json
         }
-        ticketsCollection(limit:10){
+        ticketsCollection(limit:6){
             items{
                 _id
                 title
                 ticketTime
                 ticketsAvailable
                 price
-                isAddonTicket
+                addonCollection(limit:5){
+                    items{
+                        _id
+                        title
+                        price
+                    }
+                }
                 }
             }
         }

@@ -1,8 +1,9 @@
 import { validateTicketQuantityForPurchase } from "@/app/helpers/validateTicketQuantityForPurchase"
+import { validateAddonSelectionsForPurchase } from "@/app/helpers/validateAddonSelectionsForPurchase"
 import { CartTicketType } from "@/store/cartStore.types"
 import { NextResponse } from "next/server"
 import { createCustomer, createTicketPurchase } from "../queries/insert"
-import { getCustomerByEmail, getTicketsByIdAndEvent } from "../queries/select"
+import { getAllowedAddonsForTicketSelections, getCustomerByEmail, getTicketsByIdAndEvent } from "../queries/select"
 import { successEmail } from "./successEmail"
 import { emailFailMessage, successfulRegisteredMessage } from "@/app/constants"
 
@@ -17,6 +18,7 @@ export async function POST(request: Request) {
     const phoneNumber: string = data?.phoneNumber ?? ''
     const notes: string = data?.notes ?? ''
     const dietaryRestrictions: string = data?.dietaryRestrictions
+    const clientTimeZone: string | undefined = data?.clientTimeZone
 
     /**
      * Verify Requested tickets are available in database
@@ -30,6 +32,22 @@ export async function POST(request: Request) {
             message: "Cannot complete order",
             data: ticketsWithNotEnoughAvailable
         }})
+    }
+
+    const addonLinks = await getAllowedAddonsForTicketSelections(ticketsInRequest);
+    const { areAddonSelectionsValid, addonSelectionErrors } = validateAddonSelectionsForPurchase({
+        ticketsInRequest,
+        addonLinks,
+    });
+
+    if (!areAddonSelectionsValid) {
+        return NextResponse.json({
+            status: 500,
+            error: {
+                message: "Invalid addon selection",
+                data: addonSelectionErrors,
+            },
+        });
     }
 
     /**
@@ -68,7 +86,11 @@ export async function POST(request: Request) {
     const {isSuccessful, message} = await createTicketPurchase(ticketsInRequest, customerId, false)
 
     if(isSuccessful) {
-        const {emailSuccessfully} = await successEmail({customer: {name: customerName, email, phoneNumber, notes, dietaryRestrictions}, tickets: ticketsInRequest})
+        const {emailSuccessfully} = await successEmail({
+            customer: {name: customerName, email, phoneNumber, notes, dietaryRestrictions},
+            tickets: ticketsInRequest,
+            clientTimeZone,
+        })
         
         return emailSuccessfully ? NextResponse.json({status: 200, message: successfulRegisteredMessage}) : NextResponse.json({status: 500, message: emailFailMessage})
 

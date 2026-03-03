@@ -1,10 +1,10 @@
 import { createClient } from '@libsql/client';
-import { drizzle } from 'drizzle-orm/libsql';
+import { drizzle, LibSQLDatabase } from 'drizzle-orm/libsql';
 import * as schema from './schema';
 
 // Create a more robust client initialization
-let client;
-let db;
+let client: ReturnType<typeof createClient> | undefined;
+let db: LibSQLDatabase<typeof schema>;
 
 try {
   const connectionUrl = process.env.TURSO_CONNECTION_URL;
@@ -63,7 +63,7 @@ try {
     update: () => ({ set: () => ({ where: () => Promise.resolve() }) }),
   };
   
-  db = mockDb;
+  db = mockDb as unknown as LibSQLDatabase<typeof schema>;
 }
 
 export { db };
