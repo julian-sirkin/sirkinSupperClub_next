@@ -1,6 +1,6 @@
 "use client";
 
-import { PasswordForm } from "../../PasswordForm/PasswordForm";
+import Link from "next/link";
 import { motion } from "framer-motion";
 
 export const EventsModule = () => {
@@ -32,8 +32,18 @@ export const EventsModule = () => {
             transition={{ duration: 0.6, delay: 0.2 }}
           >
             <div className="bg-black border-2 border-gold p-8 rounded-xl shadow-xl">
-              <h3 className="text-2xl font-bold mb-6 text-center text-gold">Access Secret Events</h3>
-              <PasswordForm />
+              <h3 className="text-2xl font-bold mb-6 text-center text-gold">Upcoming Events</h3>
+              <p className="text-white text-center mb-6 text-lg">
+                Explore upcoming dinners and reserve your spot.
+              </p>
+              <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.98 }}>
+                <Link
+                  href="/events"
+                  className="block w-full py-4 px-6 bg-gold text-black text-xl font-bold rounded-lg border-2 border-gold shadow-lg hover:bg-white hover:border-white transition-all duration-300 text-center"
+                >
+                  View Events
+                </Link>
+              </motion.div>
             </div>
           </motion.div>
           

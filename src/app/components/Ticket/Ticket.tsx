@@ -119,7 +119,7 @@ export const Ticket = ({
               </h5>
             </div>
           </div>
-          <div className="flex items-center justify-between gap-3">
+          <div className="flex flex-col items-stretch gap-3">
             <div className="flex items-center gap-2">
               <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gold" viewBox="0 0 20 20" fill="currentColor">
                 <path d="M8.433 7.418c.155-.103.346-.196.567-.267v1.698a2.305 2.305 0 01-.567-.267C8.07 8.34 8 8.114 8 8c0-.114.07-.34.433-.582zM11 12.849v-1.698c.22.071.412.164.567.267.364.243.433.468.433.582 0 .114-.07.34-.433.582a2.305 2.305 0 01-.567.267z" />
@@ -128,16 +128,16 @@ export const Ticket = ({
               <h5 className="text-white text-lg">${ticket.price}</h5>
             </div>
             {ticketsArray.length > 1 ? (
-              <div className="w-[170px]">
+              <div className="w-full">
                 <TicketSelect
                   availableTickets={ticketsArray}
                   handleChangeQuantity={handleChangeQuantity}
                   ticketTitle={ticket.title}
-                  triggerClassName="w-[170px] h-11 rounded border-2 border-gold bg-gold px-3 text-base font-semibold text-black hover:bg-gold hover:text-black"
+                  triggerClassName="w-full h-11 rounded border-2 border-gold bg-gold px-3 text-base font-semibold text-black"
                 />
               </div>
             ) : (
-              <div className="bg-red-600/20 border border-red-600 text-red-600 text-center font-bold w-[170px] py-3 px-4 rounded">
+              <div className="bg-red-600/20 border border-red-600 text-red-600 text-center font-bold w-full py-3 px-4 rounded">
                 Sold Out
               </div>
             )}
@@ -153,13 +153,18 @@ export const Ticket = ({
                 return (
                   <div
                     key={addon.contentfulAddonId}
-                    className="flex items-center justify-between gap-3"
+                    className="flex flex-col items-stretch gap-2 md:flex-row md:items-center md:justify-between md:gap-3"
                   >
-                    <p className="text-lg font-semibold text-white">
-                      {addon.title}(+${addon.price.toFixed(2)})
-                    </p>
+                    <div className="min-w-0">
+                      <p className="text-base md:text-lg font-semibold text-white break-words">
+                        {addon.title}
+                      </p>
+                      <p className="text-sm md:text-base font-semibold text-gold">
+                        +${addon.price.toFixed(2)}
+                      </p>
+                    </div>
                     <select
-                      className="w-[170px] h-11 rounded border-2 border-gold bg-gold px-3 text-base font-semibold text-black"
+                      className="w-full md:w-[170px] h-11 rounded border-2 border-gold bg-gold px-3 text-base font-semibold text-black"
                       value={String(currentAddonQuantity)}
                       onMouseDown={handleAddonInteractionBlocked}
                       onFocus={handleAddonInteractionBlocked}
