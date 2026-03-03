@@ -76,12 +76,14 @@ export const CheckoutForm = ({
   return (
     <form
       onSubmit={handleSubmit(handleFormSubmit)}
+      noValidate
       className="flex flex-col items-center bg-black/80 p-6 rounded-lg shadow-lg"
     >
       {/* Name Input */}
       <span className="flex flex-col mb-4 w-full">
-        <label className="font-bold text-gold mb-1">Name</label>
+        <label htmlFor="checkout-name" className="font-bold text-gold mb-1">Name</label>
         <input
+          id="checkout-name"
           {...register("name")}
           className="h-10 w-full text-black rounded-md p-2"
           type="text"
@@ -93,8 +95,9 @@ export const CheckoutForm = ({
 
       {/* Email Input */}
       <span className="flex flex-col mb-4 w-full">
-        <label className="font-bold text-gold mb-1">Email</label>
+        <label htmlFor="checkout-email" className="font-bold text-gold mb-1">Email</label>
         <input
+          id="checkout-email"
           {...register("email")}
           className="h-10 w-full text-black rounded-md p-2"
           type="email"
@@ -109,7 +112,7 @@ export const CheckoutForm = ({
 
       {/* Phone Number Input */}
       <span className="flex flex-col mb-4 w-full">
-        <label className="font-bold text-gold mb-1">Phone Number</label>
+        <label htmlFor="checkout-phone-number" className="font-bold text-gold mb-1">Phone Number</label>
         <Controller
           name="phoneNumber"
           control={control}
@@ -168,6 +171,7 @@ export const CheckoutForm = ({
 
             return (
               <input
+                id="checkout-phone-number"
                 value={field.value ?? ""}
                 onBlur={field.onBlur}
                 onChange={(event) => field.onChange(formatPhoneNumber(event.target.value))}
@@ -194,8 +198,9 @@ export const CheckoutForm = ({
 
       {/* Dietary Restrictions Input */}
       <span className="flex flex-col mb-4 w-full">
-        <label className="font-bold text-gold mb-1">Dietary Restrictions</label>
+        <label htmlFor="checkout-dietary-restrictions" className="font-bold text-gold mb-1">Dietary Restrictions</label>
         <input
+          id="checkout-dietary-restrictions"
           {...register("dietaryRestrictions")}
           className="h-10 w-full text-black rounded-md p-2"
           type="text"
@@ -209,8 +214,8 @@ export const CheckoutForm = ({
 
       {/* Notes Input */}
       <span className="flex flex-col mb-4 w-full">
-        <label className="font-bold text-gold mb-1">Notes</label>
-        <textarea {...register("notes")} className="h-24 w-full text-black rounded-md p-2" />
+        <label htmlFor="checkout-notes" className="font-bold text-gold mb-1">Notes</label>
+        <textarea id="checkout-notes" {...register("notes")} className="h-24 w-full text-black rounded-md p-2" />
         {errors.notes && (
           <p className="text-red-500">{String(errors.notes.message)}</p>
         )}
