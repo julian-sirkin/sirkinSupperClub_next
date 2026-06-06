@@ -1,5 +1,7 @@
 import { validateTicketQuantityForPurchase } from "@/app/helpers/validateTicketQuantityForPurchase"
 import { validateAddonSelectionsForPurchase } from "@/app/helpers/validateAddonSelectionsForPurchase"
+import { validatePresaleAccess } from "@/app/helpers/validatePresaleAccess"
+import { contentfulService } from "@/app/networkCalls/contentful/contentfulService"
 import { CartTicketType } from "@/store/cartStore.types"
 import { NextResponse } from "next/server"
 import { createCustomer, createTicketPurchase } from "../queries/insert"
@@ -19,6 +21,45 @@ export async function POST(request: Request) {
     const notes: string = data?.notes ?? ''
     const dietaryRestrictions: string = data?.dietaryRestrictions
     const clientTimeZone: string | undefined = data?.clientTimeZone
+    const presalePassword: string = data?.presalePassword ?? ''
+
+    const uniqueEventIds = [...new Set(ticketsInRequest.map(ticket => ticket.eventContentfulId).filter(Boolean))]
+    if (uniqueEventIds.length > 1) {
+        return NextResponse.json({
+            status: 500,
+            error: {
+                message: "Cannot complete order",
+                data: "Tickets must belong to one event.",
+            },
+        })
+    }
+
+    if (uniqueEventIds.length === 1) {
+        const [eventId] = uniqueEventIds
+        const events = await contentfulService().getEventsWithoutDB()
+        const event = events.find(eventItem => eventItem.contentfulEventId === eventId)
+
+        if (event) {
+            const presaleValidation = validatePresaleAccess({
+                config: {
+                    presaleEnabled: event.presaleEnabled,
+                    presaleEndsAt: event.presaleEndsAt,
+                    presalePassword: event.presalePassword,
+                },
+                providedPassword: presalePassword,
+            })
+
+            if (!presaleValidation.isValid) {
+                return NextResponse.json({
+                    status: 500,
+                    error: {
+                        message: "Presale password validation failed",
+                        data: presaleValidation.errorMessage,
+                    },
+                })
+            }
+        }
+    }
 
     /**
      * Verify Requested tickets are available in database
