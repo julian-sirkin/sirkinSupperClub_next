@@ -17,6 +17,16 @@ describe("validatePresaleAccess", () => {
     expect(result).toEqual({ isValid: true, errorMessage: null });
   });
 
+  it("passes when presale password has extra surrounding whitespace", () => {
+    const result = validatePresaleAccess({
+      config: activePresaleConfig,
+      providedPassword: "  secret123  ",
+      now: new Date("2026-06-30T20:00:00-07:00"),
+    });
+
+    expect(result).toEqual({ isValid: true, errorMessage: null });
+  });
+
   it("fails when presale is active and password is missing", () => {
     const result = validatePresaleAccess({
       config: activePresaleConfig,

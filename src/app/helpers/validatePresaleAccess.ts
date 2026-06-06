@@ -57,7 +57,10 @@ export const validatePresaleAccess = ({
         }
     }
 
-    if (providedPassword !== config.presalePassword) {
+    const normalizedProvidedPassword = providedPassword.trim()
+    const normalizedExpectedPassword = config.presalePassword.trim()
+
+    if (normalizedProvidedPassword !== normalizedExpectedPassword) {
         return {
             isValid: false,
             errorMessage: "Presale password is incorrect.",
