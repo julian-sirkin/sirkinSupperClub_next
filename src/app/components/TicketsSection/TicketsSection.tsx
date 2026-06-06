@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import { FaInstagram } from "react-icons/fa6";
 import { MdEmail } from "react-icons/md";
 import { useCartStore } from "@/store/cartStore";
+import { isPresaleActive } from "@/app/helpers/validatePresaleAccess";
 
 export const TicketsSection = ({ event }: { event: ParsedEvent }) => {
   const cart = useCartStore((state) => state.cart);
@@ -14,6 +15,13 @@ export const TicketsSection = ({ event }: { event: ParsedEvent }) => {
 
   // Check if the event is in the past
   const isPastEvent = new Date(event.date) < new Date();
+  const presaleIsActive = isPresaleActive({
+    presaleEnabled: event.presaleEnabled,
+    presaleEndsAt: event.presaleEndsAt,
+  });
+  const presaleEndLabel = event.presaleEndsAt
+    ? event.presaleEndsAt.toLocaleString()
+    : "the listed cutoff time";
 
   return (
     <motion.section
@@ -26,6 +34,15 @@ export const TicketsSection = ({ event }: { event: ParsedEvent }) => {
       <h2 className="text-3xl md:text-4xl font-bold mb-8 text-center border-b-2 border-gold pb-4 w-3/4 md:w-1/3 mx-auto">
         Available Tickets
       </h2>
+
+      {presaleIsActive ? (
+        <div className="mb-6 rounded-lg border border-gold bg-gold/10 px-4 py-3 text-center">
+          <p className="text-sm md:text-base">
+            Presale is live. Enter your presale password at checkout before{" "}
+            {presaleEndLabel}.
+          </p>
+        </div>
+      ) : null}
       
       {isPastEvent ? (
         <div className="text-center p-8 bg-black/50 rounded-lg border border-gold">

@@ -3,8 +3,8 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Controller, useForm } from "react-hook-form";
 import { useCartStore } from "@/store/cartStore";
-import { FormData, schema } from "./CheckoutForm.fixture";
-import { KeyboardEvent, useRef, useState } from "react";
+import { FormData, getCheckoutFormSchema } from "./CheckoutForm.fixture";
+import { KeyboardEvent, useMemo, useRef, useState } from "react";
 
 const formatPhoneNumber = (value: string) => {
   const digits = value.replace(/\D/g, "").slice(0, 10);
@@ -38,10 +38,19 @@ const getCaretPositionByDigitCount = (value: string, digitCount: number) => {
 export const CheckoutForm = ({
   onSubmit,
   shouldDisableButton,
+  isPresaleActive,
+  submissionError,
 }: {
   onSubmit: (data: FormData) => Promise<void>;
   shouldDisableButton: boolean;
+  isPresaleActive: boolean;
+  submissionError?: string;
 }) => {
+  const schema = useMemo(
+    () => getCheckoutFormSchema(isPresaleActive),
+    [isPresaleActive]
+  );
+
   const {
     register,
     handleSubmit,
@@ -57,6 +66,7 @@ export const CheckoutForm = ({
       phoneNumber: "",
       dietaryRestrictions: "",
       notes: "",
+      presalePassword: "",
     },
   });
 
@@ -79,6 +89,12 @@ export const CheckoutForm = ({
       noValidate
       className="flex flex-col items-center bg-black/80 p-6 rounded-lg shadow-lg"
     >
+      {submissionError ? (
+        <div className="w-full mb-4 rounded border border-red-400 bg-red-950/40 px-3 py-2 text-red-200 text-sm">
+          {submissionError}
+        </div>
+      ) : null}
+
       {/* Name Input */}
       <span className="flex flex-col mb-4 w-full">
         <label htmlFor="checkout-name" className="font-bold text-gold mb-1">Name</label>
@@ -220,6 +236,23 @@ export const CheckoutForm = ({
           <p className="text-red-500">{String(errors.notes.message)}</p>
         )}
       </span>
+
+      {isPresaleActive ? (
+        <span className="flex flex-col mb-4 w-full">
+          <label htmlFor="checkout-presale-password" className="font-bold text-gold mb-1">
+            Presale Password
+          </label>
+          <input
+            id="checkout-presale-password"
+            {...register("presalePassword")}
+            className="h-10 w-full text-black rounded-md p-2"
+            type="password"
+          />
+          {errors.presalePassword && (
+            <p className="text-red-500">{String(errors.presalePassword.message)}</p>
+          )}
+        </span>
+      ) : null}
 
       <button
         type="submit"
