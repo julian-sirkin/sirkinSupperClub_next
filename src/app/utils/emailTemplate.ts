@@ -5,7 +5,11 @@ const INSTAGRAM_ICON = `data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCA
 
 const EMAIL_ICON = `data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAACXBIWXMAAAsTAAALEwEAmpwYAAACqElEQVR4nO2UX0xScRTHz4UL93Lv5V4ul3u5/BFhwqQwBAcUzpyPrV5ay/kQtVbNXK2Xsim1KTRTy1rmQ0tNiuZDa1lrtVqrh2prD21ta89tbQ+ttYfW2kNr7ev5wR+U4Uv2h5/t7Ox3z+d3zu/3O+cQ8r8tQRAkPB5vJ4/H28Pj8XYJBIIDQqHwqEgkOiYSiY6KxeJjYrH4qEQiOSKRSA5LpdLDUqn0kFQqPSiVSg/IZLIDMplsv0wm2yeTyXbLZLKdcrm8SSKR1P0TQCwW10ml0jMymeyiXC6/pFAoLioUivMKheKcQqE4q1QqTyuVylNKpfKkUqk8oVKpjqtUqqMqlepbsVh8WSwWX5RIJF+JxeIvCCHnEULnEEKfI4Q+RQgdQQjtQwjtQQhtRwitQwgtQQjlIYQy/wmgVqtf5fP52/h8/hY+n79ZIBBsFAgE6wUCwTqhULhWKBSuEYlEq0UiEatWqzep1erNGo1mk0aj2ajRaNZrNJq1Go1mjUqlWqNSqVarVQq31EqlZuVSuUmpVK5W61Wt2k0mkqNRlOm0WiKNRpNkUajKdRoNAUajSZfq9Xm6nS6HJ1Ol63T6bJ0Ol2mTqfL0Ov16Xq9Pk2v16fp9fo0g8GQbjAYMgwGQ7rBYEgzGAypBoMhxWAwJBsMhiSTyZRoMpmSTCZTotlsTjCbzfFmsznObDbHWiyWWIvFEmOxWKKtVmuU1WqNtNlsEXa7PcJut4fb7fYwh8MR6nA4QpxOZ7DT6QxyuVyBLpcr0O12B3g8Hrvb7bZ7vV6b1+u1er1ei8/ns/h8PrPf7zf5/X6j3+83BAIBQ0NDQ3hjY2NYMBi0B4NBWzAYtIZCIUsoFLKEw2FzOBw2hcNhYzgcNoTDYX04HNaHQiFdKBTShkIhTSgU0oRCIXU4HFaHw2FVQ0ODsqGhQdHQ0CBvaGiQNTY2ShsbGyWNjY1ijUYjbmpqEjU1NQmbm5sFzc3NfE6nk3V2dvI7Ozv5XV1d/K6uLn5PTw+/p6eH39vby+/t7eX19fXxent7eb29vbze3l5uX18ft6+vj/sL/A38BLZPwcHVsNtEAAAAAElFTkSuQmCC`;
 
-export const wrapEmailContent = (content: string, signOff: string = "Best,") => {
+export const wrapEmailContent = (
+  content: string,
+  signOff: string = "Best,",
+  eventUrl?: string
+) => {
   return `
     <div style="
       background-color: #000000;
@@ -61,6 +65,23 @@ export const wrapEmailContent = (content: string, signOff: string = "Best,") => 
           ">
             Visit Sirkin Supper Club
           </a>
+          ${
+            eventUrl
+              ? `<a href="${eventUrl}" style="
+            display: inline-block;
+            background-color: transparent;
+            color: #B4945F;
+            text-decoration: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            font-weight: bold;
+            margin: 10px;
+            border: 1px solid #B4945F;
+          ">
+            View This Event
+          </a>`
+              : ""
+          }
         </div>
 
         <div style="
@@ -81,7 +102,7 @@ export const wrapEmailContent = (content: string, signOff: string = "Best,") => 
             text-align: center;
             width: 100%;
           ">
-            <a href="https://www.tiktok.com/@sirkinsupper.club" style="
+            <a href="https://www.tiktok.com/@sirkinsupperclub" style="
               color: #B4945F;
               text-decoration: none;
               display: inline-block;
@@ -103,7 +124,7 @@ export const wrapEmailContent = (content: string, signOff: string = "Best,") => 
             ">
               Supper Club Instagram
             </a>
-            <a href="https://www.instagram.com/sirkinchef" style="
+            <a href="https://www.instagram.com/julian.sirkin/" style="
               color: #B4945F;
               text-decoration: none;
               display: inline-block;

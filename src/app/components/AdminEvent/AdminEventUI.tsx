@@ -3,17 +3,21 @@
 import { TicketWithPurchases } from '@/app/api/api.types';
 import { EventHeader } from './components/EventHeader';
 import { EventEmailSection } from './components/EventEmailSection';
+import { EventMarketingEmailSection } from './components/EventMarketingEmailSection';
 import { EventTicketsList } from './components/EventTicketsList';
 
 interface AdminEventUIProps {
+  eventId: number;
   eventData: TicketWithPurchases[];
   eventTitle: string;
   eventDate: number | null;
   isLoading: boolean;
   error: string | null;
   showEmailComposer: boolean;
+  showMarketingComposer: boolean;
   recipientEmails: string[];
   onToggleEmailComposer: () => void;
+  onToggleMarketingComposer: () => void;
   onResetEvent: (event: number | null) => void;
   onRefund: (message: string) => void;
   onSendEmail: (subject: string, content: string) => Promise<void>;
@@ -22,14 +26,17 @@ interface AdminEventUIProps {
 }
 
 export function AdminEventUI({
+  eventId,
   eventData,
   eventTitle,
   eventDate,
   isLoading,
   error,
   showEmailComposer,
+  showMarketingComposer,
   recipientEmails,
   onToggleEmailComposer,
+  onToggleMarketingComposer,
   onResetEvent,
   onRefund,
   onSendEmail,
@@ -75,9 +82,18 @@ export function AdminEventUI({
         title={eventTitle}
         date={eventDate}
         showEmailComposer={showEmailComposer}
+        showMarketingComposer={showMarketingComposer}
         onToggleEmailComposer={onToggleEmailComposer}
+        onToggleMarketingComposer={onToggleMarketingComposer}
         onResetEvent={onResetEvent}
       />
+
+      {showMarketingComposer && (
+        <EventMarketingEmailSection
+          eventId={eventId}
+          eventTitle={eventTitle}
+        />
+      )}
 
       {showEmailComposer && (
         <EventEmailSection

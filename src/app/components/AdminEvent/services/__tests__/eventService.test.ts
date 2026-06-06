@@ -1,4 +1,14 @@
-import { fetchEventData, sendEventEmail } from '../eventService';
+import {
+  fetchContentfulPhotos,
+  fetchEventData,
+  generateEventMarketingAIDraft,
+  generateEventMarketingAIDraftWithContext,
+  getEventMarketingRecipientStats,
+  previewEventMarketingEmail,
+  sendEventEmail,
+  sendEventMarketingCampaign,
+  sendEventMarketingTestEmail,
+} from '../eventService';
 import { getAdminEvent } from '@/app/lib/apiClient';
 
 // Mock the apiClient
@@ -123,6 +133,144 @@ describe('eventService', () => {
       await expect(sendEventEmail(mockRecipients, mockSubject, mockContent))
         .rejects
         .toThrow('Network error');
+    });
+  });
+
+  describe('event marketing email helpers', () => {
+    const marketingPayload = {
+      eventId: 14,
+      subject: 'Special Event',
+      content: '<p>Join us!</p>',
+      signOff: 'Best,',
+      tiktokLinks: ['https://www.tiktok.com/@sirkinsupper.club/video/123'],
+      selectedPhotos: [{ title: 'Dish', url: 'https://images.test/dish.jpg' }],
+    };
+
+    it('loads marketing recipient stats', async () => {
+      (global.fetch as jest.Mock).mockResolvedValueOnce({
+        ok: true,
+        json: () =>
+          Promise.resolve({
+            recipientCount: 42,
+            stats: {
+              totalSubscribed: 225,
+              excludedWithEventTickets: 183,
+              sendCount: 42,
+              audience: 'exclude_event_ticket_holders',
+            },
+          }),
+      });
+
+      const stats = await getEventMarketingRecipientStats(14, 'exclude_event_ticket_holders');
+      expect(stats.sendCount).toBe(42);
+      expect(stats.totalSubscribed).toBe(225);
+      expect(global.fetch).toHaveBeenCalledWith('/api/eventMarketingEmail', expect.objectContaining({
+        method: 'POST',
+      }));
+    });
+
+    it('returns marketing preview response', async () => {
+      (global.fetch as jest.Mock).mockResolvedValueOnce({
+        ok: true,
+        json: () => Promise.resolve({ html: '<div>Preview</div>', recipientCount: 5 }),
+      });
+
+      const result = await previewEventMarketingEmail(marketingPayload);
+      expect(result).toEqual({ html: '<div>Preview</div>', recipientCount: 5 });
+    });
+
+    it('sends test marketing email', async () => {
+      (global.fetch as jest.Mock).mockResolvedValueOnce({
+        ok: true,
+        json: () => Promise.resolve({ message: 'ok' }),
+      });
+
+      await sendEventMarketingTestEmail(marketingPayload);
+      expect(global.fetch).toHaveBeenCalled();
+    });
+
+    it('sends marketing campaign', async () => {
+      (global.fetch as jest.Mock).mockResolvedValueOnce({
+        ok: true,
+        json: () =>
+          Promise.resolve({
+            message: 'sent',
+            recipientCount: 225,
+            batchesSent: 1,
+            stats: {
+              totalSubscribed: 225,
+              excludedWithEventTickets: 10,
+              sendCount: 225,
+              audience: 'all_subscribed',
+            },
+          }),
+      });
+
+      const response = await sendEventMarketingCampaign({
+        ...marketingPayload,
+        audience: 'all_subscribed',
+      });
+      expect(response.recipientCount).toBe(225);
+      expect(response.batchesSent).toBe(1);
+    });
+
+    it('loads AI draft', async () => {
+      (global.fetch as jest.Mock).mockResolvedValueOnce({
+        ok: true,
+        json: () =>
+          Promise.resolve({
+            subject: 'Generated Subject',
+            content: '<p>Generated</p>',
+            usedFallback: false,
+          }),
+      });
+
+      const draft = await generateEventMarketingAIDraft(14);
+      expect(draft.subject).toBe('Generated Subject');
+      expect(global.fetch).toHaveBeenCalledWith('/api/eventMarketingEmail/aiDraft', expect.objectContaining({
+        method: 'POST',
+      }));
+    });
+
+    it('loads AI draft with campaign notes', async () => {
+      (global.fetch as jest.Mock).mockResolvedValueOnce({
+        ok: true,
+        json: () =>
+          Promise.resolve({
+            subject: 'Generated Subject',
+            content: '<p>Generated</p>',
+            usedFallback: false,
+          }),
+      });
+
+      await generateEventMarketingAIDraftWithContext({
+        eventId: 14,
+        generationNotes: 'Focus on couples and mention only 10 seats left.',
+      });
+
+      expect(global.fetch).toHaveBeenCalledWith(
+        '/api/eventMarketingEmail/aiDraft',
+        expect.objectContaining({
+          method: 'POST',
+          body: JSON.stringify({
+            eventId: 14,
+            generationNotes: 'Focus on couples and mention only 10 seats left.',
+          }),
+        })
+      );
+    });
+
+    it('loads Contentful photos', async () => {
+      (global.fetch as jest.Mock).mockResolvedValueOnce({
+        ok: true,
+        json: () =>
+          Promise.resolve({
+            photos: [{ title: 'Pic', url: 'https://images.test/pic.jpg' }],
+          }),
+      });
+
+      const photos = await fetchContentfulPhotos();
+      expect(photos).toEqual([{ title: 'Pic', url: 'https://images.test/pic.jpg' }]);
     });
   });
 }); 

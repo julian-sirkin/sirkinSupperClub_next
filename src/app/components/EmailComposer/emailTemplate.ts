@@ -55,9 +55,9 @@ export const emailTemplate = (content: string) => `
 
   <div class="footer">
     <div class="social-links">
-      <a href="https://www.tiktok.com/@sirkinsupper.club" target="_blank">TikTok</a>
-      <a href="https://www.instagram.com/sirkinsupper.club" target="_blank">Supper Club Instagram</a>
-      <a href="https://www.instagram.com/sirkinchef" target="_blank">Chef's Instagram</a>
+      <a href="https://www.tiktok.com/@sirkinsupperclub" target="_blank">TikTok</a>
+      <a href="https://www.instagram.com/sirkinsupperclub/" target="_blank">Supper Club Instagram</a>
+      <a href="https://www.instagram.com/julian.sirkin/" target="_blank">Julian Instagram</a>
     </div>
     <p>© ${new Date().getFullYear()} Sirkin Supper Club. All rights reserved.</p>
   </div>

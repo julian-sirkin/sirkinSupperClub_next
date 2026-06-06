@@ -9,6 +9,7 @@ import Underline from '@tiptap/extension-underline';
 import { FaBold, FaItalic, FaListOl, FaListUl, FaUnderline, FaHeading, FaLink, FaUnlink } from 'react-icons/fa';
 import { MdFormatColorText } from 'react-icons/md';
 import { useState } from 'react';
+import { useEffect } from 'react';
 
 interface RichTextEditorProps {
   content: string;
@@ -181,6 +182,19 @@ export function RichTextEditor({ content, onChange, placeholder }: RichTextEdito
       },
     },
   });
+
+  useEffect(() => {
+    if (!editor) {
+      return;
+    }
+
+    const incomingContent = content || "";
+    const currentContent = editor.getHTML();
+    if (currentContent !== incomingContent) {
+      // Keep editor synchronized when parent updates content (e.g., AI draft generation).
+      editor.commands.setContent(incomingContent, false);
+    }
+  }, [content, editor]);
 
   return (
     <div className="border border-gold/30 rounded-lg bg-black">

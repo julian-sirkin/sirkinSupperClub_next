@@ -20,6 +20,7 @@ export const AdminEvent = ({
     const [isLoading, setIsLoading] = useState<boolean>(true)
     const [error, setError] = useState<string | null>(null)
     const [showEmailComposer, setShowEmailComposer] = useState(false)
+    const [showMarketingComposer, setShowMarketingComposer] = useState(false)
     const [recipientEmails, setRecipientEmails] = useState<string[]>([])
 
     const loadEventData = useCallback(async () => {
@@ -68,14 +69,17 @@ export const AdminEvent = ({
 
     return (
         <AdminEventUI
+            eventId={eventId}
             eventData={eventData}
             eventTitle={eventTitle}
             eventDate={eventDate}
             isLoading={isLoading}
             error={error}
             showEmailComposer={showEmailComposer}
+            showMarketingComposer={showMarketingComposer}
             recipientEmails={recipientEmails}
             onToggleEmailComposer={() => setShowEmailComposer(!showEmailComposer)}
+            onToggleMarketingComposer={() => setShowMarketingComposer(!showMarketingComposer)}
             onResetEvent={resetEvent}
             onRefund={handleRefund}
             onSendEmail={handleSendEmail}
