@@ -42,12 +42,27 @@ export const validatePresaleAccess = ({
     providedPassword,
     now = new Date(),
 }: ValidatePresaleAccessProps): ValidatePresaleAccessResult => {
-    if (!isPresaleActive(config, now)) {
+    if (!config.presaleEnabled) {
         return { isValid: true, errorMessage: null }
     }
 
-    if (!config.presalePassword) {
+    const presaleEndDate = parsePresaleEndDate(config.presaleEndsAt)
+    if (!presaleEndDate) {
+        return {
+            isValid: false,
+            errorMessage: "Presale is enabled but end time is missing or invalid.",
+        }
+    }
+
+    if (now >= presaleEndDate) {
         return { isValid: true, errorMessage: null }
+    }
+
+    if (!config.presalePassword?.trim()) {
+        return {
+            isValid: false,
+            errorMessage: "Presale is enabled but password is not configured.",
+        }
     }
 
     if (!providedPassword?.trim()) {

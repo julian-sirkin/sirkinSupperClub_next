@@ -67,6 +67,28 @@ describe("validatePresaleAccess", () => {
 
     expect(result).toEqual({ isValid: true, errorMessage: null });
   });
+
+  it("fails when enabled presale has no password configured", () => {
+    const result = validatePresaleAccess({
+      config: { presaleEnabled: true, presaleEndsAt: "2026-07-01T02:00:00-07:00", presalePassword: "" },
+      providedPassword: "anything",
+      now: new Date("2026-06-30T20:00:00-07:00"),
+    });
+
+    expect(result.isValid).toBe(false);
+    expect(result.errorMessage).toContain("not configured");
+  });
+
+  it("fails when enabled presale has invalid end time", () => {
+    const result = validatePresaleAccess({
+      config: { presaleEnabled: true, presaleEndsAt: "bad-date", presalePassword: "secret123" },
+      providedPassword: "secret123",
+      now: new Date("2026-06-30T20:00:00-07:00"),
+    });
+
+    expect(result.isValid).toBe(false);
+    expect(result.errorMessage).toContain("missing or invalid");
+  });
 });
 
 describe("isPresaleActive", () => {
