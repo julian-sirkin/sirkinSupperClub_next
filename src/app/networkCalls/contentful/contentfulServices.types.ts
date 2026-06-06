@@ -53,6 +53,9 @@ export type ParsedEvent = {
     contentfulEventId: string
     title: string
     date: Date
+    presaleEnabled: boolean
+    presalePassword: string | null
+    presaleEndsAt: Date | null
     price: number
     menu: Document
     shortDescription: string
@@ -66,7 +69,10 @@ export type ContentfulEventResponse= {
     title: string
     shortDescription: string
     price: number
-    date: string     
+    date: string
+    presaleEnabled?: boolean | null
+    presalePassword?: string | null
+    presaleEndsAt?: string | null
     ticketsCollection: UnparsedTickets
     menu: {
         json: Document
