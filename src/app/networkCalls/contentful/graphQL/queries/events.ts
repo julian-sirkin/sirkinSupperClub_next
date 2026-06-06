@@ -4,6 +4,9 @@ export const eventsQuery = `query fetch{
         _id
         title
         date
+        presaleEnabled
+        presalePassword
+        presaleEndsAt
         shortDescription
         longDescription{
             json

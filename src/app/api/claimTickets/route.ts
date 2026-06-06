@@ -1,5 +1,7 @@
 import { validateTicketQuantityForPurchase } from "@/app/helpers/validateTicketQuantityForPurchase"
 import { validateAddonSelectionsForPurchase } from "@/app/helpers/validateAddonSelectionsForPurchase"
+import { validatePresaleAccess } from "@/app/helpers/validatePresaleAccess"
+import { contentfulService } from "@/app/networkCalls/contentful/contentfulService"
 import { CartTicketType } from "@/store/cartStore.types"
 import { NextResponse } from "next/server"
 import { createCustomer, createTicketPurchase } from "../queries/insert"
@@ -19,6 +21,45 @@ export async function POST(request: Request) {
     const notes: string = data?.notes ?? ''
     const dietaryRestrictions: string = data?.dietaryRestrictions
     const clientTimeZone: string | undefined = data?.clientTimeZone
+    const presalePassword: string = data?.presalePassword ?? ''
+
+    const uniqueEventIds = [...new Set(ticketsInRequest.map(ticket => ticket.eventContentfulId).filter(Boolean))]
+    if (uniqueEventIds.length > 1) {
+        return NextResponse.json({
+            status: 500,
+            error: {
+                message: "Cannot complete order",
+                data: "Tickets must belong to one event.",
+            },
+        }, { status: 500 })
+    }
+
+    if (uniqueEventIds.length === 1) {
+        const [eventId] = uniqueEventIds
+        const events = await contentfulService().getEventsWithoutDB()
+        const event = events.find(eventItem => eventItem.contentfulEventId === eventId)
+
+        if (event) {
+            const presaleValidation = validatePresaleAccess({
+                config: {
+                    presaleEnabled: event.presaleEnabled,
+                    presaleEndsAt: event.presaleEndsAt,
+                    presalePassword: event.presalePassword,
+                },
+                providedPassword: presalePassword,
+            })
+
+            if (!presaleValidation.isValid) {
+                return NextResponse.json({
+                    status: 500,
+                    error: {
+                        message: "Presale password validation failed",
+                        data: presaleValidation.errorMessage,
+                    },
+                }, { status: 500 })
+            }
+        }
+    }
 
     /**
      * Verify Requested tickets are available in database
@@ -31,7 +72,7 @@ export async function POST(request: Request) {
         return NextResponse.json({status: 500, error: {
             message: "Cannot complete order",
             data: ticketsWithNotEnoughAvailable
-        }})
+        }}, { status: 500 })
     }
 
     const addonLinks = await getAllowedAddonsForTicketSelections(ticketsInRequest);
@@ -47,7 +88,7 @@ export async function POST(request: Request) {
                 message: "Invalid addon selection",
                 data: addonSelectionErrors,
             },
-        });
+        }, { status: 500 });
     }
 
     /**
@@ -75,8 +116,8 @@ export async function POST(request: Request) {
             return NextResponse.json({
                 status: 500,
                 message: `Failed to create customer: ${error instanceof Error ? error.message : 'Database error'}`,
-                error: 'CUSTOMER_CREATION_FAILED'
-            });
+                error: 'CUSTOMER_CREATION_FAILED',
+            }, { status: 500 });
         }
     }
 
@@ -92,9 +133,13 @@ export async function POST(request: Request) {
             clientTimeZone,
         })
         
-        return emailSuccessfully ? NextResponse.json({status: 200, message: successfulRegisteredMessage}) : NextResponse.json({status: 500, message: emailFailMessage})
+        if (emailSuccessfully) {
+            return NextResponse.json({status: 200, message: successfulRegisteredMessage}, { status: 200 })
+        }
+
+        return NextResponse.json({status: 500, message: emailFailMessage}, { status: 500 })
 
     } else {
-        return NextResponse.json({status: 500, message})
+        return NextResponse.json({status: 500, message}, { status: 500 })
     }
 }

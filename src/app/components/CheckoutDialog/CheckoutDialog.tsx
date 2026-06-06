@@ -9,14 +9,19 @@ import { CheckoutResponseMessage } from "../CheckoutForm/CheckoutResponseMessage
 import { motion, AnimatePresence } from "framer-motion";
 import { claimTickets } from "@/app/lib/apiClient";
 import { CartTicketType } from "@/store/cartStore.types";
+import { isPresaleActive } from "@/app/helpers/validatePresaleAccess";
 
 export const CheckoutDialog = ({ event }: { event: ParsedEvent }) => {
   const [seeCart, setSeeCart] = useState<boolean>(true);
   const [shouldShowForm, setShouldShowForm] = useState<boolean>(true);
   const [shouldDisableSubmitButton, setShouldDisableSubmitButton] = useState<boolean>(false);
-  const [errorMessage, setErrorMessage] = useState<string>("");
+  const [submissionError, setSubmissionError] = useState<string>("");
   const [submittedTotalPrice, setSubmittedTotalPrice] = useState<number | null>(null);
   const [submittedTickets, setSubmittedTickets] = useState<CartTicketType[]>([]);
+  const presaleIsActive = isPresaleActive({
+    presaleEnabled: event.presaleEnabled,
+    presaleEndsAt: event.presaleEndsAt,
+  });
 
   const { cart, emptyCart } = useCartStore((state) => ({
     cart: state.cart,
@@ -24,11 +29,13 @@ export const CheckoutDialog = ({ event }: { event: ParsedEvent }) => {
   }));
 
   const onSubmit = async (data: FormData) => {
+    setSubmissionError("");
     setShouldDisableSubmitButton(true);
     setSubmittedTotalPrice(cart.totalPrice);
     setSubmittedTickets(cart.tickets.map((ticket) => ({ ...ticket })));
     const requestBody = {
       ...data,
+      presalePassword: data.presalePassword ?? "",
       purchasedTickets: cart.tickets,
       clientTimeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
     };
@@ -38,27 +45,24 @@ export const CheckoutDialog = ({ event }: { event: ParsedEvent }) => {
       const decodedResponse = await response.json();
       
       setShouldDisableSubmitButton(false);
-      setShouldShowForm(false);
       
       if (!response.ok) {
-        setErrorMessage(decodedResponse.message || 'Ticket claim failed');
-        setTimeout(() => {
-          setErrorMessage("");
-          setShouldShowForm(true);
-          setShouldDisableSubmitButton(false);
-        }, 15000);
+        const inlineMessage =
+          decodedResponse?.error?.data ||
+          decodedResponse?.error?.message ||
+          decodedResponse?.message ||
+          "Ticket claim failed";
+        setSubmissionError(inlineMessage);
+        setShouldShowForm(true);
       } else {
+        setShouldShowForm(false);
         emptyCart();
       }
     } catch (error) {
         console.error("Error claiming tickets:", error);
-        setErrorMessage("An unexpected network error occurred. Please try again.");
+        setSubmissionError("An unexpected network error occurred. Please try again.");
         setShouldDisableSubmitButton(false);
-        setShouldShowForm(false);
-         setTimeout(() => {
-          setErrorMessage("");
-          setShouldShowForm(true);
-        }, 15000);
+        setShouldShowForm(true);
     }
   };
 
@@ -69,7 +73,7 @@ export const CheckoutDialog = ({ event }: { event: ParsedEvent }) => {
     }
   };
 
-  const isSuccessfulOrderState = !shouldShowForm && !errorMessage;
+  const isSuccessfulOrderState = !shouldShowForm;
   const orderSummaryTickets = isSuccessfulOrderState ? submittedTickets : cart.tickets;
   const orderSummaryTotal = isSuccessfulOrderState
     ? (submittedTotalPrice ?? cart.totalPrice)
@@ -164,10 +168,12 @@ export const CheckoutDialog = ({ event }: { event: ParsedEvent }) => {
           <CheckoutForm
             onSubmit={onSubmit}
             shouldDisableButton={shouldDisableSubmitButton}
+            isPresaleActive={presaleIsActive}
+            submissionError={submissionError}
           />
         ) : (
           <CheckoutResponseMessage
-            errorMessage={errorMessage}
+            errorMessage=""
             submittedTotalPrice={submittedTotalPrice}
           />
         )}
