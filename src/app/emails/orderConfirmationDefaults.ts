@@ -16,13 +16,13 @@ export const DEFAULT_ORDER_CONFIRMATION_BODY = `<h2>You're in, {{customerName}}<
 <h2>The details</h2>
 <ul>
 <li><strong>Date:</strong> {{eventDate}}</li>
-<li><strong>Arrival:</strong> Your ticket is for the {{seatingTimes}} seating, so please plan to arrive at that time. Dinner is served as a group and a late arrival means a missed course.</li>
+<li><strong>Arrival:</strong> Your ticket is for the {{seatingTimes}} seating, so please plan to arrive at that time. I turn the table as a group, so a late start can mean other guests are impacted.</li>
 <li><strong>Location:</strong> I'll email you the address the day before the event.</li>
 <li><strong>Payment:</strong> If you haven't already, please send payment via Venmo to {{venmoLink}}. Your total is {{orderTotal}}.</li>
+<li><strong>Tipping:</strong> Purely optional, always appreciated.</li>
 </ul>
 <h2>What to bring</h2>
 <p>Please bring anything you'd like to drink beyond water and coffee, which I provide along with all the glassware. Wine, beer, whatever you're into. No need to bring glasses.</p>
-<p>Tipping is completely optional and never expected, but it is always appreciated.</p>
 <h2>Questions?</h2>
 <p>Reach out any time at {{contactEmail}} and I'll get back to you. If something changes with your plans, just let me know as early as you can.</p>`;
 
