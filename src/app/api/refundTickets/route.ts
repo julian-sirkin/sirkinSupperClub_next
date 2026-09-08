@@ -2,8 +2,13 @@ import { NextResponse } from "next/server";
 import { db } from "@/db";
 import { purchasesTable, purchaseItemAddonsTable, purchaseItemsTable, ticketsTable } from "@/db/schema";
 import { eq, and, sql } from "drizzle-orm";
+import { isAdminRequest, unauthorizedAdminResponse } from "../utils/isAdminRequest";
 
 export async function POST(request: Request) {
+    if (!(await isAdminRequest(request))) {
+        return unauthorizedAdminResponse();
+    }
+
     try {
         const data = await request.json();
         console.log("🚀 Refund Request Data:", data);

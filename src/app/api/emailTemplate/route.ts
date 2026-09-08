@@ -5,9 +5,7 @@ import {
 import { resolveOrderConfirmationTemplate } from "@/app/services/email/orderConfirmationTemplateService";
 import { NextResponse } from "next/server";
 import { deleteEmailTemplate, saveEmailTemplate } from "../queries/emailTemplates";
-import { isAdminRequest } from "../utils/isAdminRequest";
-
-const unauthorized = () => NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+import { isAdminRequest, unauthorizedAdminResponse } from "../utils/isAdminRequest";
 
 const parseEventId = (rawEventId: unknown): number | null => {
   if (rawEventId === null || rawEventId === undefined || rawEventId === "") {
@@ -20,7 +18,7 @@ const parseEventId = (rawEventId: unknown): number | null => {
 
 export async function GET(request: Request) {
   if (!(await isAdminRequest(request))) {
-    return unauthorized();
+    return unauthorizedAdminResponse();
   }
 
   const eventId = parseEventId(new URL(request.url).searchParams.get("eventId"));
@@ -34,7 +32,7 @@ export async function GET(request: Request) {
 
 export async function PUT(request: Request) {
   if (!(await isAdminRequest(request))) {
-    return unauthorized();
+    return unauthorizedAdminResponse();
   }
 
   const body = await request.json();
@@ -68,7 +66,7 @@ export async function PUT(request: Request) {
 /** Removing a saved template falls the scope back: an event to the default, the default to the copy in code. */
 export async function DELETE(request: Request) {
   if (!(await isAdminRequest(request))) {
-    return unauthorized();
+    return unauthorizedAdminResponse();
   }
 
   const eventId = parseEventId(new URL(request.url).searchParams.get("eventId"));

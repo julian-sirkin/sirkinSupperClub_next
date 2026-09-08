@@ -1,7 +1,12 @@
 import { NextResponse } from "next/server";
 import { getEventTicketsWithPurchases } from "../queries/select";
+import { isAdminRequest, unauthorizedAdminResponse } from "../utils/isAdminRequest";
 
 export async function POST(request: Request) {
+    if (!(await isAdminRequest(request))) {
+        return unauthorizedAdminResponse();
+    }
+
     try {
         const data = await request.json();
         const eventId: number = Number(data?.eventId) || 0;

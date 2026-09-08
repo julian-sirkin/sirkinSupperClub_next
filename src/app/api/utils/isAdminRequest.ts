@@ -1,5 +1,6 @@
 import { getAdminCookieName, verifyAdminSessionToken } from "@/app/lib/adminSession";
 import { parse } from "cookie";
+import { NextResponse } from "next/server";
 
 /**
  * The single admin gate, shared by the middleware that guards /admin pages and
@@ -18,3 +19,7 @@ export const isAdminRequest = async (request: Request): Promise<boolean> => {
 
   return verifyAdminSessionToken(cookies[getAdminCookieName()]);
 };
+
+export const unauthorizedAdminResponse = () =>
+  NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+

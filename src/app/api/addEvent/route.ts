@@ -4,8 +4,13 @@ import { db } from "@/db";
 import { NextResponse } from "next/server";
 import { createEventWithTickets } from "../queries/insert";
 import { updateExistingEvents } from "../queries/update";
+import { isAdminRequest, unauthorizedAdminResponse } from "../utils/isAdminRequest";
 
 export async function POST(request: Request) {
+    if (!(await isAdminRequest(request))) {
+        return unauthorizedAdminResponse();
+    }
+
     const contentful = contentfulService();
     const eventData = await contentful.getEvents();
     const { upcomingEvents } = sortEventsByTime(eventData);

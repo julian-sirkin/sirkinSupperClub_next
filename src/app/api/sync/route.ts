@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { syncAllEvents } from '@/app/api/utils/syncAllEvents';
+import { isAdminRequest, unauthorizedAdminResponse } from '@/app/api/utils/isAdminRequest';
 
 function safeStringify(obj: any): string {
   try {
@@ -10,6 +11,10 @@ function safeStringify(obj: any): string {
 }
 
 export async function POST(request: Request) {
+  if (!(await isAdminRequest(request))) {
+    return unauthorizedAdminResponse();
+  }
+
   const startTime = Date.now();
   const requestId = `req-${Date.now()}-${Math.random().toString(36).substring(7)}`;
   
