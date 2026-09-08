@@ -1,8 +1,6 @@
 import { transporter } from "@/app/config/nodemailer";
-import {
-  CONTACT_EMAIL,
-  renderOrderConfirmationEmail,
-} from "@/app/emails/renderOrderConfirmationEmail";
+import { CONTACT_EMAIL } from "@/app/constants";
+import { renderOrderConfirmationEmail } from "@/app/emails/renderOrderConfirmationEmail";
 import { resolveOrderConfirmationTemplate } from "@/app/services/email/orderConfirmationTemplateService";
 import { SuccessEmailProps } from "../api.types";
 import { findEventByContentfulId } from "../queries/select";

@@ -175,6 +175,40 @@ describe("CheckoutDialog", () => {
     expect(mockedClaimTickets).not.toHaveBeenCalled();
   });
 
+  it("confirms what was reserved, where the email went, and how to pay", async () => {
+    renderDialogWithCart([
+      createCartTicket({
+        quantity: 2,
+        selectedAddonContentfulId: "addon-1",
+        selectedAddonTitle: "Wine Pairing",
+        selectedAddonPrice: 25,
+        addonQuantity: 2,
+      }),
+    ]);
+    await fillAndSubmitCheckoutForm();
+
+    expect(await screen.findByText("You're in!")).toBeInTheDocument();
+    expect(screen.getByText("General Admission")).toBeInTheDocument();
+    expect(screen.getByText(/2 seats at/)).toBeInTheDocument();
+    expect(screen.getByText(/Wine Pairing \(x2\)/)).toBeInTheDocument();
+    expect(screen.getByText("Order Total: $250.00")).toBeInTheDocument();
+    expect(screen.getByText("jane@example.com")).toBeInTheDocument();
+    expect(screen.getByText(/please check your spam folder/)).toBeInTheDocument();
+    expect(screen.getAllByText("sirkinsupperclub@gmail.com").length).toBeGreaterThan(0);
+    expect(
+      screen.getByRole("link", { name: "Pay $250.00 with Venmo", hidden: true })
+    ).toHaveAttribute("href", "https://venmo.com/julian-sirkin");
+  });
+
+  it("replaces the order summary with the confirmation so tickets are not listed twice", async () => {
+    renderDialogWithCart([createCartTicket({ quantity: 1 })]);
+    await fillAndSubmitCheckoutForm();
+
+    expect(await screen.findByText("You're in!")).toBeInTheDocument();
+    expect(screen.queryByText("Final Total:")).not.toBeInTheDocument();
+    expect(screen.queryByLabelText("Name")).not.toBeInTheDocument();
+  });
+
   it("keeps form open and shows inline error when presale password is incorrect", async () => {
     mockedClaimTickets.mockResolvedValue({
       ok: false,

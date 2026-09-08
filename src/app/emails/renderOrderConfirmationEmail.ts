@@ -1,3 +1,4 @@
+import { CONTACT_EMAIL, VENMO_HANDLE, VENMO_URL } from "@/app/constants";
 import { wrapEmailContent } from "@/app/utils/emailTemplate";
 import { escapeHtml } from "@/app/utils/escapeHtml";
 import { emailColors } from "./emailTheme";
@@ -12,10 +13,6 @@ import {
   getOrderTotal,
 } from "./orderSummary";
 import { renderTicketDetails } from "./renderTicketDetails";
-
-export const CONTACT_EMAIL = "sirkinsupperclub@gmail.com";
-export const VENMO_HANDLE = "@julian-sirkin";
-export const VENMO_URL = "https://venmo.com/julian-sirkin";
 
 export type OrderConfirmationTemplate = {
   subject: string;
