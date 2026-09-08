@@ -13,18 +13,20 @@ export function EventRunOfShowUI({
   runOfShow: EventRunOfShow;
 }) {
   return (
-    <div className="run-of-show text-white print:bg-white print:text-black">
-      <div className="flex flex-col gap-4 mb-8 md:flex-row md:justify-between md:items-start">
+    <div className="event-summary-print text-white">
+      <div className="flex flex-col gap-4 mb-6 md:flex-row md:justify-between md:items-start print:mb-2 print:gap-1">
         <div>
-          <p className="text-sm uppercase tracking-wide text-gold print:text-black">Run of show</p>
-          <h2 className="text-3xl font-bold text-gold print:text-black">{runOfShow.title}</h2>
-          <p className="text-gray-400 mt-1 print:text-black">{runOfShow.dateLabel}</p>
-          <p className="mt-3 text-lg">
-            {runOfShow.guestCount} guests across {runOfShow.partyCount}{" "}
+          <p className="text-sm uppercase tracking-wide text-gold print:hidden">Event summary</p>
+          <h2 className="text-3xl font-bold text-gold print:text-base print:font-bold print:text-black">
+            {runOfShow.title}
+          </h2>
+          <p className="text-gray-400 mt-1 print:mt-0 print:text-xs print:text-black">{runOfShow.dateLabel}</p>
+          <p className="mt-2 text-lg print:mt-0 print:text-xs print:text-black">
+            {runOfShow.guestCount} guests · {runOfShow.partyCount}{" "}
             {runOfShow.partyCount === 1 ? "party" : "parties"}
           </p>
         </div>
-        <div className="flex flex-col sm:flex-row gap-3">
+        <div className="flex flex-col sm:flex-row gap-3 print:hidden">
           <PrintRunOfShowButton className={actionClass} />
           <Link href={`/admin/events/${eventId}`} className={actionClass}>
             Back to event
@@ -35,44 +37,43 @@ export function EventRunOfShowUI({
       {runOfShow.seatings.length === 0 ? (
         <p className="text-gray-400 print:text-black">No reservations yet.</p>
       ) : (
-        <div className="space-y-8">
+        <div className="space-y-6 print:space-y-2">
           {runOfShow.seatings.map(seating => (
-            <section
-              key={seating.timeKey}
-              className="break-inside-avoid border border-gold/40 rounded-lg p-4 print:border-black"
-            >
-              <header className="mb-4">
-                <h3 className="text-2xl font-bold text-gold print:text-black">{seating.timeLabel}</h3>
-                <p className="text-gray-300 print:text-black">{summarizeSeatingCounts(seating)}</p>
+            <section key={seating.timeKey} className="print:break-inside-avoid">
+              <header className="mb-3 border-b border-gold/40 pb-1 print:mb-1 print:border-black">
+                <h3 className="text-2xl font-bold text-gold print:text-sm print:text-black">
+                  {seating.timeLabel}
+                </h3>
+                <p className="text-gray-300 print:text-xs print:text-black">
+                  {summarizeSeatingCounts(seating)}
+                </p>
               </header>
-              <ul className="space-y-4">
+              <ul>
                 {seating.parties.map(party => (
                   <li
                     key={`${seating.timeKey}-${party.purchaseId}`}
-                    className="bg-black/40 rounded-lg p-4 print:bg-white print:border print:border-black"
+                    className="py-3 border-b border-white/10 print:py-0.5 print:border-neutral-300"
                   >
-                    <div className="flex flex-col sm:flex-row sm:justify-between sm:items-baseline gap-1">
-                      <p className="text-lg font-bold">
-                        {party.customerName}{" "}
-                        <span className="font-normal text-gray-300 print:text-neutral-700">
-                          · party of {party.size}
+                    <p className="print:text-xs print:leading-tight">
+                      <span className="font-bold">{party.customerName}</span>
+                      <span className="text-gray-300 print:text-black"> · {party.size}</span>
+                      {party.dietaryRestrictions && (
+                        <span className="font-semibold text-red-300 print:text-black">
+                          {" "}
+                          · Dietary: {party.dietaryRestrictions}
                         </span>
-                      </p>
-                      <p className="text-sm text-gray-400 print:text-neutral-700">
-                        {party.customerPhone ?? "No phone"} · {party.customerEmail}
-                      </p>
-                    </div>
-                    {party.dietaryRestrictions && (
-                      <p className="mt-3 bg-red-900/40 text-red-200 font-semibold px-3 py-2 rounded print:bg-transparent print:text-black print:border print:border-black">
-                        Dietary: {party.dietaryRestrictions}
-                      </p>
-                    )}
-                    {party.notes && (
-                      <p className="mt-2 text-gray-200 print:text-black">Notes: {party.notes}</p>
-                    )}
-                    {party.addonLabel && (
-                      <p className="mt-2 text-gray-300 print:text-black">Add-on: {party.addonLabel}</p>
-                    )}
+                      )}
+                      {party.notes && (
+                        <span className="text-gray-200 print:text-black"> · Notes: {party.notes}</span>
+                      )}
+                      {party.addonLabel && (
+                        <span className="text-gray-300 print:text-black"> · {party.addonLabel}</span>
+                      )}
+                      <span className="text-gray-400 print:text-black">
+                        {" "}
+                        · {party.customerPhone ?? "No phone"} · {party.customerEmail}
+                      </span>
+                    </p>
                   </li>
                 ))}
               </ul>

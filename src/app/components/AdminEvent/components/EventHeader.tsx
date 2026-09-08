@@ -51,7 +51,7 @@ export function EventHeader({
           {showEmailComposer ? 'Hide Email Composer' : 'Email Attendees'}
         </button>
         <Link href={`/admin/events/${eventId}/run-of-show`} className={actionClass}>
-          Run of show
+          Event summary printout
         </Link>
         <Link href="/admin/events" className={actionClass}>
           Back to Events
