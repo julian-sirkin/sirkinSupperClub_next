@@ -1,42 +1,30 @@
 "use client";
 
 import { useState } from "react";
-import { ToastContainer } from "react-toastify";
+import { ToastContainer, toast } from "react-toastify";
 import { syncEvents } from "@/app/utils/syncEvents";
 import 'react-toastify/dist/ReactToastify.css';
-import { toast } from "react-toastify";
 
 export default function SyncPage() {
   const [isLoading, setIsLoading] = useState(false);
 
   const handleSync = async () => {
     if (isLoading) return;
-    
     setIsLoading(true);
-    
+
     try {
-        // Call sync with a direct page reload callback
-        const success = await syncEvents(() => {
-            console.log("Refreshing page after successful sync");
-            window.location.reload();
-        });
-        
-        if (!success) {
-            console.log("Sync failed, resetting loading state");
-            setIsLoading(false);
-        } else {
-            // Add a backup timeout to reset state if page doesn't refresh
-            setTimeout(() => {
-                if (isLoading) {
-                    setIsLoading(false);
-                    toast.info("Sync completed. Refresh the page to see changes.");
-                }
-            }, 5000);
-        }
-    } catch (error) {
-        console.error("Error in sync process:", error);
+      const success = await syncEvents();
+      if (!success) {
         setIsLoading(false);
-        toast.error("Unexpected error during sync process");
+        return;
+      }
+      setTimeout(() => {
+        window.location.reload();
+      }, 1200);
+    } catch (error) {
+      console.error("Error in sync process:", error);
+      toast.error("Unexpected error during sync process");
+      setIsLoading(false);
     }
   };
 
@@ -58,4 +46,4 @@ export default function SyncPage() {
       </div>
     </div>
   );
-} 
+}

@@ -28,18 +28,15 @@ export const AdminLayout = ({ children }: { children: React.ReactNode }) => {
         setIsSyncing(true);
 
         try {
-            const success = await syncEvents(() => {
-                window.location.reload();
-            });
-
-            if (success) {
-                setTimeout(() => {
-                    setIsSyncing(false);
-                    window.location.reload();
-                }, 5000);
-            } else {
+            const success = await syncEvents();
+            if (!success) {
                 setIsSyncing(false);
+                return;
             }
+
+            setTimeout(() => {
+                window.location.reload();
+            }, 1200);
         } catch (error) {
             console.error("Error in sync process:", error);
             setIsSyncing(false);
@@ -48,7 +45,7 @@ export const AdminLayout = ({ children }: { children: React.ReactNode }) => {
     };
 
     return (
-        <div className="min-h-screen bg-black text-white p-4 md:p-6 print:bg-white print:p-0">
+        <div className="min-h-screen bg-black text-white p-4 md:p-6 print:min-h-0 print:bg-white print:p-0 print:text-black">
             <ToastContainer position="top-right" autoClose={3000} />
             <header className="mb-6 flex items-start justify-between gap-4 print:hidden">
                 <div>
@@ -93,7 +90,7 @@ export const AdminLayout = ({ children }: { children: React.ReactNode }) => {
                     ))}
                 </nav>
 
-                <main className='flex-1 min-w-0 bg-black/40 p-4 md:p-6 rounded-lg print:bg-white print:p-0 print:shadow-none'>
+                <main className='flex-1 min-w-0 bg-black/40 p-4 md:p-6 rounded-lg print:bg-white print:p-0 print:shadow-none print:rounded-none'>
                     {children}
                 </main>
             </div>
