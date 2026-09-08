@@ -2,6 +2,7 @@
 
 import { TicketWithPurchases } from '@/app/api/api.types';
 import { EventHeader } from './components/EventHeader';
+import { EventConfirmationEmailSection } from './components/EventConfirmationEmailSection';
 import { EventEmailSection } from './components/EventEmailSection';
 import { EventMarketingEmailSection } from './components/EventMarketingEmailSection';
 import { EventTicketsList } from './components/EventTicketsList';
@@ -102,6 +103,8 @@ export function AdminEventUI({
         />
       )}
       
+      <EventConfirmationEmailSection eventId={eventId} eventTitle={eventTitle} />
+
       <EventTicketsList
         tickets={eventData}
         onRefund={onRefund}
