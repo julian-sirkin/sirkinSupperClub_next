@@ -1,5 +1,5 @@
 import { sql } from 'drizzle-orm';
-import { integer, sqliteTable, text } from 'drizzle-orm/sqlite-core';
+import { integer, sqliteTable, text, uniqueIndex } from 'drizzle-orm/sqlite-core';
 
 export const customersTable = sqliteTable('customers', {
     id: integer('id').primaryKey(),
@@ -69,6 +69,32 @@ export const purchaseItemAddonsTable = sqliteTable('purchase_item_addons', {
     createdAt: integer('created_at', { mode: 'timestamp' }).notNull(),
     updatedAt: integer('updated_at', { mode: 'timestamp' }).notNull(),
 });
+
+/**
+ * Editable copy for automated emails. A row with a null `eventId` is the
+ * default used everywhere; a row with an `eventId` overrides it for that one
+ * event. SQLite treats nulls as distinct in a unique index, so the global and
+ * per-event rows need separate partial indexes to stay unique.
+ */
+export const emailTemplatesTable = sqliteTable('email_templates', {
+    id: integer('id').primaryKey(),
+    templateKey: text('templateKey').notNull(),
+    eventId: integer('event_id').references(() => eventsTable.id),
+    subject: text('subject').notNull(),
+    bodyHtml: text('bodyHtml').notNull(),
+    signOff: text('signOff').notNull(),
+    updatedAt: integer('updated_at', { mode: 'timestamp' }).notNull(),
+}, (table) => ({
+    globalTemplateIdx: uniqueIndex('email_templates_global_key_idx')
+        .on(table.templateKey)
+        .where(sql`${table.eventId} is null`),
+    eventTemplateIdx: uniqueIndex('email_templates_event_key_idx')
+        .on(table.templateKey, table.eventId)
+        .where(sql`${table.eventId} is not null`),
+}))
+
+export type InsertEmailTemplate = typeof emailTemplatesTable.$inferInsert
+export type SelectEmailTemplate = typeof emailTemplatesTable.$inferSelect;
 
 export type InsertCustomer = typeof customersTable.$inferInsert;
 export type SelectCustomer = typeof customersTable.$inferSelect; 

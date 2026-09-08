@@ -3,14 +3,16 @@ import { CartTicketType } from "@/store/cartStore.types";
 export type OrderTicket = Pick<
   CartTicketType,
   | "title"
-  | "time"
   | "quantity"
   | "price"
   | "selectedAddonContentfulId"
   | "selectedAddonTitle"
   | "selectedAddonPrice"
   | "addonQuantity"
->;
+> & {
+  /** Dates arrive as ISO strings once the cart has been through JSON on the way to the API. */
+  time: string | Date;
+};
 
 const hasAddon = (ticket: OrderTicket) =>
   Boolean(ticket.selectedAddonContentfulId) && (ticket.addonQuantity ?? 0) > 0;
