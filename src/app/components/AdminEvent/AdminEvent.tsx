@@ -7,12 +7,8 @@ import { fetchEventData, sendEventEmail } from './services/eventService'
 
 export const AdminEvent = ({
     eventId, 
-    resetEvent,
-    onCustomerClick
 }: {
     eventId: number, 
-    resetEvent: (event: number | null) => void,
-    onCustomerClick?: (customerId: number) => void
 }) => {
     const [eventData, setEventData] = useState<TicketWithPurchases[]>([])
     const [eventTitle, setEventTitle] = useState<string>("Event Details")
@@ -80,11 +76,9 @@ export const AdminEvent = ({
             recipientEmails={recipientEmails}
             onToggleEmailComposer={() => setShowEmailComposer(!showEmailComposer)}
             onToggleMarketingComposer={() => setShowMarketingComposer(!showMarketingComposer)}
-            onResetEvent={resetEvent}
             onRefund={handleRefund}
             onSendEmail={handleSendEmail}
             onRetry={() => window.location.reload()}
-            onCustomerClick={onCustomerClick}
         />
     );
 }

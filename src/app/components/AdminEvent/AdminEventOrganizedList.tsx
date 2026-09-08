@@ -2,14 +2,10 @@
 
 import { adminEvent } from '@/app/api/api.types';
 import { formatDate } from '@/app/utils/formatDate';
-import { organizeAdminEvents, OrganizedEvents } from '@/app/helpers/organizeAdminEvents';
+import { organizeAdminEvents } from '@/app/helpers/organizeAdminEvents';
+import Link from 'next/link';
 
-interface AdminEventOrganizedListProps {
-  events: adminEvent[];
-  onEventClick: (eventId: number) => void;
-}
-
-export const AdminEventOrganizedList = ({ events, onEventClick }: AdminEventOrganizedListProps) => {
+export const AdminEventOrganizedList = ({ events }: { events: adminEvent[] }) => {
   const organizedEvents = organizeAdminEvents(events);
 
   const renderEventTable = (eventList: adminEvent[], title: string, emptyMessage: string) => {
@@ -38,13 +34,13 @@ export const AdminEventOrganizedList = ({ events, onEventClick }: AdminEventOrga
                   <td className="py-3 px-4">{formatDate(new Date(event.date))}</td>
                   <td className="py-3 px-4">{event.ticketsAvailable}</td>
                   <td className="py-3 px-4">{event.ticketsSold}</td>
-                  <td className="py-3 px-4">
-                    <button 
-                      onClick={() => onEventClick(event.id)} 
-                      className="bg-gold text-black px-3 py-1 rounded hover:bg-white transition-colors"
+                    <td className="py-3 px-4">
+                    <Link 
+                      href={`/admin/events/${event.id}`} 
+                      className="bg-gold text-black px-4 py-2 rounded hover:bg-white transition-colors inline-flex min-h-[44px] items-center"
                     >
                       View Details
-                    </button>
+                    </Link>
                   </td>
                 </tr>
               ))}

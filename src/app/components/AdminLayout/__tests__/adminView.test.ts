@@ -1,4 +1,4 @@
-import { buildAdminUrl, resolveAdminView, sectionKeepsSelectedId } from "../adminView";
+import { getAdminPath, isAdminNavActive, resolveAdminView } from "../adminView";
 
 describe("resolveAdminView", () => {
   it("opens a customer from the customer view", () => {
@@ -39,49 +39,55 @@ describe("resolveAdminView", () => {
   });
 });
 
-describe("buildAdminUrl", () => {
-  it("sets the view param and the selected id", () => {
-    const url = buildAdminUrl({
-      currentUrl: "https://example.com/admin",
-      section: "customers",
-      id: 12,
-    });
+describe("getAdminPath", () => {
+  it("builds nested paths for selected records", () => {
+    expect(
+      getAdminPath({
+        activeSection: "customers",
+        eventSelected: null,
+        customerSelected: 12,
+      })
+    ).toBe("/admin/customers/12");
 
-    expect(url.searchParams.get("view")).toBe("customer");
-    expect(url.searchParams.get("id")).toBe("12");
+    expect(
+      getAdminPath({
+        activeSection: "events",
+        eventSelected: 7,
+        customerSelected: null,
+      })
+    ).toBe("/admin/events/7");
   });
 
-  it("drops the view param for the default events section", () => {
-    const url = buildAdminUrl({
-      currentUrl: "https://example.com/admin?view=email",
-      section: "events",
-      id: 7,
-    });
+  it("maps the old email views onto their own routes", () => {
+    expect(
+      getAdminPath({
+        activeSection: "email",
+        eventSelected: null,
+        customerSelected: null,
+      })
+    ).toBe("/admin/email");
 
-    expect(url.searchParams.has("view")).toBe(false);
-    expect(url.searchParams.get("id")).toBe("7");
-  });
+    expect(
+      getAdminPath({
+        activeSection: "test-email",
+        eventSelected: null,
+        customerSelected: null,
+      })
+    ).toBe("/admin/send-email");
 
-  it("drops a stale id when the section addresses no record", () => {
-    const url = buildAdminUrl({
-      currentUrl: "https://example.com/admin?view=customer&id=12",
-      section: "confirmation-email",
-      id: null,
-    });
-
-    expect(url.searchParams.get("view")).toBe("confirmation-email");
-    expect(url.searchParams.has("id")).toBe(false);
+    expect(
+      getAdminPath({
+        activeSection: "confirmation-email",
+        eventSelected: null,
+        customerSelected: null,
+      })
+    ).toBe("/admin/confirmation-email");
   });
 });
 
-describe("sectionKeepsSelectedId", () => {
-  it("keeps the id for the sections that address a record", () => {
-    expect(sectionKeepsSelectedId("events")).toBe(true);
-    expect(sectionKeepsSelectedId("customers")).toBe(true);
-  });
-
-  it("does not keep an id for the email sections", () => {
-    expect(sectionKeepsSelectedId("email")).toBe(false);
-    expect(sectionKeepsSelectedId("confirmation-email")).toBe(false);
+describe("isAdminNavActive", () => {
+  it("treats a detail page as part of its section", () => {
+    expect(isAdminNavActive("/admin/events/7", "/admin/events")).toBe(true);
+    expect(isAdminNavActive("/admin/customers", "/admin/events")).toBe(false);
   });
 });

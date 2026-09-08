@@ -1,6 +1,7 @@
 'use client';
 
 import { formatDate } from '@/app/utils/formatDate';
+import Link from 'next/link';
 
 interface EventHeaderProps {
   title: string;
@@ -9,8 +10,10 @@ interface EventHeaderProps {
   showMarketingComposer: boolean;
   onToggleEmailComposer: () => void;
   onToggleMarketingComposer: () => void;
-  onResetEvent: (event: number | null) => void;
 }
+
+const actionClass =
+  'bg-black text-gold px-4 py-3 rounded hover:bg-gold hover:text-black transition-colors min-h-[44px] inline-flex items-center justify-center';
 
 export function EventHeader({
   title,
@@ -18,11 +21,10 @@ export function EventHeader({
   showEmailComposer,
   showMarketingComposer,
   onToggleEmailComposer,
-  onToggleMarketingComposer,
-  onResetEvent
+  onToggleMarketingComposer
 }: EventHeaderProps) {
   return (
-    <div className="flex justify-between items-center mb-6">
+    <div className="flex flex-col gap-4 mb-6 md:flex-row md:justify-between md:items-start">
       <div>
         <h2 className="text-2xl font-bold text-gold">{title}</h2>
         {date && (
@@ -31,26 +33,25 @@ export function EventHeader({
           </p>
         )}
       </div>
-      <div className="flex gap-4">
+      <div className="flex flex-col sm:flex-row flex-wrap gap-3">
         <button
+          type="button"
           onClick={onToggleMarketingComposer}
-          className="bg-black text-gold px-4 py-2 rounded hover:bg-gold hover:text-black transition-colors"
+          className={actionClass}
         >
           {showMarketingComposer ? 'Hide Marketing Email' : 'Marketing Email'}
         </button>
-        <button 
+        <button
+          type="button"
           onClick={onToggleEmailComposer}
-          className="bg-black text-gold px-4 py-2 rounded hover:bg-gold hover:text-black transition-colors"
+          className={actionClass}
         >
           {showEmailComposer ? 'Hide Email Composer' : 'Email Attendees'}
         </button>
-        <button 
-          onClick={() => onResetEvent(null)} 
-          className="bg-black text-gold px-4 py-2 rounded hover:bg-gold hover:text-black transition-colors"
-        >
+        <Link href="/admin/events" className={actionClass}>
           Back to Events
-        </button>
+        </Link>
       </div>
     </div>
   );
-} 
+}

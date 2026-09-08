@@ -1,14 +1,17 @@
-import { getAllAdminEvents } from '../api/queries/select';
-import { AdminLayout } from '../components/AdminLayout/AdminLayout';
+import { getAdminPath, resolveAdminView } from '../components/AdminLayout/adminView';
+import { redirect } from 'next/navigation';
 
 export const dynamic = 'force-dynamic';
-export const revalidate = 0;
 
-const AdminPanel = async () => {
-  const adminEvents = await getAllAdminEvents()
-  return (
-    <AdminLayout adminEvents={adminEvents}/>
-  );
+type AdminIndexProps = {
+  searchParams: {
+    view?: string;
+    id?: string;
+  };
 };
 
-export default AdminPanel;
+const AdminIndex = ({ searchParams }: AdminIndexProps) => {
+  redirect(getAdminPath(resolveAdminView(searchParams.view ?? null, searchParams.id ?? null)));
+};
+
+export default AdminIndex;
