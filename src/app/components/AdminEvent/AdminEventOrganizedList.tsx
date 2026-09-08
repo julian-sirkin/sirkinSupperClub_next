@@ -24,24 +24,22 @@ export const AdminEventOrganizedList = ({ events }: { events: adminEvent[] }) =>
                 <th className="py-3 px-4 text-left">Date</th>
                 <th className="py-3 px-4 text-left">Tickets Available</th>
                 <th className="py-3 px-4 text-left">Tickets Sold</th>
-                <th className="py-3 px-4 text-left">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-800">
               {eventList.map((event) => (
-                <tr key={event.id} className="text-white hover:bg-black/70">
-                  <td className="py-3 px-4">{event.title}</td>
+                <tr key={event.id} className="relative text-white hover:bg-black/70 cursor-pointer">
+                  <td className="py-3 px-4 font-medium">
+                    <Link
+                      href={`/admin/events/${event.id}`}
+                      className="hover:text-gold after:absolute after:inset-0"
+                    >
+                      {event.title}
+                    </Link>
+                  </td>
                   <td className="py-3 px-4">{formatDate(new Date(event.date))}</td>
                   <td className="py-3 px-4">{event.ticketsAvailable}</td>
                   <td className="py-3 px-4">{event.ticketsSold}</td>
-                    <td className="py-3 px-4">
-                    <Link 
-                      href={`/admin/events/${event.id}`} 
-                      className="bg-gold text-black px-4 py-2 rounded hover:bg-white transition-colors inline-flex min-h-[44px] items-center"
-                    >
-                      View Details
-                    </Link>
-                  </td>
                 </tr>
               ))}
             </tbody>
