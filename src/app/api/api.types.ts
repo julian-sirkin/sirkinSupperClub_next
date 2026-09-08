@@ -9,6 +9,7 @@ import {
   GetTicketByIdAndEventProps,
   DatabaseTickets
 } from '@/types';
+import type { CartTicketType as StoreCartTicketType } from '@/store/cartStore.types';
 
 // Re-export for backward compatibility
 export type {
@@ -44,7 +45,8 @@ export type SuccessEmailProps = {
         dietaryRestrictions: string
         phoneNumber: string
     }
-    tickets: CartTicketType[]
+    /** The cart lines as submitted, which carry the ticket title, price, and add-on the email needs. */
+    tickets: StoreCartTicketType[]
     clientTimeZone?: string
 }
 
