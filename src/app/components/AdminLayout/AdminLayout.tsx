@@ -48,9 +48,9 @@ export const AdminLayout = ({ children }: { children: React.ReactNode }) => {
     };
 
     return (
-        <div className="min-h-screen bg-black text-white p-4 md:p-6">
+        <div className="min-h-screen bg-black text-white p-4 md:p-6 print:bg-white print:p-0">
             <ToastContainer position="top-right" autoClose={3000} />
-            <header className="mb-6 flex items-start justify-between gap-4">
+            <header className="mb-6 flex items-start justify-between gap-4 print:hidden">
                 <div>
                     <h1 className="text-2xl md:text-4xl font-bold text-gold mb-1">Admin Panel</h1>
                     <p className="text-sm md:text-base text-gray-400">Manage events, tickets, and customer data</p>
@@ -70,7 +70,7 @@ export const AdminLayout = ({ children }: { children: React.ReactNode }) => {
             <div className='flex flex-col md:flex-row gap-6'>
                 <nav
                     id="admin-nav"
-                    className={`${isMenuOpen ? 'flex' : 'hidden'} md:flex flex-col gap-3 md:w-64 p-4 bg-black/40 rounded-lg`}
+                    className={`${isMenuOpen ? 'flex' : 'hidden'} md:flex flex-col gap-3 md:w-64 p-4 bg-black/40 rounded-lg print:hidden`}
                 >
                     <button
                         type="button"
@@ -93,7 +93,7 @@ export const AdminLayout = ({ children }: { children: React.ReactNode }) => {
                     ))}
                 </nav>
 
-                <main className='flex-1 min-w-0 bg-black/40 p-4 md:p-6 rounded-lg'>
+                <main className='flex-1 min-w-0 bg-black/40 p-4 md:p-6 rounded-lg print:bg-white print:p-0 print:shadow-none'>
                     {children}
                 </main>
             </div>

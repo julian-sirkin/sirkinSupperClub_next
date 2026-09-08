@@ -77,6 +77,7 @@ export function AdminEventUI({
   return (
     <div className="bg-black/30 rounded-lg p-4">
       <EventHeader
+        eventId={eventId}
         title={eventTitle}
         date={eventDate}
         showEmailComposer={showEmailComposer}

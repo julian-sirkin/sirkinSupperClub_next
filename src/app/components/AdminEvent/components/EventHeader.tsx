@@ -4,6 +4,7 @@ import { formatDate } from '@/app/utils/formatDate';
 import Link from 'next/link';
 
 interface EventHeaderProps {
+  eventId: number;
   title: string;
   date: number | null;
   showEmailComposer: boolean;
@@ -16,6 +17,7 @@ const actionClass =
   'bg-black text-gold px-4 py-3 rounded hover:bg-gold hover:text-black transition-colors min-h-[44px] inline-flex items-center justify-center';
 
 export function EventHeader({
+  eventId,
   title,
   date,
   showEmailComposer,
@@ -48,6 +50,9 @@ export function EventHeader({
         >
           {showEmailComposer ? 'Hide Email Composer' : 'Email Attendees'}
         </button>
+        <Link href={`/admin/events/${eventId}/run-of-show`} className={actionClass}>
+          Run of show
+        </Link>
         <Link href="/admin/events" className={actionClass}>
           Back to Events
         </Link>
