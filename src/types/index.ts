@@ -78,11 +78,12 @@ export type BasePurchaseInfo = {
 export type AdminPurchase = BasePurchaseInfo & {
   customerName: string;
   customerEmail: string;
+  customerPhone?: string | null;
   purchaseItemsId?: number;
   refundDate?: number | null;
   ticketId: number;
-  dietaryRestrictions?: string;
-  notes?: string;
+  dietaryRestrictions?: string | null;
+  notes?: string | null;
   addonQuantity?: number;
   addonTitle?: string | null;
   addonId?: number | null;

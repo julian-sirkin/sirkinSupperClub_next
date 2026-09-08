@@ -6,8 +6,10 @@ import { CartTicketType } from "@/store/cartStore.types"
 import { NextResponse } from "next/server"
 import { createCustomer, createTicketPurchase } from "../queries/insert"
 import { getAllowedAddonsForTicketSelections, getCustomerByEmail, getTicketsByIdAndEvent } from "../queries/select"
+import { updateCustomer } from "../queries/update"
 import { successEmail } from "./successEmail"
 import { emailFailMessage, successfulRegisteredMessage } from "@/app/constants"
+import { optionalText } from "@/app/utils/optionalText"
 
 export async function POST(request: Request) {
     /**
@@ -18,8 +20,8 @@ export async function POST(request: Request) {
     const email: string = data?.email ?? ''
     const customerName: string = data?.name ?? ''
     const phoneNumber: string = data?.phoneNumber ?? ''
-    const notes: string = data?.notes ?? ''
-    const dietaryRestrictions: string = data?.dietaryRestrictions
+    const notes = optionalText(data?.notes)
+    const dietaryRestrictions = optionalText(data?.dietaryRestrictions)
     const clientTimeZone: string | undefined = data?.clientTimeZone
     const presalePassword: string = data?.presalePassword ?? ''
 
@@ -99,14 +101,20 @@ export async function POST(request: Request) {
     let customerId: number;
     if (customerInDatabase[0]?.id) {
         customerId = customerInDatabase[0].id;
+        await updateCustomer(customerId, {
+            name: optionalText(customerName) ?? undefined,
+            phoneNumber: optionalText(phoneNumber),
+            notes,
+            dietaryRestrictions,
+        });
     } else {
         const customerData = {
             email,
             name: customerName,
             priorCustomer: false,
-            phoneNumber: phoneNumber || null,
-            notes: notes || null,
-            dietaryRestrictions: dietaryRestrictions || null
+            phoneNumber: optionalText(phoneNumber),
+            notes,
+            dietaryRestrictions,
         };
         
         try {
@@ -124,11 +132,22 @@ export async function POST(request: Request) {
     /**
      * Complete purchase
      */
-    const {isSuccessful, message} = await createTicketPurchase(ticketsInRequest, customerId, false)
+    const {isSuccessful, message} = await createTicketPurchase(
+        ticketsInRequest,
+        customerId,
+        false,
+        { notes, dietaryRestrictions }
+    )
 
     if(isSuccessful) {
         const {emailSuccessfully} = await successEmail({
-            customer: {name: customerName, email, phoneNumber, notes, dietaryRestrictions},
+            customer: {
+                name: customerName,
+                email,
+                phoneNumber,
+                notes: notes ?? "",
+                dietaryRestrictions: dietaryRestrictions ?? "",
+            },
             tickets: ticketsInRequest,
             clientTimeZone,
         })

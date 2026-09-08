@@ -113,7 +113,15 @@ export async function createEventWithTickets(parsedEvents: ParsedEvent[]) {
     await createTicket(ticketsToInsert);
 }
 
-export async function createTicketPurchase(purchasedTickets: CartTicketType[], customerId: number, paid: boolean) {
+export async function createTicketPurchase(
+    purchasedTickets: CartTicketType[],
+    customerId: number,
+    paid: boolean,
+    reservationNotes?: {
+        notes?: string | null;
+        dietaryRestrictions?: string | null;
+    }
+) {
     try {
         // Start a transaction to ensure atomicity
         await db.transaction(async (trx) => {
@@ -123,7 +131,9 @@ export async function createTicketPurchase(purchasedTickets: CartTicketType[], c
                 paid: paid,
                 purchaseDate: new Date(), // Use native Date object
                 updatedDate: new Date(),
-                refundDate: null // Assuming no refund initially
+                refundDate: null, // Assuming no refund initially
+                notes: reservationNotes?.notes ?? null,
+                dietaryRestrictions: reservationNotes?.dietaryRestrictions ?? null,
             };
 
             const [{purchaseId}] = await trx.insert(purchasesTable).values(purchase).returning({purchaseId: purchasesTable.id});
