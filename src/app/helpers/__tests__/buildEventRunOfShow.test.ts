@@ -1,4 +1,4 @@
-import { buildEventRunOfShow, summarizeSeatingCounts } from "../buildEventRunOfShow";
+import { buildEventRunOfShow, displayOrNA, summarizeSeatingCounts } from "../buildEventRunOfShow";
 
 const jane = {
   purchaseId: 1,
@@ -126,5 +126,19 @@ describe("summarizeSeatingCounts", () => {
     expect(summarizeSeatingCounts(runOfShow.seatings[0])).toBe(
       "5 guests made up of 2 parties, a 2 and 3"
     );
+  });
+});
+
+describe("displayOrNA", () => {
+  it("says N/A when a field is empty or a leftover placeholder", () => {
+    expect(displayOrNA(null)).toBe("N/A");
+    expect(displayOrNA("")).toBe("N/A");
+    expect(displayOrNA("notes")).toBe("N/A");
+    expect(displayOrNA("dietaryRestrictions")).toBe("N/A");
+  });
+
+  it("keeps a real allergy or note", () => {
+    expect(displayOrNA("fish allergy")).toBe("fish allergy");
+    expect(displayOrNA("window if possible")).toBe("window if possible");
   });
 });

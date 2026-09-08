@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { EventRunOfShow, summarizeSeatingCounts } from "@/app/helpers/buildEventRunOfShow";
+import { displayOrNA, EventRunOfShow, summarizeSeatingCounts } from "@/app/helpers/buildEventRunOfShow";
 import { PrintRunOfShowButton } from "./PrintRunOfShowButton";
 
 const actionClass =
@@ -52,27 +52,30 @@ export function EventRunOfShowUI({
                 {seating.parties.map(party => (
                   <li
                     key={`${seating.timeKey}-${party.purchaseId}`}
-                    className="py-3 border-b border-white/10 print:py-0.5 print:border-neutral-300"
+                    className="py-3 border-b border-white/10 print:py-1 print:border-neutral-300"
                   >
                     <p className="print:text-xs print:leading-tight">
                       <span className="font-bold">{party.customerName}</span>
-                      <span className="text-gray-300 print:text-black"> · {party.size}</span>
-                      {party.dietaryRestrictions && (
-                        <span className="font-semibold text-red-300 print:text-black">
-                          {" "}
-                          · Dietary: {party.dietaryRestrictions}
-                        </span>
-                      )}
-                      {party.notes && (
-                        <span className="text-gray-200 print:text-black"> · Notes: {party.notes}</span>
-                      )}
+                      <span className="text-gray-300 print:text-black"> · party of {party.size}</span>
                       {party.addonLabel && (
                         <span className="text-gray-300 print:text-black"> · {party.addonLabel}</span>
                       )}
                       <span className="text-gray-400 print:text-black">
                         {" "}
-                        · {party.customerPhone ?? "No phone"} · {party.customerEmail}
+                        · {displayOrNA(party.customerPhone)} · {displayOrNA(party.customerEmail)}
                       </span>
+                    </p>
+                    <p
+                      className={`print:text-xs print:leading-tight ${
+                        party.dietaryRestrictions
+                          ? "font-semibold text-red-300 print:text-black"
+                          : "text-gray-400 print:text-black"
+                      }`}
+                    >
+                      Dietary: {displayOrNA(party.dietaryRestrictions)}
+                    </p>
+                    <p className="text-gray-200 whitespace-pre-wrap break-words print:text-xs print:leading-snug print:text-black">
+                      Notes: {displayOrNA(party.notes)}
                     </p>
                   </li>
                 ))}

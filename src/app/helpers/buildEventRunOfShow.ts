@@ -57,14 +57,37 @@ const toTimeKey = (ticketTime: RunOfShowTicket["ticketTime"]): number => {
   return Number.isNaN(parsed.getTime()) ? 0 : parsed.getTime();
 };
 
+const PLACEHOLDER_FIELD_VALUES = new Set([
+  "notes",
+  "note",
+  "dietaryrestrictions",
+  "dietary restrictions",
+  "n/a",
+  "na",
+  "none",
+  "none specified",
+]);
+
 const optionalLabel = (value: string | null | undefined): string | null => {
   if (!value) {
     return null;
   }
 
   const trimmed = value.trim();
-  return trimmed.length > 0 ? trimmed : null;
+  if (trimmed.length === 0) {
+    return null;
+  }
+
+  if (PLACEHOLDER_FIELD_VALUES.has(trimmed.toLowerCase())) {
+    return null;
+  }
+
+  return trimmed;
 };
+
+export const displayOrNA = (value: string | null | undefined): string =>
+  optionalLabel(value) ?? "N/A";
+
 
 const addonLabelFor = (purchase: RunOfShowPurchase): string | null => {
   const quantity = purchase.addonQuantity ?? 0;
