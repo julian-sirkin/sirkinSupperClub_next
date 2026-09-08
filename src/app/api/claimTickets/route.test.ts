@@ -21,6 +21,10 @@ jest.mock("../queries/insert", () => ({
   createTicketPurchase: jest.fn(),
 }));
 
+jest.mock("../queries/update", () => ({
+  updateCustomer: jest.fn(),
+}));
+
 jest.mock("./successEmail", () => ({
   successEmail: jest.fn(),
 }));
@@ -31,7 +35,8 @@ import {
   getCustomerByEmail,
   getTicketsByIdAndEvent,
 } from "../queries/select";
-import { createTicketPurchase } from "../queries/insert";
+import { createCustomer, createTicketPurchase } from "../queries/insert";
+import { updateCustomer } from "../queries/update";
 import { successEmail } from "./successEmail";
 import { POST } from "./route";
 
@@ -41,6 +46,8 @@ const mockedGetAllowedAddonsForTicketSelections =
   getAllowedAddonsForTicketSelections as jest.Mock;
 const mockedGetCustomerByEmail = getCustomerByEmail as jest.Mock;
 const mockedCreateTicketPurchase = createTicketPurchase as jest.Mock;
+const mockedCreateCustomer = createCustomer as jest.Mock;
+const mockedUpdateCustomer = updateCustomer as jest.Mock;
 const mockedSuccessEmail = successEmail as jest.Mock;
 
 const basePurchasedTicket = {
@@ -55,12 +62,22 @@ const basePurchasedTicket = {
   addons: [],
 };
 
-const buildRequest = (presalePassword: string) =>
+const buildRequest = ({
+  presalePassword = "correct-password",
+  notes,
+  dietaryRestrictions,
+}: {
+  presalePassword?: string;
+  notes?: string;
+  dietaryRestrictions?: string;
+} = {}) =>
   ({
     json: async () => ({
       name: "Jane Buyer",
       email: "jane@example.com",
       phoneNumber: "1234567890",
+      notes,
+      dietaryRestrictions,
       purchasedTickets: [basePurchasedTicket],
       presalePassword,
       clientTimeZone: "America/Los_Angeles",
@@ -97,11 +114,12 @@ describe("POST /api/claimTickets presale password validation", () => {
       isSuccessful: true,
       message: "ok",
     });
+    mockedUpdateCustomer.mockResolvedValue(undefined);
     mockedSuccessEmail.mockResolvedValue({ emailSuccessfully: true });
   });
 
   it("blocks checkout when presale password is incorrect", async () => {
-    const response = await POST(buildRequest("wrong-password"));
+    const response = await POST(buildRequest({ presalePassword: "wrong-password" }));
     const body = await response.json();
 
     expect(body.status).toBe(500);
@@ -111,10 +129,55 @@ describe("POST /api/claimTickets presale password validation", () => {
   });
 
   it("allows checkout when presale password is correct", async () => {
-    const response = await POST(buildRequest("correct-password"));
+    const response = await POST(buildRequest({ presalePassword: "correct-password" }));
     const body = await response.json();
 
     expect(body.status).toBe(200);
     expect(mockedCreateTicketPurchase).toHaveBeenCalledTimes(1);
+  });
+
+  it("stores notes on the purchase and updates a returning customer's profile", async () => {
+    const response = await POST(
+      buildRequest({
+        notes: "window seat if possible",
+        dietaryRestrictions: "fish allergy",
+      })
+    );
+    const body = await response.json();
+
+    expect(body.status).toBe(200);
+    expect(mockedUpdateCustomer).toHaveBeenCalledWith(123, {
+      name: "Jane Buyer",
+      phoneNumber: "1234567890",
+      notes: "window seat if possible",
+      dietaryRestrictions: "fish allergy",
+    });
+    expect(mockedCreateTicketPurchase).toHaveBeenCalledWith(
+      [basePurchasedTicket],
+      123,
+      false,
+      {
+        notes: "window seat if possible",
+        dietaryRestrictions: "fish allergy",
+      }
+    );
+    expect(mockedCreateCustomer).not.toHaveBeenCalled();
+  });
+
+  it("does not wipe a returning customer's saved dietary notes when the new checkout leaves them blank", async () => {
+    await POST(buildRequest({ notes: "   ", dietaryRestrictions: "" }));
+
+    expect(mockedUpdateCustomer).toHaveBeenCalledWith(123, {
+      name: "Jane Buyer",
+      phoneNumber: "1234567890",
+      notes: null,
+      dietaryRestrictions: null,
+    });
+    expect(mockedCreateTicketPurchase).toHaveBeenCalledWith(
+      [basePurchasedTicket],
+      123,
+      false,
+      { notes: null, dietaryRestrictions: null }
+    );
   });
 });

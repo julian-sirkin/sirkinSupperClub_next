@@ -4,6 +4,7 @@ import { customersTable, purchaseItemsTable, purchasesTable } from '@/db/schema'
 import { transporter } from '@/app/config/nodemailer';
 import { eq, and, inArray } from 'drizzle-orm';
 import { createUnsubscribeToken } from '@/app/lib/unsubscribeToken';
+import { isAdminRequest, unauthorizedAdminResponse } from '../utils/isAdminRequest';
 
 const ADMIN_EMAIL = 'sirkinsupperclub@gmail.com';
 const MAX_CONCURRENT_SENDS = 10;
@@ -43,6 +44,10 @@ async function sendEmailsInBatches(tasks: Array<() => Promise<void>>) {
 }
 
 export async function POST(request: Request) {
+  if (!(await isAdminRequest(request))) {
+    return unauthorizedAdminResponse();
+  }
+
   try {
     const { subject, content, type, eventId, recipients } = await request.json();
     const origin = new URL(request.url).origin;

@@ -49,7 +49,9 @@ export const purchasesTable = sqliteTable('purchases', {
     paid: integer('paid', { mode: 'boolean' }).notNull(),
     purchaseDate: integer('purchase_date', { mode: 'timestamp' }).notNull(),  // Track when the purchase was made
     updatedDate: integer('updated_date', { mode: 'timestamp' }).notNull(),  // Track any updates (e.g., refunds)
-    refundDate: integer('refund_date', { mode: 'timestamp' })  // Track if/when a refund occurs
+    refundDate: integer('refund_date', { mode: 'timestamp' }),  // Track if/when a refund occurs
+    notes: text('notes'),
+    dietaryRestrictions: text('dietaryRestrictions'),
 });
 
 export const purchaseItemsTable = sqliteTable('purchase_items', {

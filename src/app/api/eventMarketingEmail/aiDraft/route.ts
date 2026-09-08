@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { getMarketingEventContext } from "@/app/services/email/eventMarketingEmailService";
+import { isAdminRequest, unauthorizedAdminResponse } from "../../utils/isAdminRequest";
 
 type AnthropicTextBlock = {
   type?: string;
@@ -304,6 +305,10 @@ function isThinSummary(summary: string): boolean {
 }
 
 export async function POST(request: Request) {
+  if (!(await isAdminRequest(request))) {
+    return unauthorizedAdminResponse();
+  }
+
   try {
     const body = (await request.json()) as AIDraftRequest;
     const eventId = Number(body?.eventId);

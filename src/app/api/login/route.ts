@@ -1,17 +1,30 @@
-import Cookies from "js-cookie";
+import {
+  adminSessionCookieOptions,
+  createAdminSessionToken,
+  getAdminCookieName,
+} from "@/app/lib/adminSession";
 import { NextResponse } from "next/server";
 
 export async function POST(req: Request) {
-    const body = await req.json(); // Parse the request body
-    const { password } = body; // Extract password
-    const adminPassword = process.env.ADMIN_PASSWORD as string ?? undefined
-    const adminLoginCookieValue = process.env.ADMIN_VERIFIED_COOKIE as string;
-    
-    if (password === adminPassword) {
-      const response = NextResponse.json({ status: 200, success: true });
-      response.cookies.set(adminLoginCookieValue, 'true'); // Set the cookie in the response
-      return response;
-    } else {
-      return NextResponse.json({success: false }, { status: 401} );
-    }
+  const body = await req.json();
+  const { password } = body;
+  const adminPassword = process.env.ADMIN_PASSWORD;
+
+  if (!adminPassword || password !== adminPassword) {
+    return NextResponse.json({ success: false }, { status: 401 });
+  }
+
+  const token = await createAdminSessionToken();
+
+  if (!token) {
+    return NextResponse.json(
+      { success: false, message: "Admin sessions are not configured" },
+      { status: 500 }
+    );
+  }
+
+  const response = NextResponse.json({ status: 200, success: true });
+  response.cookies.set(getAdminCookieName(), token, adminSessionCookieOptions);
+
+  return response;
 }

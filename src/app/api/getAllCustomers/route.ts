@@ -2,8 +2,13 @@ import { NextResponse } from "next/server"
 import { db } from "@/db"
 import { customersTable, purchasesTable } from "@/db/schema"
 import { count, eq, max } from "drizzle-orm"
+import { isAdminRequest, unauthorizedAdminResponse } from "../utils/isAdminRequest"
 
-export async function GET() {
+export async function GET(request: Request) {
+    if (!(await isAdminRequest(request))) {
+        return unauthorizedAdminResponse();
+    }
+
     try {
         const customers = await db
             .select({

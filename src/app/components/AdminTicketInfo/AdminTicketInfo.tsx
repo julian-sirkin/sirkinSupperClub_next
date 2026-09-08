@@ -2,6 +2,8 @@ import { TicketWithPurchases, RefundToastFunction } from '@/types';
 import { AdminRefundForm } from "../AdminRefundForm/AdminRefundForm"
 import { PaymentStatusToggle } from "../PaymentStatusToggle/PaymentStatusToggle"
 import { formatDate } from "@/app/utils/formatDate"
+import { invalidateCustomerCaches, invalidateEventCacheByPurchaseId, patchCachedPurchasePaid } from "@/app/admin/adminDataCache"
+import Link from "next/link"
 import { useState } from "react"
 import { FiChevronDown, FiChevronUp } from 'react-icons/fi'
 
@@ -9,12 +11,10 @@ export const AdminTicketInfo = ({
     ticket: initialTicket, 
     setRefundToast, 
     ticketName = "",
-    onCustomerClick
 }: {
     ticket: TicketWithPurchases, 
     setRefundToast: RefundToastFunction,
     ticketName?: string,
-    onCustomerClick?: (customerId: number) => void
 }) => {
     const [ticket, setTicket] = useState(initialTicket);
     const ticketDate = new Date(ticket.ticketTime)
@@ -30,6 +30,7 @@ export const AdminTicketInfo = ({
                     : purchase
             )
         )
+        patchCachedPurchasePaid(purchaseId, newStatus)
     }
     
     const handleRefund = (message: string, refundedQuantity?: number) => {
@@ -77,6 +78,8 @@ export const AdminTicketInfo = ({
                 })
                 .filter(purchase => purchase.quantity > 0);
         });
+        invalidateEventCacheByPurchaseId(payload.purchaseId);
+        invalidateCustomerCaches();
     };
     
     const toggleOrderDetails = (purchaseId: number) => {
@@ -86,16 +89,10 @@ export const AdminTicketInfo = ({
         }));
     }
 
-    const handleCustomerClick = (customerId: number) => {
-        if (onCustomerClick) {
-            onCustomerClick(customerId);
-        }
-    };
-
     return (
         <div className="bg-black rounded-lg overflow-hidden shadow-lg">
-            <header className="bg-gold text-black font-bold text-xl p-3 flex justify-between items-center">
-                <div>
+            <header className="bg-gold text-black font-bold p-3 flex flex-col gap-2 sm:flex-row sm:justify-between sm:items-center">
+                <div className="text-lg md:text-xl">
                     {ticketName ? `${ticketName} - ` : ""}{formatDate(ticketDate)} at {ticketDate.toLocaleString("en-us", {hour: 'numeric', minute: 'numeric'})}
                 </div>
                 <div className="text-sm">
@@ -113,15 +110,16 @@ export const AdminTicketInfo = ({
                             <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                                 <div className="space-y-1">
                                     <div className="flex items-center gap-2">
-                                        <button 
-                                            onClick={() => handleCustomerClick(order.customerId)}
+                                        <Link 
+                                            href={`/admin/customers/${order.customerId}`}
                                             className="font-bold text-lg hover:text-gold transition-colors text-left"
                                         >
                                             {order.customerName || 'Unknown Customer'}
-                                        </button>
+                                        </Link>
                                         <button 
+                                            type="button"
                                             onClick={() => toggleOrderDetails(order.purchaseId)}
-                                            className="p-1 rounded-full hover:bg-gray-800 transition-colors"
+                                            className="p-2 rounded-full hover:bg-gray-800 transition-colors min-h-[44px] min-w-[44px] inline-flex items-center justify-center"
                                         >
                                             {expandedOrders[order.purchaseId] ? 
                                                 <FiChevronUp className="text-gold" /> : 
@@ -130,7 +128,7 @@ export const AdminTicketInfo = ({
                                         </button>
                                     </div>
                                     <div className="text-gray-400">{order.customerEmail || 'No email'}</div>
-                                    <div className="flex gap-2">
+                                    <div className="flex flex-wrap gap-2">
                                         <div className="bg-gold/20 inline-block px-2 py-1 rounded text-gold">
                                             Tickets: {order.quantity}
                                         </div>

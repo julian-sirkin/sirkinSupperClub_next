@@ -45,6 +45,16 @@ describe("renderOrderConfirmationEmail", () => {
     expect(html).toContain("$250.00");
   });
 
+  it("explains lateness in terms of other guests and notes that tipping is optional", () => {
+    const { html } = renderWithDefaults();
+
+    expect(html).toContain("I turn the table as a group");
+    expect(html).toContain("a late start can mean other guests are impacted");
+    expect(html).toContain("Tipping");
+    expect(html).toContain("Purely optional, always appreciated");
+    expect(html).not.toContain("missed course");
+  });
+
   it("names the seating time so the guest knows when to arrive", () => {
     const { html } = renderWithDefaults();
 

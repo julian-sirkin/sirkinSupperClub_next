@@ -1,6 +1,7 @@
 'use client';
 
 import { TicketWithPurchases } from '@/app/api/api.types';
+import Link from 'next/link';
 import { EventHeader } from './components/EventHeader';
 import { EventConfirmationEmailSection } from './components/EventConfirmationEmailSection';
 import { EventEmailSection } from './components/EventEmailSection';
@@ -19,12 +20,13 @@ interface AdminEventUIProps {
   recipientEmails: string[];
   onToggleEmailComposer: () => void;
   onToggleMarketingComposer: () => void;
-  onResetEvent: (event: number | null) => void;
   onRefund: (message: string) => void;
   onSendEmail: (subject: string, content: string) => Promise<void>;
   onRetry: () => void;
-  onCustomerClick?: (customerId: number) => void;
 }
+
+const backLinkClass =
+  'bg-black text-gold px-4 py-3 rounded hover:bg-gold hover:text-black transition-colors min-h-[44px] inline-flex items-center justify-center';
 
 export function AdminEventUI({
   eventId,
@@ -38,11 +40,9 @@ export function AdminEventUI({
   recipientEmails,
   onToggleEmailComposer,
   onToggleMarketingComposer,
-  onResetEvent,
   onRefund,
   onSendEmail,
-  onRetry,
-  onCustomerClick
+  onRetry
 }: AdminEventUIProps) {
   if (isLoading) {
     return (
@@ -55,20 +55,17 @@ export function AdminEventUI({
   if (error) {
     return (
       <div className="bg-black/30 rounded-lg p-4">
-        <div className="flex justify-between items-center mb-6">
+        <div className="flex flex-col gap-4 md:flex-row md:justify-between md:items-center mb-6">
           <h2 className="text-2xl font-bold text-gold">Error Loading Event</h2>
-          <button 
-            onClick={() => onResetEvent(null)} 
-            className="bg-black text-gold px-4 py-2 rounded hover:bg-gold hover:text-black transition-colors"
-          >
+          <Link href="/admin/events" className={backLinkClass}>
             Back to Events
-          </button>
+          </Link>
         </div>
         <div className="text-center p-8 text-white bg-black/50 rounded-lg">
           <p className="text-red-400 mb-4">{error}</p>
           <button 
             onClick={onRetry} 
-            className="bg-gold text-black px-4 py-2 rounded hover:bg-white transition-colors"
+            className="bg-gold text-black px-4 py-3 rounded hover:bg-white transition-colors min-h-[44px]"
           >
             Retry
           </button>
@@ -80,13 +77,13 @@ export function AdminEventUI({
   return (
     <div className="bg-black/30 rounded-lg p-4">
       <EventHeader
+        eventId={eventId}
         title={eventTitle}
         date={eventDate}
         showEmailComposer={showEmailComposer}
         showMarketingComposer={showMarketingComposer}
         onToggleEmailComposer={onToggleEmailComposer}
         onToggleMarketingComposer={onToggleMarketingComposer}
-        onResetEvent={onResetEvent}
       />
 
       {showMarketingComposer && (
@@ -108,8 +105,7 @@ export function AdminEventUI({
       <EventTicketsList
         tickets={eventData}
         onRefund={onRefund}
-        onCustomerClick={onCustomerClick}
       />
     </div>
   );
-} 
+}

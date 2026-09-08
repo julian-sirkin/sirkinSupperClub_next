@@ -11,14 +11,13 @@ export type AdminViewState = {
   customerSelected: number | null;
 };
 
-const VIEW_PARAM_BY_SECTION: Record<AdminSection, string | null> = {
-  customers: "customer",
-  // Events is the default view, so it carries no view param.
-  events: null,
-  email: "email",
-  "test-email": "test-email",
-  "confirmation-email": "confirmation-email",
-};
+export const ADMIN_NAV_ITEMS: { href: string; label: string; match: string }[] = [
+  { href: "/admin/events", label: "Events", match: "/admin/events" },
+  { href: "/admin/customers", label: "Customers", match: "/admin/customers" },
+  { href: "/admin/email", label: "Email All", match: "/admin/email" },
+  { href: "/admin/send-email", label: "Send Email", match: "/admin/send-email" },
+  { href: "/admin/confirmation-email", label: "Confirmation Email", match: "/admin/confirmation-email" },
+];
 
 const parseId = (rawId: string | null): number | null => {
   if (!rawId) {
@@ -28,6 +27,9 @@ const parseId = (rawId: string | null): number | null => {
   const id = Number(rawId);
   return Number.isInteger(id) && id > 0 ? id : null;
 };
+
+export const parseAdminRecordId = (rawId: string | undefined): number | null =>
+  parseId(rawId ?? null);
 
 /** Anything unrecognised lands on the events list, which is the default view. */
 export const resolveAdminView = (
@@ -47,33 +49,29 @@ export const resolveAdminView = (
   return { activeSection: "events", eventSelected: id, customerSelected: null };
 };
 
-export const buildAdminUrl = ({
-  currentUrl,
-  section,
-  id,
-}: {
-  currentUrl: string;
-  section: AdminSection;
-  id: number | null;
-}): URL => {
-  const url = new URL(currentUrl);
-  const viewParam = VIEW_PARAM_BY_SECTION[section];
-
-  if (viewParam) {
-    url.searchParams.set("view", viewParam);
-  } else {
-    url.searchParams.delete("view");
+export const getAdminPath = ({
+  activeSection,
+  eventSelected,
+  customerSelected,
+}: AdminViewState): string => {
+  if (activeSection === "customers") {
+    return customerSelected ? `/admin/customers/${customerSelected}` : "/admin/customers";
   }
 
-  if (id) {
-    url.searchParams.set("id", id.toString());
-  } else {
-    url.searchParams.delete("id");
+  if (activeSection === "email") {
+    return "/admin/email";
   }
 
-  return url;
+  if (activeSection === "test-email") {
+    return "/admin/send-email";
+  }
+
+  if (activeSection === "confirmation-email") {
+    return "/admin/confirmation-email";
+  }
+
+  return eventSelected ? `/admin/events/${eventSelected}` : "/admin/events";
 };
 
-/** Only the events and customers views address a specific record. */
-export const sectionKeepsSelectedId = (section: AdminSection): boolean =>
-  section === "events" || section === "customers";
+export const isAdminNavActive = (pathname: string, match: string): boolean =>
+  pathname === match || pathname.startsWith(`${match}/`);

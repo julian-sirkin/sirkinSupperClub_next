@@ -1,77 +1,42 @@
 'use client'
-import ConfirmationEmailSection from '@/app/adminPannelSections/ConfirmationEmailSection';
-import CustomerSection from '@/app/adminPannelSections/CustomerSection';
-import EventData from '@/app/adminPannelSections/EventData';
-import { adminEvent } from '@/app/api/api.types';
-import { useCallback, useEffect, useState } from 'react';
-import { toast, ToastContainer } from 'react-toastify';
 import { syncEvents } from '@/app/utils/syncEvents';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+import { useEffect, useState } from 'react';
+import { CiMenuBurger } from 'react-icons/ci';
+import { IoClose } from 'react-icons/io5';
+import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { EmailSection } from '../EmailSection/EmailSection';
-import { TestEmailSection } from '../TestEmailSection/TestEmailSection';
-import { AdminSection, buildAdminUrl, resolveAdminView, sectionKeepsSelectedId } from './adminView';
+import { ADMIN_NAV_ITEMS, isAdminNavActive } from './adminView';
 
-const NAV_ITEMS: { section: AdminSection; label: string }[] = [
-    { section: 'customers', label: 'Customers' },
-    { section: 'events', label: 'Events' },
-    { section: 'email', label: 'Email All' },
-    { section: 'test-email', label: 'Send Email' },
-    { section: 'confirmation-email', label: 'Confirmation Email' },
-];
+const navButtonClass = (isActive: boolean) =>
+    `w-full text-left p-3 rounded-lg shadow-md transition-colors min-h-[44px] ${
+        isActive ? 'bg-gold text-black' : 'bg-black text-gold hover:bg-gold hover:text-black'
+    }`;
 
-export const AdminLayout = ({adminEvents}: {adminEvents?: adminEvent[]}) => {
-    const [activeSection, setActiveSection] = useState<AdminSection>('events');
-    const [eventSelected, setEventSelected] = useState<number | null>(null);
-    const [customerSelected, setCustomerSelected] = useState<number | null>(null);
+export const AdminLayout = ({ children }: { children: React.ReactNode }) => {
+    const pathname = usePathname();
+    const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [isSyncing, setIsSyncing] = useState(false);
 
-    const applyUrlToState = useCallback(() => {
-        const params = new URLSearchParams(window.location.search);
-        const { activeSection: section, eventSelected: event, customerSelected: customer } =
-            resolveAdminView(params.get('view'), params.get('id'));
-
-        setActiveSection(section);
-        setEventSelected(event);
-        setCustomerSelected(customer);
-    }, []);
-
-    // Keeps the panel in sync with the URL on first load and on back/forward navigation.
     useEffect(() => {
-        applyUrlToState();
-        window.addEventListener('popstate', applyUrlToState);
-
-        return () => {
-            window.removeEventListener('popstate', applyUrlToState);
-        };
-    }, [applyUrlToState]);
-
-    const pushUrl = (section: AdminSection, id: number | null) => {
-        window.history.pushState(
-            {},
-            '',
-            buildAdminUrl({ currentUrl: window.location.href, section, id })
-        );
-    };
+        setIsMenuOpen(false);
+    }, [pathname]);
 
     const handleSyncEvents = async () => {
         if (isSyncing) return;
         setIsSyncing(true);
 
         try {
-            const success = await syncEvents(() => {
-                window.location.reload();
-            });
-
-            if (success) {
-                setTimeout(() => {
-                    if (isSyncing) {
-                        setIsSyncing(false);
-                        window.location.reload();
-                    }
-                }, 5000);
-            } else {
+            const success = await syncEvents();
+            if (!success) {
                 setIsSyncing(false);
+                return;
             }
+
+            setTimeout(() => {
+                window.location.reload();
+            }, 1200);
         } catch (error) {
             console.error("Error in sync process:", error);
             setIsSyncing(false);
@@ -79,43 +44,34 @@ export const AdminLayout = ({adminEvents}: {adminEvents?: adminEvent[]}) => {
         }
     };
 
-    const handleSectionChange = (section: AdminSection) => {
-        setActiveSection(section);
-
-        if (!sectionKeepsSelectedId(section)) {
-            pushUrl(section, null);
-            return;
-        }
-
-        pushUrl(section, section === 'customers' ? customerSelected : eventSelected);
-    };
-
-    const handleEventClick = (eventId: number | null) => {
-        setEventSelected(eventId);
-        setCustomerSelected(null);
-        setActiveSection('events');
-        pushUrl('events', eventId);
-    };
-
-    const handleCustomerClick = (customerId: number | null) => {
-        setCustomerSelected(customerId);
-        setEventSelected(null);
-        setActiveSection('customers');
-        pushUrl('customers', customerId);
-    };
-
     return (
-        <div className="admin-panel p-6 max-w-7xl mx-auto">
+        <div className="min-h-screen bg-black text-white p-4 md:p-6 print:min-h-0 print:bg-white print:p-0 print:text-black">
             <ToastContainer position="top-right" autoClose={3000} />
-            <header className="mb-8">
-                <h1 className="text-center text-4xl font-bold text-gold mb-2">Admin Panel</h1>
-                <p className="text-center text-gray-400">Manage events, tickets, and customer data</p>
+            <header className="mb-6 flex items-start justify-between gap-4 print:hidden">
+                <div>
+                    <h1 className="text-2xl md:text-4xl font-bold text-gold mb-1">Admin Panel</h1>
+                    <p className="text-sm md:text-base text-gray-400">Manage events, tickets, and customer data</p>
+                </div>
+                <button
+                    type="button"
+                    className="md:hidden p-3 rounded-lg border border-gold text-gold min-h-[44px] min-w-[44px]"
+                    onClick={() => setIsMenuOpen(open => !open)}
+                    aria-expanded={isMenuOpen}
+                    aria-controls="admin-nav"
+                    aria-label={isMenuOpen ? 'Close admin menu' : 'Open admin menu'}
+                >
+                    {isMenuOpen ? <IoClose className="text-2xl" /> : <CiMenuBurger className="text-2xl" />}
+                </button>
             </header>
 
             <div className='flex flex-col md:flex-row gap-6'>
-                <nav className='flex md:flex-col flex-wrap justify-start gap-4 md:w-64 p-4 bg-black/20 rounded-lg'>
+                <nav
+                    id="admin-nav"
+                    className={`${isMenuOpen ? 'flex' : 'hidden'} md:flex flex-col gap-3 md:w-64 p-4 bg-black/40 rounded-lg print:hidden`}
+                >
                     <button
-                        className={`bg-black text-gold p-3 rounded-lg hover:bg-gold hover:text-black transition-colors shadow-md ${
+                        type="button"
+                        className={`bg-black text-gold p-3 rounded-lg hover:bg-gold hover:text-black transition-colors shadow-md min-h-[44px] ${
                             isSyncing ? 'opacity-50 cursor-not-allowed' : ''
                         }`}
                         onClick={handleSyncEvents}
@@ -123,36 +79,19 @@ export const AdminLayout = ({adminEvents}: {adminEvents?: adminEvent[]}) => {
                     >
                         {isSyncing ? 'Syncing...' : 'Sync Events'}
                     </button>
-                    {NAV_ITEMS.map(({ section, label }) => (
-                        <button
-                            key={section}
-                            className={`p-3 rounded-lg shadow-md transition-colors ${activeSection === section ? 'bg-gold text-black' : 'bg-black text-gold hover:bg-gold hover:text-black'}`}
-                            onClick={() => handleSectionChange(section)}
+                    {ADMIN_NAV_ITEMS.map(({ href, label, match }) => (
+                        <Link
+                            key={href}
+                            href={href}
+                            className={navButtonClass(isAdminNavActive(pathname, match))}
                         >
                             {label}
-                        </button>
+                        </Link>
                     ))}
                 </nav>
 
-                <main className='flex-1 bg-black/20 p-6 rounded-lg'>
-                    {activeSection === 'customers' && (
-                        <CustomerSection
-                            selectedCustomerId={customerSelected}
-                            onCustomerSelect={handleCustomerClick}
-                            onEventClick={handleEventClick}
-                        />
-                    )}
-                    {activeSection === 'events' && (
-                        <EventData
-                            events={adminEvents}
-                            handleEventClick={handleEventClick}
-                            eventSelected={eventSelected}
-                            onCustomerClick={handleCustomerClick}
-                        />
-                    )}
-                    {activeSection === 'email' && <EmailSection />}
-                    {activeSection === 'test-email' && <TestEmailSection />}
-                    {activeSection === 'confirmation-email' && <ConfirmationEmailSection />}
+                <main className='flex-1 min-w-0 bg-black/40 p-4 md:p-6 rounded-lg print:bg-white print:p-0 print:shadow-none print:rounded-none'>
+                    {children}
                 </main>
             </div>
         </div>

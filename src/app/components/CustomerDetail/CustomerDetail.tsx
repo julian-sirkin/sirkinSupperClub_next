@@ -1,7 +1,9 @@
 'use client'
 import { useState, useEffect } from 'react'
+import Link from 'next/link'
 import { formatDate } from '@/app/utils/formatDate'
 import { getCustomerDetails } from '@/app/lib/apiClient'
+import { getCachedCustomerDetails, setCachedCustomerDetails } from '@/app/admin/adminDataCache'
 
 type CustomerPurchase = {
     purchaseId: number
@@ -26,18 +28,24 @@ type CustomerDetails = {
 
 export const CustomerDetail = ({ 
     customerId, 
-    onBack,
-    onEventClick
 }: { 
     customerId: number, 
-    onBack: () => void,
-    onEventClick?: (eventId: number) => void
 }) => {
-    const [customer, setCustomer] = useState<CustomerDetails | null>(null)
-    const [isLoading, setIsLoading] = useState(true)
+    const [customer, setCustomer] = useState<CustomerDetails | null>(
+        () => getCachedCustomerDetails<CustomerDetails>(customerId) ?? null
+    )
+    const [isLoading, setIsLoading] = useState(() => !getCachedCustomerDetails(customerId))
     const [error, setError] = useState<string | null>(null)
 
     useEffect(() => {
+        const cached = getCachedCustomerDetails<CustomerDetails>(customerId)
+        if (cached) {
+            setCustomer(cached)
+            setIsLoading(false)
+            setError(null)
+            return
+        }
+
         const fetchCustomerDetails = async () => {
             setIsLoading(true)
             setError(null)
@@ -48,7 +56,11 @@ export const CustomerDetail = ({
                 const data = await response.json()
                 
                 if (response.ok) {
-                    setCustomer(data.customer || null)
+                    const nextCustomer = data.customer || null
+                    if (nextCustomer) {
+                        setCachedCustomerDetails(customerId, nextCustomer)
+                    }
+                    setCustomer(nextCustomer)
                 } else {
                     const errorMsg = data.message || 'Failed to load customer details'
                     setError(errorMsg)
@@ -64,12 +76,9 @@ export const CustomerDetail = ({
         fetchCustomerDetails()
     }, [customerId])
     
-    const handleEventClick = (eventId: number) => {
-        if (onEventClick) {
-            onEventClick(eventId);
-        }
-    };
-    
+    const backLinkClass =
+        'bg-black text-gold px-4 py-3 rounded hover:bg-gold hover:text-black transition-colors min-h-[44px] inline-flex items-center justify-center'
+
     if (isLoading) {
         return (
             <div className="flex justify-center items-center h-64">
@@ -81,14 +90,11 @@ export const CustomerDetail = ({
     if (error || !customer) {
         return (
             <div className="bg-black/30 rounded-lg p-4">
-                <div className="flex justify-between items-center mb-6">
+                <div className="flex flex-col gap-4 md:flex-row md:justify-between md:items-center mb-6">
                     <h2 className="text-2xl font-bold text-gold">Error Loading Customer</h2>
-                    <button 
-                        onClick={onBack} 
-                        className="bg-black text-gold px-4 py-2 rounded hover:bg-gold hover:text-black transition-colors"
-                    >
+                    <Link href="/admin/customers" className={backLinkClass}>
                         Back to Customers
-                    </button>
+                    </Link>
                 </div>
                 <div className="text-center p-8 text-white bg-black/50 rounded-lg">
                     <p className="text-red-400 mb-4">{error || 'Customer not found'}</p>
@@ -108,14 +114,11 @@ export const CustomerDetail = ({
 
     return (
         <div className="bg-black/30 rounded-lg p-4">
-            <div className="flex justify-between items-center mb-6">
+            <div className="flex flex-col gap-4 md:flex-row md:justify-between md:items-center mb-6">
                 <h2 className="text-2xl font-bold text-gold">{customer.name}</h2>
-                <button 
-                    onClick={onBack} 
-                    className="bg-black text-gold px-4 py-2 rounded hover:bg-gold hover:text-black transition-colors"
-                >
+                <Link href="/admin/customers" className={backLinkClass}>
                     Back to Customers
-                </button>
+                </Link>
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
@@ -168,12 +171,12 @@ export const CustomerDetail = ({
                                 {customer.purchases.map((purchase) => (
                                     <tr key={purchase.purchaseId} className="text-white">
                                         <td className="py-2 px-4">
-                                            <button 
-                                                onClick={() => handleEventClick(purchase.eventId)}
+                                            <Link 
+                                                href={`/admin/events/${purchase.eventId}`}
                                                 className="hover:text-gold transition-colors text-left"
                                             >
                                                 {purchase.eventTitle}
-                                            </button>
+                                            </Link>
                                         </td>
                                         <td className="py-2 px-4">{formatDate(new Date(purchase.eventDate))}</td>
                                         <td className="py-2 px-4">

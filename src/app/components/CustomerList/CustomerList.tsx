@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { formatDate } from '@/app/utils/formatDate';
 import { getAllCustomers } from '@/app/lib/apiClient';
+import { getCachedCustomerList, setCachedCustomerList } from '@/app/admin/adminDataCache';
 
 type Customer = {
   id: number;
@@ -13,13 +14,17 @@ type Customer = {
   lastPurchase: number | null;
 };
 
-export const CustomerList = ({ onSelectCustomer }: { onSelectCustomer: (id: number) => void }) => {
-  const [customers, setCustomers] = useState<Customer[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+export const CustomerList = () => {
+  const [customers, setCustomers] = useState<Customer[]>(() => getCachedCustomerList<Customer[]>() ?? []);
+  const [isLoading, setIsLoading] = useState(() => !getCachedCustomerList());
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
 
   useEffect(() => {
+    if (getCachedCustomerList()) {
+      return;
+    }
+
     const fetchCustomers = async () => {
       setIsLoading(true);
       setError(null);
@@ -28,7 +33,9 @@ export const CustomerList = ({ onSelectCustomer }: { onSelectCustomer: (id: numb
         const data = await response.json();
         
         if (response.ok) {
-          setCustomers(data.customers || []);
+          const nextCustomers = data.customers || [];
+          setCachedCustomerList(nextCustomers);
+          setCustomers(nextCustomers);
         } else {
           setError(data.message || 'Failed to load customers');
         }
@@ -98,10 +105,13 @@ export const CustomerList = ({ onSelectCustomer }: { onSelectCustomer: (id: numb
               filteredCustomers.map((customer) => (
                 <tr 
                   key={customer.id} 
-                  className="text-white hover:bg-black/70 cursor-pointer"
-                  onClick={() => onSelectCustomer(customer.id)}
+                  className="text-white hover:bg-black/70"
                 >
-                  <td className="py-3 px-4 font-medium">{customer.name}</td>
+                  <td className="py-3 px-4 font-medium">
+                    <Link href={`/admin/customers/${customer.id}`} className="hover:text-gold">
+                      {customer.name}
+                    </Link>
+                  </td>
                   <td className="py-3 px-4">{customer.email}</td>
                   <td className="py-3 px-4">{customer.phoneNumber || 'N/A'}</td>
                   <td className="py-3 px-4">{customer.purchaseCount}</td>

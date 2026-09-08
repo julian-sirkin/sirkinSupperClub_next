@@ -1,8 +1,24 @@
 import { ParsedEvent } from "@/app/networkCalls/contentful/contentfulServices.types";
 import { db } from "@/db";
-import { eventsTable, ticketsTable, purchasesTable, purchaseItemsTable } from "@/db/schema";
+import { customersTable, eventsTable, ticketsTable, purchasesTable, purchaseItemsTable } from "@/db/schema";
 import { eq, sql } from 'drizzle-orm';
 import { UpdatedEventFields, UpdatedTicketFields } from "../api.types";
+import { buildCustomerProfileUpdate, CustomerProfileUpdate } from "@/app/utils/buildCustomerProfileUpdate";
+
+export async function updateCustomer(
+    customerId: number,
+    updateData: CustomerProfileUpdate
+) {
+    const fieldsToUpdate = buildCustomerProfileUpdate(updateData);
+
+    if (Object.keys(fieldsToUpdate).length === 0) {
+        return;
+    }
+
+    return await db.update(customersTable)
+        .set(fieldsToUpdate)
+        .where(eq(customersTable.id, customerId));
+}
 
 // Basic update operations
 export async function updateEvent(eventId: number, updateData: Partial<UpdatedEventFields>) {

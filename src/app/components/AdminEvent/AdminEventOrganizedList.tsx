@@ -2,14 +2,10 @@
 
 import { adminEvent } from '@/app/api/api.types';
 import { formatDate } from '@/app/utils/formatDate';
-import { organizeAdminEvents, OrganizedEvents } from '@/app/helpers/organizeAdminEvents';
+import { organizeAdminEvents } from '@/app/helpers/organizeAdminEvents';
+import Link from 'next/link';
 
-interface AdminEventOrganizedListProps {
-  events: adminEvent[];
-  onEventClick: (eventId: number) => void;
-}
-
-export const AdminEventOrganizedList = ({ events, onEventClick }: AdminEventOrganizedListProps) => {
+export const AdminEventOrganizedList = ({ events }: { events: adminEvent[] }) => {
   const organizedEvents = organizeAdminEvents(events);
 
   const renderEventTable = (eventList: adminEvent[], title: string, emptyMessage: string) => {
@@ -28,24 +24,22 @@ export const AdminEventOrganizedList = ({ events, onEventClick }: AdminEventOrga
                 <th className="py-3 px-4 text-left">Date</th>
                 <th className="py-3 px-4 text-left">Tickets Available</th>
                 <th className="py-3 px-4 text-left">Tickets Sold</th>
-                <th className="py-3 px-4 text-left">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-800">
               {eventList.map((event) => (
-                <tr key={event.id} className="text-white hover:bg-black/70">
-                  <td className="py-3 px-4">{event.title}</td>
+                <tr key={event.id} className="relative text-white hover:bg-black/70 cursor-pointer">
+                  <td className="py-3 px-4 font-medium">
+                    <Link
+                      href={`/admin/events/${event.id}`}
+                      className="hover:text-gold after:absolute after:inset-0"
+                    >
+                      {event.title}
+                    </Link>
+                  </td>
                   <td className="py-3 px-4">{formatDate(new Date(event.date))}</td>
                   <td className="py-3 px-4">{event.ticketsAvailable}</td>
                   <td className="py-3 px-4">{event.ticketsSold}</td>
-                  <td className="py-3 px-4">
-                    <button 
-                      onClick={() => onEventClick(event.id)} 
-                      className="bg-gold text-black px-3 py-1 rounded hover:bg-white transition-colors"
-                    >
-                      View Details
-                    </button>
-                  </td>
                 </tr>
               ))}
             </tbody>

@@ -10,6 +10,7 @@ import {
   type MarketingPhoto,
   type MarketingSocialLink,
 } from "@/app/services/email/eventMarketingEmailService";
+import { isAdminRequest, unauthorizedAdminResponse } from "../utils/isAdminRequest";
 
 type MarketingEmailAction = "recipientCount" | "preview" | "test" | "send";
 
@@ -76,6 +77,10 @@ function validateRequiredComposeFields(input: MarketingComposeInput): string | n
 }
 
 export async function POST(request: Request) {
+  if (!(await isAdminRequest(request))) {
+    return unauthorizedAdminResponse();
+  }
+
   try {
     const body = (await request.json()) as MarketingEmailRequest;
     const action = body?.action;

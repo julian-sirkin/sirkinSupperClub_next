@@ -4,7 +4,13 @@ import { customersTable } from '@/db/schema';
 import { count } from 'drizzle-orm';
 import { eq } from 'drizzle-orm';
 
-export async function GET() {
+import { isAdminRequest, unauthorizedAdminResponse } from '../utils/isAdminRequest';
+
+export async function GET(request: Request) {
+  if (!(await isAdminRequest(request))) {
+    return unauthorizedAdminResponse();
+  }
+
   try {
     // Count only subscribed customers with valid emails.
     const result = await db

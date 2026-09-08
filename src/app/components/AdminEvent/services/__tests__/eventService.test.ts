@@ -10,6 +10,7 @@ import {
   sendEventMarketingTestEmail,
 } from '../eventService';
 import { getAdminEvent } from '@/app/lib/apiClient';
+import { clearAdminDataCache } from '@/app/admin/adminDataCache';
 
 // Mock the apiClient
 jest.mock('@/app/lib/apiClient', () => ({
@@ -42,6 +43,7 @@ describe('eventService', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
+    clearAdminDataCache();
     (global.fetch as jest.Mock) = jest.fn();
   });
 
@@ -63,6 +65,54 @@ describe('eventService', () => {
       });
 
       expect(getAdminEvent).toHaveBeenCalledWith(1);
+    });
+
+    it('returns cached event data without another network call', async () => {
+      (getAdminEvent as jest.Mock).mockResolvedValue({
+        ok: true,
+        json: () => Promise.resolve(mockEventData)
+      });
+
+      await fetchEventData(1);
+      const result = await fetchEventData(1);
+
+      expect(getAdminEvent).toHaveBeenCalledTimes(1);
+      expect(result.title).toBe('Test Event');
+    });
+
+    it('refetches when force is true', async () => {
+      (getAdminEvent as jest.Mock).mockResolvedValue({
+        ok: true,
+        json: () => Promise.resolve(mockEventData)
+      });
+
+      await fetchEventData(1);
+      await fetchEventData(1, { force: true });
+
+      expect(getAdminEvent).toHaveBeenCalledTimes(2);
+    });
+
+    it('shares one in-flight request for parallel loads of the same event', async () => {
+      let resolveJson: (value: unknown) => void = () => undefined;
+      const jsonPromise = new Promise((resolve) => {
+        resolveJson = resolve;
+      });
+      (getAdminEvent as jest.Mock).mockResolvedValue({
+        ok: true,
+        json: () => jsonPromise
+      });
+
+      const first = fetchEventData(1);
+      const second = fetchEventData(1);
+
+      expect(getAdminEvent).toHaveBeenCalledTimes(1);
+
+      resolveJson(mockEventData);
+      const [firstResult, secondResult] = await Promise.all([first, second]);
+
+      expect(firstResult.title).toBe('Test Event');
+      expect(secondResult.title).toBe('Test Event');
+      expect(getAdminEvent).toHaveBeenCalledTimes(1);
     });
 
     it('should handle API errors', async () => {
