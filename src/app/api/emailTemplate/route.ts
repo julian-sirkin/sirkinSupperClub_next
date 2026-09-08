@@ -19,7 +19,7 @@ const parseEventId = (rawEventId: unknown): number | null => {
 };
 
 export async function GET(request: Request) {
-  if (!isAdminRequest(request)) {
+  if (!(await isAdminRequest(request))) {
     return unauthorized();
   }
 
@@ -33,7 +33,7 @@ export async function GET(request: Request) {
 }
 
 export async function PUT(request: Request) {
-  if (!isAdminRequest(request)) {
+  if (!(await isAdminRequest(request))) {
     return unauthorized();
   }
 
@@ -67,7 +67,7 @@ export async function PUT(request: Request) {
 
 /** Removing a saved template falls the scope back: an event to the default, the default to the copy in code. */
 export async function DELETE(request: Request) {
-  if (!isAdminRequest(request)) {
+  if (!(await isAdminRequest(request))) {
     return unauthorized();
   }
 

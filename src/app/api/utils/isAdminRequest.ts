@@ -1,23 +1,20 @@
+import { getAdminCookieName, verifyAdminSessionToken } from "@/app/lib/adminSession";
 import { parse } from "cookie";
 
 /**
- * Mirrors the cookie check the middleware applies to /admin pages. API routes
- * are not covered by that matcher, so any route that writes guest-facing
- * content has to check for itself.
+ * The single admin gate, shared by the middleware that guards /admin pages and
+ * by API routes, which the middleware matcher does not cover.
  *
- * Fails closed when ADMIN_VERIFIED_COOKIE is unset rather than allowing the
- * write through unauthenticated.
+ * Fails closed: an unsigned, expired, or missing cookie is not an admin.
  */
-export const isAdminRequest = (request: Request): boolean => {
-  const adminCookieName = process.env.ADMIN_VERIFIED_COOKIE;
+export const isAdminRequest = async (request: Request): Promise<boolean> => {
+  const cookieHeader = request.headers.get("cookie");
 
-  if (!adminCookieName) {
-    console.warn("ADMIN_VERIFIED_COOKIE is not set, refusing the admin request");
+  if (!cookieHeader) {
     return false;
   }
 
-  const cookieHeader = request.headers.get("cookie");
-  const cookies = cookieHeader ? parse(cookieHeader) : {};
+  const cookies = parse(cookieHeader);
 
-  return cookies[adminCookieName] === "true";
+  return verifyAdminSessionToken(cookies[getAdminCookieName()]);
 };
