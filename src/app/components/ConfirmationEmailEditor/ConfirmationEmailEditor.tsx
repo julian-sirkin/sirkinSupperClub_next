@@ -27,8 +27,8 @@ export const ConfirmationEmailEditor = ({
 
   const sampleOrder = useMemo(() => buildSampleOrderPreview(), []);
 
-  const previewHtml = useMemo(
-    () => renderOrderConfirmationEmail({ template, context: sampleOrder }).html,
+  const preview = useMemo(
+    () => renderOrderConfirmationEmail({ template, context: sampleOrder }),
     [template, sampleOrder]
   );
 
@@ -58,7 +58,8 @@ export const ConfirmationEmailEditor = ({
       template={template}
       source={source}
       unknownTokens={unknownTokens}
-      previewHtml={previewHtml}
+      previewSubject={preview.subject}
+      previewHtml={preview.html}
       isSaving={isSaving}
       canClearSavedTemplate={isEventScoped ? source === "event" : source === "global"}
       clearSavedTemplateLabel={

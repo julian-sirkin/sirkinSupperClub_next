@@ -26,6 +26,7 @@ type ConfirmationEmailEditorUIProps = {
   template: OrderConfirmationTemplate;
   source: EmailTemplateSource;
   unknownTokens: string[];
+  previewSubject: string;
   previewHtml: string;
   isSaving: boolean;
   canClearSavedTemplate: boolean;
@@ -42,6 +43,7 @@ export const ConfirmationEmailEditorUI = ({
   template,
   source,
   unknownTokens,
+  previewSubject,
   previewHtml,
   isSaving,
   canClearSavedTemplate,
@@ -103,6 +105,10 @@ export const ConfirmationEmailEditorUI = ({
         <p className="text-gray-400 text-sm">
           Filled in with a sample order so you can see what a guest receives.
         </p>
+        <div className="bg-black p-3 rounded border border-gold/30">
+          <span className="text-gold font-semibold">Subject: </span>
+          <span className="text-white">{previewSubject}</span>
+        </div>
         <div className="max-h-[60vh] overflow-y-auto rounded border border-gold/30">
           <div dangerouslySetInnerHTML={{ __html: previewHtml }} />
         </div>
