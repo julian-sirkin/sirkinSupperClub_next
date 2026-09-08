@@ -1,30 +1,43 @@
 'use client'
 import { TicketWithPurchases } from '@/app/api/api.types'
+import { getCachedEvent } from '@/app/admin/adminDataCache'
 import { useState, useEffect, useCallback } from 'react'
 import { toast } from 'react-toastify'
 import { AdminEventUI } from './AdminEventUI'
-import { fetchEventData, sendEventEmail } from './services/eventService'
+import { EventData, fetchEventData, sendEventEmail } from './services/eventService'
+
+function applyCachedEvent(cached: EventData | undefined) {
+    return {
+        tickets: cached?.tickets ?? [],
+        title: cached?.title ?? 'Event Details',
+        date: cached?.date ?? null,
+        recipientEmails: cached?.recipientEmails ?? [],
+    }
+}
 
 export const AdminEvent = ({
     eventId, 
 }: {
     eventId: number, 
 }) => {
-    const [eventData, setEventData] = useState<TicketWithPurchases[]>([])
-    const [eventTitle, setEventTitle] = useState<string>("Event Details")
-    const [eventDate, setEventDate] = useState<number | null>(null)
-    const [isLoading, setIsLoading] = useState<boolean>(true)
+    const initial = applyCachedEvent(getCachedEvent(eventId))
+    const [eventData, setEventData] = useState<TicketWithPurchases[]>(initial.tickets)
+    const [eventTitle, setEventTitle] = useState<string>(initial.title)
+    const [eventDate, setEventDate] = useState<number | null>(initial.date)
+    const [isLoading, setIsLoading] = useState<boolean>(() => !getCachedEvent(eventId))
     const [error, setError] = useState<string | null>(null)
     const [showEmailComposer, setShowEmailComposer] = useState(false)
     const [showMarketingComposer, setShowMarketingComposer] = useState(false)
-    const [recipientEmails, setRecipientEmails] = useState<string[]>([])
+    const [recipientEmails, setRecipientEmails] = useState<string[]>(initial.recipientEmails)
 
-    const loadEventData = useCallback(async () => {
-        setIsLoading(true)
+    const loadEventData = useCallback(async (force = false) => {
+        if (force || !getCachedEvent(eventId)) {
+            setIsLoading(true)
+        }
         setError(null)
         
         try {
-            const data = await fetchEventData(eventId);
+            const data = await fetchEventData(eventId, { force });
             setEventData(data.tickets)
             setEventTitle(data.title)
             setEventDate(data.date)
@@ -50,7 +63,7 @@ export const AdminEvent = ({
         })
         
         setTimeout(() => {
-            loadEventData();
+            loadEventData(true);
         }, 1000)
     }
 

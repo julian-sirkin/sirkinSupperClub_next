@@ -1,12 +1,8 @@
-import { EventRunOfShowUI } from '../../../../components/EventRunOfShow/EventRunOfShowUI';
+import { EventRunOfShowPage } from '../../../../components/EventRunOfShow/EventRunOfShow';
 import { parseAdminRecordId } from '../../../../components/AdminLayout/adminView';
-import { buildEventRunOfShow } from '../../../../helpers/buildEventRunOfShow';
-import { getEventTicketsWithPurchases } from '../../../../api/queries/select';
 import { notFound } from 'next/navigation';
 
-export const dynamic = 'force-dynamic';
-
-const AdminEventRunOfShowPage = async ({
+const AdminEventRunOfShowPage = ({
   params,
 }: {
   params: { eventId: string };
@@ -17,19 +13,7 @@ const AdminEventRunOfShowPage = async ({
     notFound();
   }
 
-  const event = await getEventTicketsWithPurchases(eventId);
-
-  if (!event || event.title === "Error loading event") {
-    notFound();
-  }
-
-  const runOfShow = buildEventRunOfShow({
-    title: event.title,
-    date: event.date,
-    tickets: event.tickets,
-  });
-
-  return <EventRunOfShowUI eventId={eventId} runOfShow={runOfShow} />;
+  return <EventRunOfShowPage eventId={eventId} />;
 };
 
 export default AdminEventRunOfShowPage;

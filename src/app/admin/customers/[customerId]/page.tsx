@@ -9,7 +9,7 @@ const AdminCustomerPage = ({ params }: { params: { customerId: string } }) => {
     notFound();
   }
 
-  return <CustomerDetail customerId={customerId} />;
+  return <CustomerDetail key={customerId} customerId={customerId} />;
 };
 
 export default AdminCustomerPage;

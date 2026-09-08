@@ -11,7 +11,7 @@ const AdminEventPage = ({ params }: { params: { eventId: string } }) => {
     notFound();
   }
 
-  return <AdminEvent eventId={eventId} />;
+  return <AdminEvent key={eventId} eventId={eventId} />;
 };
 
 export default AdminEventPage;

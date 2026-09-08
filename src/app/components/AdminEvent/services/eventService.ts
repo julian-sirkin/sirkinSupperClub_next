@@ -1,4 +1,5 @@
 import { TicketWithPurchases } from '@/app/api/api.types';
+import { getCachedEvent, setCachedEvent } from '@/app/admin/adminDataCache';
 import { getAdminEvent } from '@/app/lib/apiClient';
 
 export interface EventData {
@@ -39,7 +40,9 @@ export type MarketingEmailPayload = {
   audience?: MarketingAudience;
 };
 
-export async function fetchEventData(eventId: number): Promise<EventData> {
+const eventFetchesInFlight = new Map<number, Promise<EventData>>();
+
+async function loadEventDataFromApi(eventId: number): Promise<EventData> {
   const fetchedEventData = await getAdminEvent(eventId);
   const decodedEventData = await fetchedEventData.json();
 
@@ -47,7 +50,6 @@ export async function fetchEventData(eventId: number): Promise<EventData> {
     throw new Error(decodedEventData.message || "Failed to load event data");
   }
 
-  // Extract unique emails from all tickets and their purchases
   const uniqueEmails = new Set<string>();
   decodedEventData.data.tickets.forEach((ticket: TicketWithPurchases) => {
     ticket.purchases.forEach(purchase => {
@@ -57,12 +59,43 @@ export async function fetchEventData(eventId: number): Promise<EventData> {
     });
   });
 
-  return {
+  const result: EventData = {
     tickets: decodedEventData.data.tickets || [],
     title: decodedEventData.data.title || "Event Details",
     date: decodedEventData.data.date || null,
     recipientEmails: Array.from(uniqueEmails)
   };
+
+  setCachedEvent(eventId, result);
+  return result;
+}
+
+export async function fetchEventData(
+  eventId: number,
+  options?: { force?: boolean }
+): Promise<EventData> {
+  if (!options?.force) {
+    const cached = getCachedEvent(eventId);
+    if (cached) {
+      return cached;
+    }
+
+    const pending = eventFetchesInFlight.get(eventId);
+    if (pending) {
+      return pending;
+    }
+  }
+
+  const request = loadEventDataFromApi(eventId);
+  eventFetchesInFlight.set(eventId, request);
+
+  try {
+    return await request;
+  } finally {
+    if (eventFetchesInFlight.get(eventId) === request) {
+      eventFetchesInFlight.delete(eventId);
+    }
+  }
 }
 
 export async function sendEventEmail(recipientEmails: string[], subject: string, content: string): Promise<void> {

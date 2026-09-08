@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { formatDate } from '@/app/utils/formatDate'
 import { getCustomerDetails } from '@/app/lib/apiClient'
+import { getCachedCustomerDetails, setCachedCustomerDetails } from '@/app/admin/adminDataCache'
 
 type CustomerPurchase = {
     purchaseId: number
@@ -30,11 +31,21 @@ export const CustomerDetail = ({
 }: { 
     customerId: number, 
 }) => {
-    const [customer, setCustomer] = useState<CustomerDetails | null>(null)
-    const [isLoading, setIsLoading] = useState(true)
+    const [customer, setCustomer] = useState<CustomerDetails | null>(
+        () => getCachedCustomerDetails<CustomerDetails>(customerId) ?? null
+    )
+    const [isLoading, setIsLoading] = useState(() => !getCachedCustomerDetails(customerId))
     const [error, setError] = useState<string | null>(null)
 
     useEffect(() => {
+        const cached = getCachedCustomerDetails<CustomerDetails>(customerId)
+        if (cached) {
+            setCustomer(cached)
+            setIsLoading(false)
+            setError(null)
+            return
+        }
+
         const fetchCustomerDetails = async () => {
             setIsLoading(true)
             setError(null)
@@ -45,7 +56,11 @@ export const CustomerDetail = ({
                 const data = await response.json()
                 
                 if (response.ok) {
-                    setCustomer(data.customer || null)
+                    const nextCustomer = data.customer || null
+                    if (nextCustomer) {
+                        setCachedCustomerDetails(customerId, nextCustomer)
+                    }
+                    setCustomer(nextCustomer)
                 } else {
                     const errorMsg = data.message || 'Failed to load customer details'
                     setError(errorMsg)

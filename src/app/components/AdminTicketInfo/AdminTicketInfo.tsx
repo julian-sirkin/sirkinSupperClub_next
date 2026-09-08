@@ -2,6 +2,7 @@ import { TicketWithPurchases, RefundToastFunction } from '@/types';
 import { AdminRefundForm } from "../AdminRefundForm/AdminRefundForm"
 import { PaymentStatusToggle } from "../PaymentStatusToggle/PaymentStatusToggle"
 import { formatDate } from "@/app/utils/formatDate"
+import { invalidateCustomerCaches, invalidateEventCacheByPurchaseId, patchCachedPurchasePaid } from "@/app/admin/adminDataCache"
 import Link from "next/link"
 import { useState } from "react"
 import { FiChevronDown, FiChevronUp } from 'react-icons/fi'
@@ -29,6 +30,7 @@ export const AdminTicketInfo = ({
                     : purchase
             )
         )
+        patchCachedPurchasePaid(purchaseId, newStatus)
     }
     
     const handleRefund = (message: string, refundedQuantity?: number) => {
@@ -76,6 +78,8 @@ export const AdminTicketInfo = ({
                 })
                 .filter(purchase => purchase.quantity > 0);
         });
+        invalidateEventCacheByPurchaseId(payload.purchaseId);
+        invalidateCustomerCaches();
     };
     
     const toggleOrderDetails = (purchaseId: number) => {
