@@ -1,6 +1,13 @@
 import { ParsedEvent } from "../networkCalls/contentful/contentfulServices.types";
 
+/** An event with no date stays upcoming so it is not hidden or skipped by accident. */
+export const isEventInThePast = (date: Date | string | null | undefined) => {
+    if (!date) {
+        return false;
+    }
 
+    return new Date(date).getTime() < Date.now();
+};
 
 export const sortEventsByTime = (parsedEvents: ParsedEvent[]) => {
     const upcomingEvents: ParsedEvent[] = []
@@ -11,7 +18,7 @@ export const sortEventsByTime = (parsedEvents: ParsedEvent[]) => {
     }
 
     parsedEvents.forEach((event) => {
-        if (event?.date && event?.date < new Date()) {
+        if (isEventInThePast(event?.date)) {
           pastEvents.push(event);
         } else {
           upcomingEvents.push(event);

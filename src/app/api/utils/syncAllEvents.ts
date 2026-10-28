@@ -1,4 +1,5 @@
 import { contentfulService } from "@/app/networkCalls/contentful/contentfulService";
+import { sortEventsByTime } from "@/app/helpers/sortEventsByTime";
 import { addNewEvent } from "./dbOperations/addNewEvent";
 import { updateExistingEvent } from "./dbOperations/updateExistingEvent";
 import { findEventByContentfulId } from "@/app/api/queries/select";
@@ -8,6 +9,11 @@ export const syncAllEvents = async () => {
   try {
     const contentful = contentfulService();
     const contentfulEvents = await contentful.getEventsWithoutDB();
+    const { upcomingEvents, pastEvents } = sortEventsByTime(contentfulEvents);
+
+    console.log(
+      `Syncing ${upcomingEvents.length} upcoming events, skipping ${pastEvents.length} past events`
+    );
 
     const syncResults = {
       eventsCreated: 0,
@@ -17,7 +23,7 @@ export const syncAllEvents = async () => {
       errors: [] as string[],
     };
 
-    for (const event of contentfulEvents) {
+    for (const event of upcomingEvents) {
       try {
         const existingEvents = await findEventByContentfulId(event.contentfulEventId);
         let eventId: number;

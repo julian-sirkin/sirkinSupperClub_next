@@ -1,4 +1,5 @@
 "use client";
+import { isEventInThePast } from "@/app/helpers/sortEventsByTime";
 import { ParsedEvent } from "@/app/networkCalls/contentful/contentfulServices.types";
 import Link from "next/link";
 
@@ -14,8 +15,7 @@ export const EventTeaserCard = ({
     day: "numeric",
   });
 
-  // Check if the event is in the past
-  const isPastEvent = new Date(event.date) < new Date();
+  const isPastEvent = isEventInThePast(event.date);
 
   const numberOfSeatsAvailable = event.tickets.reduce(
     (availableSeats, currentTicket) => {
@@ -75,19 +75,20 @@ export const EventTeaserCard = ({
             {eventDate}
           </p>
         </div>
-        <div className="contents">
-          <span className="text-gold text-lg md:text-xl font-bold whitespace-nowrap">
-            Price:
-          </span>
-          <p
-            className={`${
-              isFeaturedEvent ? "md:text-2xl md:mb-8" : ""
-            } text-xl  mb-4  -indent-[1ch] pl-[1ch]`}
-          >
-            {event.price > 0 ? `$${event.price}.00` : "Free"}
-          </p>
-        </div>
-        {/* Conditionally render available seats */}
+        {!isPastEvent && (
+          <div className="contents">
+            <span className="text-gold text-lg md:text-xl font-bold whitespace-nowrap">
+              Price:
+            </span>
+            <p
+              className={`${
+                isFeaturedEvent ? "md:text-2xl md:mb-8" : ""
+              } text-xl  mb-4  -indent-[1ch] pl-[1ch]`}
+            >
+              {event.price > 0 ? `$${event.price}.00` : "Free"}
+            </p>
+          </div>
+        )}
         {!isPastEvent && (
           <div className="contents">
             <span className="text-gold text-lg md:text-xl font-bold whitespace-nowrap">

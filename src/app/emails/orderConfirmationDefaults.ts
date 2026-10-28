@@ -1,3 +1,5 @@
+import { ZELLE_PHONE } from "@/app/constants";
+
 export const ORDER_CONFIRMATION_TEMPLATE_KEY = "order_confirmation";
 
 export const DEFAULT_ORDER_CONFIRMATION_SUBJECT =
@@ -18,7 +20,7 @@ export const DEFAULT_ORDER_CONFIRMATION_BODY = `<h2>You're in, {{customerName}}<
 <li><strong>Date:</strong> {{eventDate}}</li>
 <li><strong>Arrival:</strong> Your ticket is for the {{seatingTimes}} seating, so please plan to arrive at that time. I turn the table as a group, so a late start can mean other guests are impacted.</li>
 <li><strong>Location:</strong> I'll email you the address the day before the event.</li>
-<li><strong>Payment:</strong> If you haven't already, please send payment via Venmo to {{venmoLink}}. Your total is {{orderTotal}}.</li>
+<li><strong>Payment:</strong> If you haven't already, please send payment via Venmo to {{venmoLink}}, or Zelle me at ${ZELLE_PHONE}. Your total is {{orderTotal}}. If you Zelle, please email {{contactEmail}} or text ${ZELLE_PHONE} so I can match the name on the payment with the name on your reservation.</li>
 <li><strong>Tipping:</strong> Purely optional, always appreciated.</li>
 </ul>
 <h2>What to bring</h2>

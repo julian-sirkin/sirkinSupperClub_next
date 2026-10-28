@@ -1,4 +1,5 @@
 "use client";
+import { isEventInThePast } from "@/app/helpers/sortEventsByTime";
 import { ParsedEvent } from "@/app/networkCalls/contentful/contentfulServices.types";
 import { Ticket } from "../Ticket/Ticket";
 import { motion } from "framer-motion";
@@ -13,8 +14,7 @@ export const TicketsSection = ({ event }: { event: ParsedEvent }) => {
   // Check if there are any tickets in the cart (regardless of price)
   const hasItemsInCart = cart.tickets.length > 0;
 
-  // Check if the event is in the past
-  const isPastEvent = new Date(event.date) < new Date();
+  const isPastEvent = isEventInThePast(event.date);
   const presaleIsActive = isPresaleActive({
     presaleEnabled: event.presaleEnabled,
     presaleEndsAt: event.presaleEndsAt,
