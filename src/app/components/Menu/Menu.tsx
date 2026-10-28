@@ -8,10 +8,12 @@ export const Menu = ({
   menu,
   price,
   tickets,
+  showPricing = true,
 }: {
   menu: Document;
   price: number;
   tickets: ParsedTicket[];
+  showPricing?: boolean;
 }) => {
   const uniqueAddonLabels = Array.from(
     new Set(
@@ -33,25 +35,27 @@ export const Menu = ({
       <div className="menu-content max-w-2xl mx-auto">
         {documentToReactComponents(menu, MENU_RICH_TEXT_OPTIONS)}
       </div>
-      <div className="mt-12 border-t-2 border-gold pt-6 max-w-2xl mx-auto">
-        <p className="text-right text-xl md:text-2xl font-bold">${price} per person</p>
-        {uniqueAddonLabels.length > 0 && (
-          <p className="text-right text-sm md:text-base mt-2">
-            Addon options: {uniqueAddonLabels.join(", ")}
-          </p>
-        )}
-        <motion.p 
-          whileHover={{ scale: 1.05 }}
-          className="mt-4 text-right"
-        >
-          <a
-            href="#tickets"
-            className="inline-block bg-gold text-black px-4 py-2 rounded font-bold hover:bg-white transition-colors"
+      {showPricing ? (
+        <div className="mt-12 border-t-2 border-gold pt-6 max-w-2xl mx-auto">
+          <p className="text-right text-xl md:text-2xl font-bold">${price} per person</p>
+          {uniqueAddonLabels.length > 0 && (
+            <p className="text-right text-sm md:text-base mt-2">
+              Addon options: {uniqueAddonLabels.join(", ")}
+            </p>
+          )}
+          <motion.p
+            whileHover={{ scale: 1.05 }}
+            className="mt-4 text-right"
           >
-            View Tickets
-          </a>
-        </motion.p>
-      </div>
+            <a
+              href="#tickets"
+              className="inline-block bg-gold text-black px-4 py-2 rounded font-bold hover:bg-white transition-colors"
+            >
+              View Tickets
+            </a>
+          </motion.p>
+        </div>
+      ) : null}
     </motion.section>
   );
 };

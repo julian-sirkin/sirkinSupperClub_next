@@ -1,4 +1,5 @@
 import { MainLayout } from "@/app/components/mainLayout/MainLayout";
+import { isEventInThePast } from "@/app/helpers/sortEventsByTime";
 import { contentfulService } from "@/app/networkCalls/contentful/contentfulService";
 import { headers } from "next/headers";
 import { eventPageLinks } from "./EventPage.constants";
@@ -58,8 +59,12 @@ export default async function EventPage() {
     eventOnPage = eventData.find(event => event.title === eventTitleInURL) || null;
   }
   
+  const navLinks = isEventInThePast(eventOnPage?.date)
+    ? eventPageLinks.filter((link) => link.href !== "#tickets")
+    : eventPageLinks;
+
   return (
-    <MainLayout navLinks={eventPageLinks}>
+    <MainLayout navLinks={navLinks}>
       <Suspense fallback={<SuspenseFallback />}>
         <AnimatedEventPage 
           eventOnPage={eventOnPage} 

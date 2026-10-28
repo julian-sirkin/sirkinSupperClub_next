@@ -73,11 +73,13 @@ describe("renderOrderConfirmationEmail", () => {
     expect(html).toContain("Saturday, March 14, 2026");
   });
 
-  it("keeps the Venmo and contact links", () => {
+  it("keeps the Venmo and contact links and the Zelle number", () => {
     const { html } = renderWithDefaults();
 
     expect(html).toContain("https://venmo.com/julian-sirkin");
     expect(html).toContain("mailto:sirkinsupperclub@gmail.com");
+    expect(html).toContain("Zelle me at (781)-974-2970");
+    expect(html).toContain("match the name on the payment with the name on your reservation");
   });
 
   it("resolves tokens in the subject line", () => {
