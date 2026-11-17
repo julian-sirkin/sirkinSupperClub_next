@@ -1,6 +1,6 @@
 'use client'
 import { TicketWithPurchases } from '@/app/api/api.types'
-import { getCachedEvent } from '@/app/admin/adminDataCache'
+import { getCachedEvent, invalidateCustomerCaches } from '@/app/admin/adminDataCache'
 import { useState, useEffect, useCallback } from 'react'
 import { toast } from 'react-toastify'
 import { AdminEventUI } from './AdminEventUI'
@@ -67,6 +67,12 @@ export const AdminEvent = ({
         }, 1000)
     }
 
+    const handleGuestMoved = (message: string) => {
+        toast.success(message, { autoClose: 3000 })
+        invalidateCustomerCaches()
+        loadEventData(true)
+    }
+
     const handleSendEmail = async (subject: string, content: string) => {
         try {
             await sendEventEmail(recipientEmails, subject, content);
@@ -90,6 +96,7 @@ export const AdminEvent = ({
             onToggleEmailComposer={() => setShowEmailComposer(!showEmailComposer)}
             onToggleMarketingComposer={() => setShowMarketingComposer(!showMarketingComposer)}
             onRefund={handleRefund}
+            onGuestMoved={handleGuestMoved}
             onSendEmail={handleSendEmail}
             onRetry={() => window.location.reload()}
         />

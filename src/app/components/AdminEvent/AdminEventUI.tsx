@@ -21,6 +21,7 @@ interface AdminEventUIProps {
   onToggleEmailComposer: () => void;
   onToggleMarketingComposer: () => void;
   onRefund: (message: string) => void;
+  onGuestMoved: (message: string) => void;
   onSendEmail: (subject: string, content: string) => Promise<void>;
   onRetry: () => void;
 }
@@ -41,6 +42,7 @@ export function AdminEventUI({
   onToggleEmailComposer,
   onToggleMarketingComposer,
   onRefund,
+  onGuestMoved,
   onSendEmail,
   onRetry
 }: AdminEventUIProps) {
@@ -105,6 +107,7 @@ export function AdminEventUI({
       <EventTicketsList
         tickets={eventData}
         onRefund={onRefund}
+        onGuestMoved={onGuestMoved}
       />
     </div>
   );

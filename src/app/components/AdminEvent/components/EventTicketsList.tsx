@@ -6,11 +6,13 @@ import { AdminTicketInfo } from '../../AdminTicketInfo/AdminTicketInfo';
 interface EventTicketsListProps {
   tickets: TicketWithPurchases[];
   onRefund: (message: string) => void;
+  onGuestMoved: (message: string) => void;
 }
 
 export function EventTicketsList({
   tickets,
-  onRefund
+  onRefund,
+  onGuestMoved
 }: EventTicketsListProps) {
   if (tickets.length === 0) {
     return (
@@ -27,6 +29,8 @@ export function EventTicketsList({
           key={ticket.ticketId} 
           ticket={ticket} 
           setRefundToast={onRefund}
+          eventSlots={tickets}
+          onGuestMoved={onGuestMoved}
         />
       ))}
     </div>

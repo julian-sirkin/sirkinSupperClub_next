@@ -1,6 +1,8 @@
 import { TicketWithPurchases, RefundToastFunction } from '@/types';
 import { AdminRefundForm } from "../AdminRefundForm/AdminRefundForm"
 import { PaymentStatusToggle } from "../PaymentStatusToggle/PaymentStatusToggle"
+import { MoveGuestControl } from "../MoveGuestControl/MoveGuestControl"
+import { MoveSlotSource } from "@/app/utils/buildMoveOptions"
 import { formatDate } from "@/app/utils/formatDate"
 import { invalidateCustomerCaches, invalidateEventCacheByPurchaseId, patchCachedPurchasePaid } from "@/app/admin/adminDataCache"
 import Link from "next/link"
@@ -11,10 +13,14 @@ export const AdminTicketInfo = ({
     ticket: initialTicket, 
     setRefundToast, 
     ticketName = "",
+    eventSlots,
+    onGuestMoved,
 }: {
     ticket: TicketWithPurchases, 
     setRefundToast: RefundToastFunction,
     ticketName?: string,
+    eventSlots?: MoveSlotSource[],
+    onGuestMoved?: (message: string) => void,
 }) => {
     const [ticket, setTicket] = useState(initialTicket);
     const ticketDate = new Date(ticket.ticketTime)
@@ -155,6 +161,16 @@ export const AdminTicketInfo = ({
                                     />
                                 </div>
                             </div>
+
+                            {eventSlots && onGuestMoved && order.purchaseItemsId && (
+                                <MoveGuestControl
+                                    purchaseItemId={order.purchaseItemsId}
+                                    currentTicketId={ticket.ticketId}
+                                    partySize={order.quantity}
+                                    slots={eventSlots}
+                                    onMoved={onGuestMoved}
+                                />
+                            )}
                             
                             {expandedOrders[order.purchaseId] && (
                                 <div className="bg-gray-900 p-3 rounded mt-2 space-y-3">
