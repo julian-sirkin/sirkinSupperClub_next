@@ -21,6 +21,15 @@ export const updatePaymentStatus = async (purchaseId: number, paid: boolean) => 
     return res; // Caller handles response
 };
 
+export const moveGuest = async (purchaseItemId: number, targetTicketId: number) => {
+    const res = await fetch('/api/moveGuest', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ purchaseItemId, targetTicketId }),
+    });
+    return res; // Caller handles response
+};
+
 export const claimTickets = async (data: any) => { // Use a more specific type if available
     const res = await fetch('/api/claimTickets', {
         method: 'POST',
